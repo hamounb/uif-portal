@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 def documents_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f"{instance.customer.company}/{filename}"
+    return f"{instance.customer.brand}/{filename}"
     # "{0}/{1}".format(instance.user.id, filename)
 
 
@@ -195,11 +195,10 @@ class InvoiceModel(BaseModel):
 
 class InvoiceItemModel(BaseModel):
     is_active = models.BooleanField(verbose_name="فعال", default=True)
-    is_paid = models.BooleanField(verbose_name="پرداخت شده", default=False)
     invoice = models.ForeignKey(InvoiceModel, on_delete=models.SET_NULL, verbose_name="فاکتور", null=True, blank=True)
     booth_number = models.CharField(verbose_name="شماره غرفه", max_length=100, null=True, blank=True)
     price = models.CharField(verbose_name="مبلغ", max_length=20)
-    area = models.CharField(verbose_name="متراژ", default="0")
+    area = models.CharField(verbose_name="متراژ(مترمربع)", max_length=9, default="0")
     value_added = models.CharField(verbose_name="ارزش افزوده", max_length=10, default="0")
     discount = models.CharField(verbose_name="تخفیف(درصد)", max_length=20, null=True, blank=True)
     total_price = models.CharField(verbose_name="مبلغ نهایی", max_length=20)
@@ -300,7 +299,7 @@ class DepositPaymentModel(BaseModel):
     deposit = models.ForeignKey(DepositModel, on_delete=models.PROTECT, max_length="بیعانه")
     date = models.DateField(verbose_name="تاریخ رسید")
     tracenumber = models.CharField(verbose_name="شماره پیگیری", max_length=150, null=True, blank=True)
-    amount = models.CharField(verbose_name="مبلغ", default="0")
+    amount = models.CharField(verbose_name="مبلغ", max_length=12, default="0")
 
     def __str__(self):
         return f"{self.tracenumber} - شماره سند: {self.deposit.invoice_number}"
