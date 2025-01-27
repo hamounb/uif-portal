@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% load jalali_tags %}
+{% load static %}
+
+{% block title %}
+فاکتور شماره {{ invoice.pk }}
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>فاکتور شماره {{ invoice.pk }}</h2>
+                        <p>برای صدور فاکتور رسمی باید فاکتورها تسویه شده باشند.</p>
+                        <p class="text-danger">توجه! فاکتور غیر فعال فقط با اجازه مدیر سیستم قابلیت فعال شدن را دارد.</p>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                    <div role="alert" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                        <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="printableArea" class="row">
+                            <div class="col-lg-12">
+                                <div class="row mb-1" style="border:2px solid black">
+                                    <div class="col-sm-4 py-3">
+                                        شماره فاکتور: {{ invoice.pk }}
+                                    </div>
+                                    <div class="col-sm-4 py-3 text-center">
+                                        <img src="{% static 'images/logo.png' %}" style="max-width:40%">
+                                    </div>
+                                    <div class="col-sm-4 py-3 text-right">
+                                        تاریخ: {{ invoice.created_date|to_jalali:"%Y/%m/%d "}}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="row mb-1" style="border:2px solid black; line-height:4em">
+                                            <div class="col-sm-6">
+                                                <b>طرف حساب: </b>{{ invoice.customer.firstname }} {{ invoice.customer.lastname }} ({{ invoice.customer.company }})
+                                            </div>
+                                            <div class="col-sm-6 text-right">
+                                                <b>کدملی/شناسه‌ملی: </b>
+                                                {% if invoice.customer.state == "legal" %}
+                                                {{ invoice.customer.ncode }}
+                                                {% else %}
+                                                {{ invoice.customer.code }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="table-responsive">
+                                                <table class="text-center" style="width:100%; line-height:4em;">
+                                                    <thead>
+                                                        {% comment %} <tr style="border:2px solid black">
+                                                            <th></th>
+                                                            <th>مشارکت کننده: {{ invoice.customer.company }}</th>
+                                                            <th></th>
+                                                            <th></th>
+                                                            <th></th>
+                                                        </tr> {% endcomment %}
+                                                        <tr>
+                                                            <th style="border:2px solid black">ردیف</th>
+                                                            <th style="border:2px solid black">شرح خدمات</th>
+                                                            <th style="border:2px solid black">متراژ</th>
+                                                            <th style="border:2px solid black">قیمت واحد (ریال)</th>
+                                                            <th style="border:2px solid black">ارزش افزوده (درصد)</th>
+                                                            <th style="border:2px solid black">تخفیف (درصد)</th>
+                                                            <th style="border:2px solid black">جمع کل (ریال)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody style="border-left:2px solid black; border-right:2px solid black; border-bottom:2px solid black">
+                                                        {% for item in invoice.invoiceitemmodel_set.all %}
+                                                        <tr style="border-bottom:1px solid gray">
+                                                            <td style="border-left:2px solid black">1</td>
+                                                            <td style="border-left:2px solid black">{{ item.exhibition.title }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.area }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.price }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.discount }}</td>
+                                                            <td style="border-left:2px solid black">{{ item.value_added }}</td>
+                                                            <td>{{ item.total_price }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td style="border-right:2px solid black; border-bottom:2px solid black"></td>
+                                                            <td style="border-bottom:2px solid black"></td>
+                                                            <td style="border-bottom:2px solid black"></td>
+                                                            <td style="border-bottom:2px solid black"></td>
+                                                            <td style="border-bottom:2px solid black"></td>
+                                                            <td class="text-center" style="border-bottom:2px solid black;border-left:2px solid black;line-height: 2.5em;">جمع کل:</td>
+                                                            <td style="border-bottom:2px solid black; border-left:2px solid black;line-height: 2.5em;">{{ invoice.amount }} ریال</td>
+                                                        </tr>
+                                                    </tfood>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-1" style="line-height:8em; border:2px solid black">
+                                            <div class="col-sm-6">
+                                                {% if invoice.state == "paid" %}
+                                                <i class="fa fa-check-circle"> پرداخت شده</i>
+                                                {% elif invoice.state == "unpaid" %}
+                                                <i class="fa fa-times-circle"> پرداخت نشده</i>
+                                                {% else %}
+                                                <i class="fa fa-plus-circle"> پیش پرداخت</i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-sm-6">
+                                                امضاء/مهر فروشنده:
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input class="btn mt-5" type="button" onclick="printDiv('printableArea')" value="چاپ" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+<script>
+function printDiv(divId) {
+    var printContents = document.getElementById(divId).innerHTML;
+    var originalContents = document.body.innerHTML;
+
+    document.body.innerHTML = printContents;
+
+    window.print();
+
+    document.body.innerHTML = originalContents;
+}
+</script>
+{% endblock script %}

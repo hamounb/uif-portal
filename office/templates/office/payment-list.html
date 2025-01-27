@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}
+لیست رسیدهای پرداخت
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body" data-bg-image="{% static 'images/payment-list.png' %}">
+                        <h2>لیست رسیدهای پرداخت</h2>
+                        <p>لطفاً از صحیح و بروز بودن اطلاعات مشارکت کنندگان اطمینان حاصل فرمایید!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-lg-12">
+                                <div class="row">
+                                    <div class="form-group col-lg-3">
+                                        <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="table-responsive" style="height:500px;overflow:auto;">
+                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>نوع رسید</th>
+                                                <th>شماره فاکتور</th>
+                                                <th>نام تجاری</th>
+                                                <th>مبلغ</th>
+                                                <th>ش.پ/ش.چ</th>
+                                                <th>وضعیت</th>
+                                                <th>تاریخ</th>
+                                                <th>تاریخ ایجاد</th>
+                                                <th>اقدامات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for payment in payments %}
+                                            {% if payment.state == "pos" %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td class="text-info">{{ payment.get_state_display }}</td>
+                                                <td>
+                                                    {{ payment.invoice.pk }}
+                                                </td>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %} - {{ payment.invoice.customer.firstname }} {{ payment.invoice.customer.lastname }}">
+                                                    <b>{{ payment.invoice.customer.company }}</b>
+                                                </td>
+                                                <td class="text-info">{{ payment.amount|intcomma:False }}</td>
+                                                <td class="text-primary">
+                                                    {% if payment.tracenumber %}{{ payment.tracenumber }}{% else %}-{% endif %}
+                                                </td>
+                                                <td style="color:#665191">
+                                                    {% if payment.respmsg %}{{ payment.respmsg }}{% else %}-{% endif %}
+                                                </td>
+                                                <td class="text-primary">{{ payment.datepaid }}</td>
+                                                <td style="color:#003f5c">{{ payment.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                <td><a class="btn btn-sm" href="{% url 'staff:payment-edit' id=payment.pk %}">ویرایش</a></td>
+                                            </tr>
+                                            {% elif payment.state == "check" %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td class="text-info">{{ payment.get_state_display }}</td>
+                                                <td>
+                                                    {{ payment.invoice.pk }}
+                                                </td>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %} - {{ payment.invoice.customer.firstname }} {{ payment.invoice.customer.lastname }}">
+                                                    <b>{{ payment.invoice.customer.company }}</b>
+                                                </td>
+                                                <td class="text-info">{{ payment.amount|intcomma:False }}</td>
+                                                <td class="text-primary">
+                                                    {{ payment.cardnumber }}
+                                                </td>
+                                                <td style="color:#665191">
+                                                    -
+                                                </td>
+                                                <td class="text-primary">{{ payment.datepaid }}</td>
+                                                <td style="color:#003f5c">{{ payment.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                <td><a class="btn btn-sm" href="{% url 'staff:payment-edit' id=payment.pk %}">ویرایش</a></td>
+                                            </tr>
+                                            {% else %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td class="text-info">{{ payment.get_state_display }}</td>
+                                                <td>
+                                                    {{ payment.invoice.pk }}
+                                                </td>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %} - {{ payment.invoice.customer.firstname }} {{ payment.invoice.customer.lastname }}">
+                                                    <b>{{ payment.invoice.customer.company }}</b>
+                                                </td>
+                                                <td class="text-info">{{ payment.amount|intcomma:False }}</td>
+                                                <td class="text-primary">
+                                                    -
+                                                </td>
+                                                <td style="color:#665191">
+                                                    -
+                                                </td>
+                                                <td class="text-primary">{% if payment.datepaid %}{{ payment.datepaid }}{% else %}-{% endif %}</td>
+                                                <td style="color:#003f5c">{{ payment.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                <td><a class="btn btn-sm" href="{% url 'staff:payment-edit' id=payment.pk %}">ویرایش</a></td>
+                                            </tr>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+
+<script>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#datatable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
+{% endblock script %}

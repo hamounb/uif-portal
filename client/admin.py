@@ -97,8 +97,8 @@ class ExhibitionAdmin(admin.ModelAdmin):
 @admin.register(InvoiceModel)
 class InvoiceAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("customer", "amount", "exhibition")
-    list_display = ("pk", "state", "customer", "exhibition", "amount")
+    search_fields = ("customer", "amount", "exhibition", "booth_number")
+    list_display = ("pk", "state", "valet", "exhibition", "amount")
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -109,11 +109,11 @@ class InvoiceAdmin(admin.ModelAdmin):
         return super().save_model(request, obj, form, change)
 
     
-@admin.register(InvoiceItemModel)
-class InvoiceItemAdmin(admin.ModelAdmin):
+@admin.register(ValetModel)
+class ValetAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("booth_number", "invoice")
-    list_display = ("invoice", "booth_number", "area", "discount", "total_price")
+    search_fields = ("customer", )
+    list_display = ("pk", "customer", "cash")
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -143,7 +143,7 @@ class BankAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
     search_fields = ("rrn", "invoice", "tracenumber", "digitalreceipt", "datepaid")
-    list_display = ("pk", "state", "invoice", "amount", "tracenumber", "rrn", "respcode", "datepaid")
+    list_display = ("pk", "state", "amount", "tracenumber", "rrn", "respcode", "datepaid")
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -158,7 +158,7 @@ class PaymentAdmin(admin.ModelAdmin):
 class DepositAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
     search_fields = ("invoice_number", "customer")
-    list_display = ("pk", "state", "customer", "invoice_number")
+    list_display = ("pk", "state", "valet", "invoice_number")
     
     def save_model(self, request, obj, form, change):
         if change:

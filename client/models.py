@@ -44,10 +44,14 @@ class CustomerModel(BaseModel):
     sid = models.CharField(verbose_name='کد معین', max_length=50, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     kind = models.CharField(verbose_name='نوع مشارکت کننده', max_length=50, choices=KIND_CHOICES, default=KIND_REAL)
+    first_name = models.CharField(verbose_name='نام', max_length=100)
+    last_name = models.CharField(verbose_name='نام خانوادگی', max_length=100)
+    code = models.CharField(verbose_name='کد ملی', max_length=10, null=True, blank=True)
     brand = models.CharField(verbose_name='نام تجاری', max_length=100)
     company = models.CharField(verbose_name='نام شرکت', max_length=100, null=True, blank=True)
     ceoname = models.CharField(verbose_name='نام مدیرعامل', max_length=100, null=True, blank=True)
     ncode = models.CharField(verbose_name='شناسه ملی', max_length=11, null=True, blank=True)
+    mobile = models.CharField(verbose_name='موبایل', max_length=11)
     phone = models.CharField(verbose_name='تلفن', max_length=11, null=True, blank=True)
     fax = models.CharField(verbose_name='فکس', max_length=11, null=True, blank=True)
     email = models.EmailField(verbose_name='ایمیل', null=True, blank=True)
@@ -169,6 +173,18 @@ class ExhibitionModel(BaseModel):
 #         verbose_name_plural = 'پیغام‌های ویرایشی'
 
 
+class ValetModel(BaseModel):
+    customer = models.OneToOneField(CustomerModel, on_delete=models.PROTECT, verbose_name="مشارکت کننده")
+    cash = models.CharField(verbose_name="موجودی(ریال)", max_length=15, default="0")
+
+    def __str__(self):
+        return self.customer.brand
+    
+    class Meta:
+        verbose_name = "کیف پول"
+        verbose_name_plural = "کیف‌های پول"
+
+
 class InvoiceModel(BaseModel):
     STATE_PAID = "paid"
     STATE_UNPAID = "unpaid"
@@ -176,48 +192,29 @@ class InvoiceModel(BaseModel):
         (STATE_PAID, "پرداخت شده"),
         (STATE_UNPAID, "پرداخت نشده")
     )
+    is_active = models.BooleanField(verbose_name="فعال", default=True)
     state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_UNPAID)
-    customer = models.ForeignKey(CustomerModel, on_delete=models.PROTECT, verbose_name="مشارکت کننده")
+    valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, verbose_name="کیف پول")
     exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.PROTECT, verbose_name="نمایشگاه")
-    amount = models.CharField(verbose_name="مبلغ", max_length=20)
+    booth_number = models.CharField(verbose_name="شماره غرفه", max_length=100, null=True, blank=True)
+    price = models.CharField(verbose_name="مبلغ", max_length=20, default="0")
+    area = models.CharField(verbose_name="متراژ(مترمربع)", max_length=9, default="0")
+    value_added = models.CharField(verbose_name="ارزش افزوده(درصد)", max_length=10, default="0")
+    discount = models.CharField(verbose_name="تخفیف(درصد)", max_length=3, default="0")
+    amount = models.CharField(verbose_name="مبلغ نهایی", max_length=20, default="0")
 
     def __str__(self):
-        return f"شماره فاکتور: {self.pk}-{self.customer.company} ({self.exhibition.title})"
+        return f"شماره فاکتور: {self.pk}-{self.valet} ({self.exhibition.title})"
     
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["exhibition", "customer"], name='excus')
-    ]
         verbose_name = "فاکتور"
         verbose_name_plural = "فاکتورها"
 
-
-class InvoiceItemModel(BaseModel):
-    is_active = models.BooleanField(verbose_name="فعال", default=True)
-    invoice = models.ForeignKey(InvoiceModel, on_delete=models.SET_NULL, verbose_name="فاکتور", null=True, blank=True)
-    booth_number = models.CharField(verbose_name="شماره غرفه", max_length=100, null=True, blank=True)
-    price = models.CharField(verbose_name="مبلغ", max_length=20)
-    area = models.CharField(verbose_name="متراژ(مترمربع)", max_length=9, default="0")
-    value_added = models.CharField(verbose_name="ارزش افزوده", max_length=10, default="0")
-    discount = models.CharField(verbose_name="تخفیف(درصد)", max_length=20, null=True, blank=True)
-    total_price = models.CharField(verbose_name="مبلغ نهایی", max_length=20)
-    description = models.TextField(verbose_name="توضیحات", null=True, blank=True)
-
-    def __str__(self):
-        if self.is_paid:
-            return f"{self.invoice.customer.company} - {self.invoice.exhibition.title} - (پرداخت شده)"
-        else:
-            return f"{self.invoice.customer.company} - {self.invoice.exhibition.title}"
-    
-    class Meta:
-        verbose_name = 'اقلام فاکتور'
-        verbose_name_plural = 'اقلام فاکتورها'
-
-
+        
 class BankModel(BaseModel):
     KIND_CURRENT = 'current'
     KIND_SHORT = 'short'
-    KIND_LOAN = 'LOAN'
+    KIND_LOAN = 'loan'
     KIND_CHOICES = (
         (KIND_CURRENT, "حساب جاری"),
         (KIND_SHORT, "حساب کوتاه مدت"),
@@ -244,8 +241,8 @@ class PaymentModel(BaseModel):
         (STATE_CASHE, 'نقدی'),
         (STATE_POS, 'پوز بانکی')
     )
-    state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_POS)
-    invoice = models.ForeignKey(InvoiceModel, on_delete=models.PROTECT, verbose_name="فاکتور")
+    state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_POS)
+    valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, verbose_name="کیف پول")
     bank = models.ForeignKey(BankModel, on_delete=models.SET_NULL, verbose_name="حساب بانکی", null=True, blank=True)
     amount = models.IntegerField(verbose_name="مبلغ", default=1000)
     cardnumber = models.CharField(verbose_name="شماره کارت/چک", max_length=32, null=True, blank=True)
@@ -261,8 +258,8 @@ class PaymentModel(BaseModel):
 
     def __str__(self):
         if self.state == self.STATE_POS:
-            return f"شماره فاکتور: {self.invoice.pk} - شماره پیگیری: {self.tracenumber}"
-        return f"{self.state} - شماره فاکتور: {self.invoice.pk} - مبلغ: {self.amount}"
+            return f"{self.valet.customer.brand} - شماره پیگیری: {self.tracenumber}"
+        return f"{self.state}-{self.valet.customer.brand} - مبلغ: {self.amount}"
     
     class Meta:
         constraints = [
@@ -282,12 +279,12 @@ class DepositModel(BaseModel):
         (STATE_PAYMENT, "اضافه به حساب")
     )
     state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_DEPOSIT)
-    customer = models.ForeignKey(CustomerModel, on_delete=models.PROTECT, max_length="مشارکت کننده")
+    valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, max_length="کیف پول")
     invoice_number = models.CharField(verbose_name="شماره سند", max_length=100, unique=True)
     description = models.TextField(verbose_name="توضیحات", null=True, blank=True)
 
     def __str__(self):
-        return f"{self.customer.brand} - شماره سند: {self.invoice_number}"
+        return f"{self.valet.customer.brand} - شماره سند: {self.invoice_number}"
     
     class Meta:
         verbose_name = "بیعانه"

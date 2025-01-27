@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" /> <meta name="author" content="example" />
+<meta name="description" content="Template Polo, html template">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>ایجاد حساب کاربری جدید</title>
+
+    <link href="{% static 'css/plugins.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/rtl.css' %}" rel="stylesheet">
+</head>
+<body>
+
+<div class="body-inner">
+
+    <section class="fullscreen" style="background-image: url({% static 'images/1.jpg' %})">
+        <div class="container container-fullscreen">
+            <div class="text-middle">
+                <div class="text-center m-b-30">
+                    <a href="index.html" class="logo">
+                        <img src="{% static 'images/fav-logo.png' %}" style="max-width:5%" alt="UIF Logo">
+                    </a>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 center p-40 background-white b-r-6">
+                        <form class="form-transparent-grey" method="post">
+                            <p>hello</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/plugins.js' %}"></script>
+
+    <script src="{% static 'js/functions.js' %}"></script>
+</body>
+</html>

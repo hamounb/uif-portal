@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% load static %}
+
+{% block title %}
+جزئیات درخواست
+{% endblock title %}
+
+{% block content %}
+<style>
+    #form-container {
+      display: none;
+    }
+    #form-container2 {
+        display: none;
+      }
+</style>
+<section id="page-content" class="background-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>لیست درخواست‌ها</h2>
+                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح با ثبت نام شما موافقت نخواهد شد!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table id="datatable" class="table table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>نام تجاری</th>
+                                            <th>نام و نشان</th>
+                                            <th>نمایشگاه</th>
+                                            <th>متراژ</th>
+                                            <th>تاریخ</th>
+                                            <th>قبول قوانین</th>
+                                            <th>وضعیت</th>
+                                            <th class="noExport">اقدامات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="color:blueviolet"><b>{{ req.customer.company }}</b></td>
+                                            <td class="text-primary">{{ req.customer.firstname }} {{ req.customer.lastname}}</td>
+                                            <td>{{ req.exhibition.title }}</td>
+                                            <td><b>{{ req.area }}</b></td>
+                                            <td>{{ req.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                            <td>{% if req.rules %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
+                                            <td>
+                                                {% if req.state == "wait" %}
+                                                <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
+                                                {% else %}
+                                                -----
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if req.get_state_display == "در انتظار بررسی" %}
+                                                <select id="decision" class="form-control">
+                                                    <option value="wait">درحال بررسی</option>
+                                                    <option value="accept">قبول</option>
+                                                    <option value="deny">رد درخواست</option>
+                                                </select>
+                                                {% else %}
+                                                    {{ req.get_state_display }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                            <p class="errornote">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                            {% endif %}
+                            {% if form2.non_field_errors %}
+                            {% for error in form2.non_field_errors %}
+                            <p class="errornote">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                            {% endif %}
+                            <div class="col-lg-8">
+                                <div id="form-container">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="form-row">
+                                            <div class="form-group col-lg-3">
+                                                {{ form2.area.label_tag }}
+                                                {{ form2.area }}
+                                                {% if form2.area.errors %}
+                                                    {% for error in form2.area.errors %}
+                                                        <p class="text-danger">{{ error }}</p>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="form-group col-lg-3">
+                                                {{ form2.discount.label_tag }}
+                                                {{ form2.discount }}
+                                                {% if form2.discount.errors %}
+                                                    {% for error in form2.discount.errors %}
+                                                        <p class="text-danger">{{ error }}</p>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="form-group col-lg-6">
+                                                {{ form2.description.label_tag }}
+                                                {{ form2.description }}
+                                                {% if form2.description.errors %}
+                                                    {% for error in form2.description.errors %}
+                                                        <p class="text-danger">{{ error }}</p>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                        </div>
+                                        <input type="submit" class="btn btn-success" name="btn2" value="درج فاکتور">
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div id="form-container2">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="form-row">
+                                            <div class="form-group col-lg-12">
+                                                {{ form.text.label_tag }}
+                                                {{ form.text }}
+                                                {% if form.text.errors %}
+                                                    {% for error in form.text.errors %}
+                                                        <p class="text-danger">{{ error }}</p>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                        </div>
+                                        <input type="submit" class="btn btn-success" name="btn1" value="ارسال">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+
+<script>
+    const selectElement = document.getElementById('decision');
+    const formContainer = document.getElementById('form-container');
+    const formContainer2 = document.getElementById('form-container2');
+  
+    selectElement.addEventListener('change', function() {
+      const selectedOption = selectElement.value;
+  
+      if (selectedOption === 'accept') {
+        formContainer.style.display = 'block';
+        formContainer2.style.display = 'none';
+      }else if (selectedOption === 'deny') {
+        formContainer2.style.display = 'block';
+        formContainer.style.display = 'none';
+      } else {
+        formContainer.style.display = 'none';
+        formContainer2.style.display = 'none';
+      }
+    });
+  </script>
+{% endblock script %}

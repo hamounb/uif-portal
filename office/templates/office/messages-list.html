@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% load static %}
+
+{% block title %}
+ پیغام های ارسال شده
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container-fluid">
+        <div class="row">
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if form.non_field_errors %}
+            <div class="col-lg-12">
+                {% for error in form.non_field_errors %}
+                <div role="alert" class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <strong><i class="fa fa-exclamation-circle"></i> خطا!</strong> 
+                    {{ error }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-3 text-success">ارسال پیغام جدید</h3>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <form method="post" action="{% url 'staff:message-add' %}">
+                                    {% csrf_token %}
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-2">
+                                            {{ form.customer.label_tag }}
+                                            {{ form.customer }}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-8">
+                                            {{ form.text.label_tag }}
+                                            {{ form.text }}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <input type="submit" class="btn btn-success" value="ارسال">
+                                </form>
+                            </div>
+                            <div class="col-lg-4 text-center">
+                                <img src="{% static 'images/message.png' %}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-3">لیست پیغام‌ها</h3>
+                        <div class="row">
+                            <div class="form-group col-lg-3">
+                                <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="table-responsive" style="height:500px;overflow:auto;">
+                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>کد</th>
+                                                <th>کاربر ایجاد</th>
+                                                <th>مشارکت کننده</th>
+                                                <th>متن پیغام</th>
+                                                <th>تاریخ ایجاد</th>
+                                                <th>تاریخ آخرین تغییرات</th>
+                                                <th>وضعیت</th>
+                                                <th>اقدامات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for mes in mes %}
+                                            <tr>
+                                                <td>{{ mes.pk }}</td>
+                                                <td data-toggle="tooltip" data-placement="top" title="{{ mes.user_created.first_name }} {{ mes.user_created.last_name }}">
+                                                    <code>{{ mes.user_created.username }}</code>
+                                                </td>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ mes.customer.firstname }} {{ mes.customer.lastname }}">
+                                                {{ mes.customer.company }}
+                                                </td>
+                                                <td class="text-primary" data-toggle="tooltip" data-placement="top" title="{{ mes.text }}">{{ mes.text|truncatewords:12 }}</td>
+                                                <td>{{ mes.created_date|to_jalali:'%H:%M - %Y/%m/%d' }}</td>
+                                                <td>{{ mes.modified_date|to_jalali:'%H:%M - %Y/%m/%d' }}</td>
+                                                <td>{% if mes.is_active %}
+                                                    <h4><span class="badge badge-pill badge-warning">ارسال شده</span></h4>
+                                                    {% else %}
+                                                    <h4><span class="badge badge-pill badge-success">خوانده شده</span></h4>
+                                                    {% endif %}
+                                                </td>
+                                                {% if mes.is_active %}
+                                                <td class="text-center"><a href="{% url 'staff:message-change' mid=mes.pk %}"><i class="fa fa-edit"></i></a></td>
+                                                {% else %}
+                                                <td class="text-center text-danger"><i class="fa fa-minus-circle"> </i></td>
+                                                {% endif %}
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+
+<script src={% static 'plugins/datatables/datatables.min.js' %}></script>
+<script>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#datatable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
+    <script>
+        // Initialize Select2 on the select element
+        $(document).ready(function() {
+          $('#id_user').select2();
+        });
+      </script>
+{% endblock script %}

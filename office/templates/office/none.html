@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+
+{% endblock title %}
+{% block content %}
+<section class="m-t-80 p-b-150">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div data-bg-image="{% static 'images/error.png' %}" style="height:400px">
+
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-left">
+                    {% if title %}
+                    <h1 class="text-medium">{{ title }}</h1>
+                    {% endif %}
+                    {% if content %}
+                    <p class="lead">{{ content }}</p>
+                    {% endif %}
+                    <div class="seperator m-t-20 m-b-20"></div>
+                    <div class="search-form">
+                        <p>لطفا دوباره جستجو کنید</p>
+                        <form action="search-results-page.html" method="get" class="form-inline">
+                            <div class="input-group input-group-lg">
+                                <input type="text" aria-required="true" name="q" class="form-control widget-search-form" placeholder="جستجو کنید ...">
+                                <div class="input-group-append">
+                                    <span class="input-group-btn">
+                                        <button type="submit" id="widget-widget-search-form-button" class="btn"><i class="fa fa-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

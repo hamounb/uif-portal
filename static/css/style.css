@@ -17351,7 +17351,9 @@ body.breakpoint-sm hr.space-xxlg {
 
 .form-control {
     border: 1px solid #757575;
-    border-radius: 5px
+    border-radius: 5px;
+    color: #5d5d5d;
+    font-weight: bold;
 }
 
 form .btn {
@@ -17363,7 +17365,7 @@ select {
     line-height: 18px;
     padding: 10px 16px;
     min-height: 40px;
-    font-size: .9rem
+    font-size: 1rem
 }
 
 .input-group-append {

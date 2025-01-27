@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}
+لیست نمایشگاه‌های فعال و غیرفعال
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>لیست نمایشگاه‌ها</h2>
+                        <p>فقط نمایشگاه‌های فعال قابلیت ثبت نام دارند!</p>
+                        <p class="text-danger">برای مشاهده مشارکت کنندگان هر نمایشگاه بر روی جزئیات کلیک کنید!</p>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-lg-3">
+                                <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="tabs">
+                                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                                                aria-controls="home" aria-selected="true">نمایشگاه‌های فعال</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
+                                                aria-controls="profile" aria-selected="false">نمایشگاه‌های منقضی</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                            <div class="table-responsive" style="height:500px;overflow:auto;">
+                                                <table id="datatable" class="table table-bordered table-hover" style="width:100%;text-align:center">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>فعال</th>
+                                                            <th>کد معین</th>
+                                                            <th>عنوان نمایشگاه</th>
+                                                            <th>قیمت واحد (ریال)</th>
+                                                            <th>تاریخ برگزاری</th>
+                                                            <th class="noExport">اقدامات</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for exh in exh %}
+                                                        {% if exh.is_active %}
+                                                        <tr>
+                                                            <td>{% if exh.is_active %} <i class="fa fa-check-square"></i>{% else %}{% endif %}</td>
+                                                            <td class="text-primary">
+                                                                {% if exh.sid %}
+                                                                {{ exh.sid }}
+                                                                {% endif %}
+                                                            </td>
+                                                            <td style="color:blueviolet">
+                                                                <b>{{ exh.title }}</b>
+                                                            </td>
+                                                            <td style="color:green"><b>{{ exh.price|intcomma  }}</b></td>
+                                                            <td>{{ exh.date|to_jalali:'%Y/%m/%d' }}</td>
+                                                            <td>
+                                                                <a class="btn btn-sm" href="{% url 'office:exhibition-details' eid=exh.pk %}">جزئیات</a>
+                                                                <a class="btn btn-info btn-sm" href="{% url 'office:exhibition-status' id=exh.pk %}">صورت وضعیت</a>
+                                                            </td>
+                                                        </tr>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                            <div class="table-responsive" style="height:500px;overflow:auto;">
+                                                <table id="datatable" class="table table-bordered table-hover" style="width:100%;text-align:center">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>فعال</th>
+                                                            <th>کد معین</th>
+                                                            <th>عنوان نمایشگاه</th>
+                                                            <th>قیمت واحد (ریال)</th>
+                                                            <th>تاریخ برگزاری</th>
+                                                            <th class="noExport">اقدامات</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for exh in exh %}
+                                                        {% if not exh.is_active %}
+                                                        <tr>
+                                                            <td>{% if not exh.is_active %} <i class="fa fa-minus-square"></i>{% else %}{% endif %}</td>
+                                                            <td class="text-primary">
+                                                                {% if exh.sid %}
+                                                                {{ exh.sid }}
+                                                                {% endif %}
+                                                            </td>
+                                                            <td style="color:blueviolet">
+                                                                <b>{{ exh.title }}</b>
+                                                            </td>
+                                                            <td style="color:green"><b>{{ exh.price|intcomma  }}</b></td>
+                                                            <td>{{ exh.date|to_jalali:'%Y/%m/%d' }}</td>
+                                                            <td><a href="{% url 'office:exhibition-details' eid=exh.pk %}">جزئیات</a></td>
+                                                        </tr>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+<script>
+$(document).ready(function(){
+    $("#myInput").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#datatable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+</script>
+{% endblock script %}

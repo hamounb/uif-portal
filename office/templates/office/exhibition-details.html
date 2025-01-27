@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load jalali_tags %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}
+لیست مشارکت کنندگان در نمایشگاه
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body" data-bg-image="{% static 'images/exc.png' %}">
+                        <h2>لیست مشارکت کنندگان در نمایشگاه {{ exh.title }}</h2>
+                        <p>لطفاً از صحیح و بروز بودن اطلاعات مشارکت کنندگان اطمینان حاصل فرمایید!</p>
+                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-lg-12">
+                                <form method="post" class="form-validate">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="form-group col-lg-3">
+                                            {{ form.valet.label_tag }}
+                                            {{ form.valet }}
+                                            {% if form.valet.errors %}
+                                                {% for error in form.valet.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-lg-3">
+                                            {{ form.booth_number.label_tag }}
+                                            {{ form.booth_number }}
+                                            {% if form.booth_number.errors %}
+                                                {% for error in form.booth_number.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-lg-3">
+                                            {{ form.area.label_tag }}
+                                            {{ form.area }}
+                                            {% if form.area.errors %}
+                                                {% for error in form.area.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-lg-12">
+                                            <input type="submit" value="ثبت نام" class="btn btn-success">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <div class="row">
+                                    <div class="form-group col-lg-3">
+                                        <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="printableArea" class="col-lg-12">
+                                <div class="table-responsive" style="height:500px;overflow:auto;">
+                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>نام تجاری</th>
+                                                <th>شماره غرفه</th>
+                                                <th>متراژ(مترمربع)</th>
+                                                <th>تخفیف(درصد)</th>
+                                                <th>مبلغ نهایی (ریال)</th>
+                                                <th>تاریخ ثبت‌نام</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for cus in cus %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td style="color:blueviolet"><b>{{ cus.valet.customer.brand }}</b></td>
+                                                <td>{{ cus.booth_number }}</td>
+                                                <td>{{ cus.area }}</td>
+                                                <td>
+                                                    {% if cus.discount %}
+                                                    {{ cus.discount }}
+                                                    {% else %}
+                                                    0
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ cus.amount|floatformat:"1"|intcomma }}</td>
+                                                <td>{{ cus.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot style="background-color:gainsboro">
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th><b>{{ area }}</b></th>
+                                                <th></th>
+                                                <th><b>{{ total|floatformat:"1"|intcomma  }} ریال</b></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <input class="btn mt-5" type="button" onclick="printDiv('printableArea')" value="چاپ" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+
+<script>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#datatable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
+    <script>
+        function printDiv(divId) {
+            var printContents = document.getElementById(divId).innerHTML;
+            var originalContents = document.body.innerHTML;
+        
+            document.body.innerHTML = printContents;
+        
+            window.print();
+        
+            document.body.innerHTML = originalContents;
+        }
+        </script>
+<script>
+    // Initialize Select2 on the select element
+    $(document).ready(function() {
+      $('#id_valet').select2();
+    });
+  </script>
+{% endblock script %}

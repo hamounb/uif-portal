@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+ایجاد فاکتور جدید
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>فرم ایجاد فاکتور</h2>
+                        <p>لطفا فرم زیر را با دقت ثبت کنید، زیرا هرگونه تغییرات در فاکتور ایجاد شده باعث بروز خطای سیستمی می‌شود.</p>
+                        <p>توجه داشته باشید مقدار تخفیف بصورت درصد محاسبه خواهد شد!</p>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            <div class="col-lg-12">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div role="alert" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div role="alert" class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                            {{ message}}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="col-lg-12">
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                    <div role="alert" class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                        <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="form-row mt-2">
+                                        <div class="col-lg-1">
+                                            {{ form.is_active.label_tag }}
+                                            {{ form.is_active }}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="line my-4"></div>
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-3">
+                                            {{ form.customer.label_tag }}
+                                            {{ form.customer }}
+                                            {% if form.customer.errors %}
+                                                {% for error in form.customer.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-6">
+                                            {{ form.exhibition.label_tag }}
+                                            {{ form.exhibition }}
+                                            {% if form.exhibition.errors %}
+                                                {% for error in form.exhibition.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-lg-3">
+                                            {{ form.area.label_tag }}
+                                            {{ form.area }}
+                                            {% if form.area.errors %}
+                                                {% for error in form.area.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-lg-3">
+                                            {{ form.discount.label_tag }}
+                                            {{ form.discount }}
+                                            {% if form.discount.errors %}
+                                                {% for error in form.discount.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-lg-12">
+                                            {{ form.description.label_tag }}
+                                            {{ form.description }}
+                                            {% if form.description.errors %}
+                                                {% for error in form.description.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                    </div>
+                                    <input type="submit" class="btn btn-success" value="درج فاکتور">
+                                </form>
+                            </div>
+                            <div class="col-lg-6 text-center">
+                                <img src="{% static 'images/inv.png' %}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script%}
+<script>
+    // Initialize Select2 on the select element
+    $(document).ready(function() {
+      $('#id_customer').select2();
+    });
+  </script>
+{% endblock script %}
