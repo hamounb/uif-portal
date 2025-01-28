@@ -146,16 +146,25 @@ class ExhibitionForm(forms.ModelForm):
 
 
 class InvoiceAddForm(forms.Form):
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.all(), label="مشارکت کننده")
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده")
     booth_number = forms.CharField(label="شماره غرفه", max_length=4, required=False, validators=[is_positive], widget=forms.TextInput(attrs={'class':'form-control'}))
     area = forms.CharField(label="متراژ(مترمربع)", max_length=6, required=True, validators=[is_positive], widget=forms.TextInput(attrs={'class':'form-control'}))
 
 
 class AddToExhibitionForm(forms.Form):
     exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه", widget=forms.Select(attrs={'class':'form-control'}))
-    booth_number = forms.CharField(max_length=50, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
-    discount = forms.CharField(max_length=50, label="تخفیف(درصد)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_discount])
+    booth_number = forms.CharField(max_length=50, required=False, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
+    discount = forms.CharField(max_length=50, required=True, label="تخفیف(درصد)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_discount])
     area = forms.CharField(max_length=15, required=True, label="متراژ(مترمربع)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
+
+
+class InvoiceEditForm(forms.Form):
+    is_active = forms.BooleanField(label="فعال", widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده", widget=forms.Select(attrs={'class':'form-control'}))
+    exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه", widget=forms.Select(attrs={'class':'form-control'}))
+    booth_number = forms.CharField(max_length=50, required=False, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
+    area = forms.CharField(max_length=15, required=True, label="متراژ(مترمربع)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
+    discount = forms.CharField(max_length=50, required=True, label="تخفیف(درصد)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_discount])
 
 
 class PaymentAddForm(forms.Form):
@@ -168,10 +177,17 @@ class PaymentAddForm(forms.Form):
         (STATE_CASHE, 'نقدی'),
     )
     state = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=STATE_CHOICES), label="نوع پرداخت")
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده", widget=forms.Select(attrs={'class':'form-control'}))
+    bank = forms.ModelChoiceField(queryset=BankModel.objects.all(), required=False, label="حساب بانکی", widget=forms.Select(attrs={'class':'form-control'}))
     amount = forms.IntegerField(widget=forms.TextInput(attrs={"class":"form-control"}), min_value=0, label="مبلغ")
     check = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="سریال چک", required=False)
-    issuerbank = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="بانک صادرکننده", required=False)
     name = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="نام صاحب چک", required=False)
     tracenumber = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="شماره پیگیری", required=False)
     datepaid = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="تاریخ پرداخت")
     description = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":6}), label="توضیحات", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(PaymentAddForm, self).__init__(*args, **kwargs)
+        self.fields['datepaid'] = JalaliDateField(label="تاریخ پرداخت", # date format is  "yyyy-mm-dd"
+            widget=AdminJalaliDateWidget() # optional, to use default datepicker
+        )

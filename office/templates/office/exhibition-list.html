@@ -9,7 +9,7 @@
 
 {% block content %}
 <section id="page-content" class="background-light">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
@@ -69,8 +69,10 @@
                                                             <th>کد معین</th>
                                                             <th>عنوان نمایشگاه</th>
                                                             <th>قیمت واحد (ریال)</th>
+                                                            <th>حداقل متراژ(مترمربع)</th>
+                                                            <th>ارزش افزوده(درصد)</th>
                                                             <th>تاریخ برگزاری</th>
-                                                            <th class="noExport">اقدامات</th>
+                                                            <th class="noExport">عملیات</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -86,7 +88,9 @@
                                                             <td style="color:blueviolet">
                                                                 <b>{{ exh.title }}</b>
                                                             </td>
-                                                            <td style="color:green"><b>{{ exh.price|intcomma  }}</b></td>
+                                                            <td style="color:green"><b>{{ exh.price|intcomma:False }}</b></td>
+                                                            <td>{{ exh.min_area }}</td>
+                                                            <td>{{ exh.value_added }}</td>
                                                             <td>{{ exh.date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>
                                                                 <a class="btn btn-sm" href="{% url 'office:exhibition-details' eid=exh.pk %}">جزئیات</a>
@@ -108,8 +112,10 @@
                                                             <th>کد معین</th>
                                                             <th>عنوان نمایشگاه</th>
                                                             <th>قیمت واحد (ریال)</th>
+                                                            <th>حداقل متراژ(مترمربع)</th>
+                                                            <th>ارزش افزوده(درصد)</th>
                                                             <th>تاریخ برگزاری</th>
-                                                            <th class="noExport">اقدامات</th>
+                                                            <th class="noExport">عملیات</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -125,7 +131,9 @@
                                                             <td style="color:blueviolet">
                                                                 <b>{{ exh.title }}</b>
                                                             </td>
-                                                            <td style="color:green"><b>{{ exh.price|intcomma  }}</b></td>
+                                                            <td style="color:green"><b>{{ exh.price|intcomma:False  }}</b></td>
+                                                            <td>{{ exh.min_area }}</td>
+                                                            <td>{{ exh.value_added }}</td>
                                                             <td>{{ exh.date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td><a href="{% url 'office:exhibition-details' eid=exh.pk %}">جزئیات</a></td>
                                                         </tr>

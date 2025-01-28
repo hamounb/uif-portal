@@ -68,46 +68,46 @@
                                                             <th>شماره فاکتور</th>
                                                             <th>نام تجاری</th>
                                                             <th>نمایشگاه</th>
-                                                            <th>متراژ</th>
-                                                            <th>تخفیف</th>
-                                                            <th>مبلغ نهایی</th>
+                                                            <th>متراژ(مترمربع)</th>
+                                                            <th>تخفیف(درصد)</th>
+                                                            <th>مبلغ نهایی(ریال)</th>
                                                             <th>تاریخ</th>
                                                             <th>توضیحات</th>
-                                                            <th class="noExport">اقدامات</th>
+                                                            <th class="noExport">عملیات</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {% for invoice in invoices %}
-                                                        {% for item in invoice.invoiceitemmodel_set.all %}
-                                                        {% if item.is_active %}
+                                                        {% if invoice.is_active %}
                                                         <tr>
-                                                            <td>{{ item.invoice.pk }}</td>
-                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ item.customer.firstname }} {{ item.customer.lastname }}-{{ item.customer.code }}">
-                                                                <b>{{ item.customer.company }}</b>
+                                                            <td>{{ invoice.pk }}</td>
+                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.valet.customer.kind == "real" %}{{ invoice.valet.customer.code }}{% else %}{{ invoice.valet.customer.code }}{% endif %}">
+                                                                <b>{{ invoice.valet.customer.brand }}</b>
                                                             </td>
-                                                            <td style="color:green"><b>{{ item.exhibition.title }}</b></td>
-                                                            <td>{{ item.area }}</td>
-                                                            <td>{% if item.discount %}{{ item.discount }}{% else %}0{% endif %}</td>
-                                                            <td>{{ item.total_price|intcomma:False }}</td>
-                                                            <td>{{ item.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                            <td style="color:green"><b>{{ invoice.exhibition.title }}</b></td>
+                                                            <td>{{ invoice.area }}</td>
+                                                            <td>{% if invoice.discount %}{{ invoice.discount }}{% else %}0{% endif %}</td>
+                                                            <td>{{ invoice.amount|intcomma:False }}</td>
+                                                            <td>{{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>
-                                                                {% if item.description %}
-                                                                {{ item.description }}
+                                                                {% if invoice.description %}
+                                                                {{ invoice.description }}
                                                                 {% else %}
                                                                 -----
                                                                 {% endif %}
                                                             </td>
                                                             <td>
-                                                                <a class="btn btn-xs" href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a>
-                                                                <a class="btn btn-xs btn-info" href="{% url 'staff:invoice-edit' iid=invoice.pk %}">ویرایش</a>
-                                                                <a class="btn btn-xs btn-success" href="{% url 'staff:payment-add' id=invoice.pk %}">رسیدها</a>
-                                                                {% if item.invoice.state != "paid" %}
-                                                                <a class="btn btn-xs btn-danger" href="{% url 'staff:payment-add' id=invoice.pk %}">پرداخت</a>
+                                                                {% if invoice.state == "unpaid" %}
+                                                                {% comment %}  {% endcomment %}
+                                                                <a class="btn btn-xs btn-info" href="{% url 'office:invoice-edit' iid=invoice.pk %}">ویرایش</a>
+                                                                <a class="btn btn-xs btn-success" href="{% url 'office:payment-add' iid=invoice.pk %}">تسویه حساب</a>
+                                                                <a class="btn btn-xs btn-danger" href="{% url 'office:invoice-remove' iid=invoice.pk %}">حذف</a>
+                                                                {% else %}
+                                                                <a class="btn btn-outline btn-xs" href="">مشاهده فاکتور</a>
                                                                 {% endif %}
                                                             </td>
                                                         </tr>
                                                         {% endif %}
-                                                        {% endfor %}
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>
@@ -120,47 +120,43 @@
                                                         <tr>
                                                             <th>فعال</th>
                                                             <th>نام تجاری</th>
-                                                            <th>نام و نشان</th>
                                                             <th>نمایشگاه</th>
-                                                            <th>متراژ</th>
-                                                            <th>تخفیف</th>
-                                                            <th>مبلغ نهایی</th>
+                                                            <th>متراژ(مترمربع)</th>
+                                                            <th>تخفیف(درصد)</th>
+                                                            <th>مبلغ نهایی(ریال)</th>
                                                             <th>تاریخ</th>
                                                             <th>توضیحات</th>
-                                                            <th class="noExport">اقدامات</th>
+                                                            <th class="noExport">عملیات</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {% for invoice in invoices %}
-                                                        {% for item in invoice.invoiceitemmodel_set.all %}
-                                                        {% if not item.is_active %}
+                                                        {% if not invoice.is_active %}
                                                         <tr>
-                                                            <td>{% if not item.is_active %} <i class="icon-x"></i>{% else %} {% endif %}</td>
-                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{{ item.customer.code }}">
-                                                                <b>{{ item.customer.company }}</b>
+                                                            <td>{% if not invoice.is_active %} <i class="icon-x"></i>{% else %} {% endif %}</td>
+                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.valet.customer.kind == "real" %}{{ invoice.valet.customer.code }}{% else %}{{ invoice.valet.customer.code }}{% endif %}">
+                                                                <b>{{ invoice.valet.customer.company }}</b>
                                                             </td>
-                                                            <td class="text-primary">{{ item.customer.firstname }} {{ item.customer.lastname }}</td>
-                                                            <td style="color:green" data-toggle="tooltip" data-placement="top" title="{{ item.exhibition.date|to_jalali:"%Y" }}">
-                                                                <b>{{ item.exhibition.title }}</b>
+                                                            <td style="color:green" data-toggle="tooltip" data-placement="top" title="{{ invoice.exhibition.date|to_jalali:"%Y" }}">
+                                                                <b>{{ invoice.exhibition.title }}</b>
                                                             </td>
-                                                            <td>{{ item.area }}</td>
-                                                            <td>{% if item.discount %}{{ item.discount }}{% else %}0{% endif %}</td>
-                                                            <td>{{ item.total_price|intcomma:False }}</td>
-                                                            <td>{{ item.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                            <td>{{ invoice.area }}</td>
+                                                            <td>{% if invoice.discount %}{{ invoice.discount }}{% else %}0{% endif %}</td>
+                                                            <td>{{ invoice.amount|intcomma:False }}</td>
+                                                            <td>{{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>
-                                                                {% if item.description %}
-                                                                {{ item.description }}
+                                                                {% if invoice.description %}
+                                                                {{ invoice.description }}
                                                                 {% else %}
                                                                 -----
                                                                 {% endif %}
                                                             </td>
                                                             <td>
-                                                                <a class="btn btn-xs" href="{% url 'staff:invoice-details' iid=invoice.pk %}">مشاهده</a>
-                                                                <a class="btn btn-xs btn-info" href="{% url 'staff:invoice-edit' iid=invoice.pk %}">ویرایش</a>
+                                                                {% comment %} <a class="btn btn-xs" href="{% url 'office:invoice-details' iid=invoice.pk %}">مشاهده</a> {% endcomment %}
+                                                                <a class="btn btn-xs btn-info" href="{% url 'office:invoice-edit' iid=invoice.pk %}">ویرایش</a>
                                                             </td>
                                                         </tr>
                                                         {% endif %}
-                                                        {% endfor %}
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>

@@ -52,7 +52,7 @@
                             </div>
                             <div class="col-lg-12">
                                 <div class="table-responsive" style="height:500px;overflow:auto;">
-                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%;text-align:center">
                                         <thead class="thead-light">
                                             <tr>
                                                 <th>کد</th>
@@ -61,7 +61,7 @@
                                                 <th>کدملی</th>
                                                 <th>موبایل</th>
                                                 <th>تاریخ ایجاد</th>
-                                                <th>اقدامات</th>
+                                                <th>عملیات</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -84,7 +84,7 @@
                                                 <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
                                                     <a class="btn btn-xs" href="{% url 'office:customer-change' cid=customer.pk %}">مشاهده و ویرایش</a>
-                                                    <a class="btn btn-xs" href="{% url 'office:customer-exhibition' id=customer.pk %}">ثبت‌نام درنمایشگاه</a>
+                                                    <a class="btn btn-success btn-xs" href="{% url 'office:customer-exhibition' id=customer.pk %}"> نمایشگاه ها</a>
                                                 </td>
                                             </tr>
                                             {% endfor %}

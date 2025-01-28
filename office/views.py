@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseRedirect
 from django import views
 from .forms import *
 from django.contrib.auth.models import User
@@ -205,43 +206,116 @@ class CustomerExhibitionView(views.View):
 
     def get(self , request, id):
         customer = get_object_or_404(CustomerModel, pk=id)
+        invoice = InvoiceModel.objects.filter(Q(valet__customer=customer) & Q(is_active=True)).order_by("-created_date")
         form = AddToExhibitionForm()
         context = {
             'customer':customer,
             'form':form,
+            'invoice':invoice,
         }
         return render(request, "office/customer-exhibition.html", context)
     
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
         customer = get_object_or_404(CustomerModel, pk=id)
+        invoice = InvoiceModel.objects.filter(Q(valet__customer=customer) & Q(is_active=True)).order_by("-created_date")
         valet = get_object_or_404(ValetModel, customer=customer)
         form = AddToExhibitionForm(request.POST)
         context = {
             'customer':customer,
             'form':form,
+            'invoice':invoice,
         }
         if form.is_valid():
             exhibition = form.cleaned_data.get("exhibition")
             area = form.cleaned_data.get("area")
             discount = form.cleaned_data.get("discount")
             booth_number = form.cleaned_data.get("booth_number")
-            exh = get_object_or_404(ExhibitionModel, title=exhibition)
-            total = (int(area) * int(exh.price)) + float(int(exh.value_added) * (int(area) * int(exh.price))) / 100
-            amount = int(total) - float(int(total) * int(discount)) /100
-            invoice = InvoiceModel(
+            invoice_n = InvoiceModel(
                 valet=valet,
-                exhibition=exh,
+                exhibition=exhibition,
                 booth_number=booth_number,
                 area=area,
-                price=exh.price,
-                value_added=exh.value_added,
-                amount=int(amount),
+                price="0",
+                value_added="0",
+                amount="0",
+                discount=discount,
                 user_created=user,
             )
-            invoice.save()
-            messages.success(request, f"مشارکت کننده {customer.brand} در نمایشگاه {exh.title} با موفقیت ثبت‌نام شد.")
-            return redirect("office:exhibition-details", eid=exh.pk)
+            invoice_n.save()
+            exh = get_object_or_404(ExhibitionModel, pk=invoice_n.exhibition.pk)
+            total = (int(area) * int(exh.price)) + float(int(exh.value_added) * (int(area) * int(exh.price))) / 100
+            amount = int(total) - float(int(total) * int(discount)) /100
+            invoice_n.price = exh.price
+            invoice_n.value_added = exh.value_added
+            invoice_n.amount = int(amount)
+            invoice_n.save()
+            messages.success(request, f"مشارکت کننده {customer.brand} در {exh.title} با موفقیت ثبت‌نام شد.")
+            return redirect("office:customer-exhibition", id=customer.pk)
+        messages.error(request, "خطای سیستمی رخ داده است!")
+        return render(request, "office/customer-exhibition.html", context)
+    
+
+class CustomerExhibitionEditView(views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.change_invoicemodel']
+
+    def get(self , request, id):
+        invo = get_object_or_404(InvoiceModel, pk=id)
+        if invo.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"{invo.valet.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:customer-exhibition", id=invo.valet.customer.pk)
+        init_data = {
+            "exhibition":invo.exhibition,
+            "booth_number":invo.booth_number,
+            "area":invo.area,
+            "discount":invo.discount,
+        }
+        invo_id = invo.pk
+        invoice = InvoiceModel.objects.filter(Q(valet__customer=invo.valet.customer) & Q(is_active=True)).order_by("-created_date")
+        form = AddToExhibitionForm(initial=init_data)
+        context = {
+            'invoice':invoice,
+            'form':form,
+            'invo':invo,
+            'invo_id':invo_id,
+        }
+        return render(request, "office/customer-exhibition.html", context)
+    
+    def post(self, request, id):
+        user = get_object_or_404(User, pk=request.user.id)
+        invo = get_object_or_404(InvoiceModel, pk=id)
+        if invo.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"{invo.valet.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:customer-exhibition", id=invo.valet.customer.pk)
+        invoice = InvoiceModel.objects.filter(Q(valet__customer=invo.valet.customer) & Q(is_active=True)).order_by("-created_date")
+        form = AddToExhibitionForm(request.POST)
+        context = {
+            'form':form,
+            'invoice':invoice,
+            'invo':invo,
+        }
+        if form.is_valid():
+            exhibition = form.cleaned_data.get("exhibition")
+            area = form.cleaned_data.get("area")
+            discount = form.cleaned_data.get("discount")
+            booth_number = form.cleaned_data.get("booth_number")
+            invo.exhibition = exhibition
+            invo.booth_number = booth_number
+            invo.area = area
+            invo.discount = discount
+            invo.save()
+            exh = get_object_or_404(ExhibitionModel, pk=invo.exhibition.pk)
+            total = (int(area) * int(exh.price))
+            total_v = int(total) - float(int(total) * int(discount)) /100 
+            amount = int(total_v) + float(int(exh.value_added) * int(total_v)) / 100
+            invo.price = exh.price
+            invo.value_added = exh.value_added
+            invo.amount = int(amount)
+            invo.user_modified = user
+            invo.save()
+            messages.success(request, f"مشارکت کننده {invo.valet.customer.brand} در {exh.title} با موفقیت ویرایش شد.")
+            return redirect("office:customer-exhibition", id=invo.valet.customer.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, "office/customer-exhibition.html", context)
 
@@ -394,106 +468,92 @@ class DocumentsListView(PermissionRequiredMixin, views.View):
     #     return redirect('office:request-details', rid=req.pk)
     
 
-class InvoiceAddView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.add_invoicemodel']
-
-    def get(self, request):
-        form = InvoiceForm()
-        return render(request, 'office/invoice-add.html', {'form':form})
-    
-    def post(self, request):
-        form = InvoiceItemForm(request.POST)
-        user = get_object_or_404(User, pk=request.user.id)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.user = CustomerModel.objects.get(company=form.cleaned_data.get('customer')).user
-            obj.price = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price
-            obj.value_added = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added
-            total = int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price) * int(form.cleaned_data.get('area'))
-            amount = float(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
-            total_price = float(amount - float(amount * int(form.cleaned_data.get('discount')) / 100))
-            obj.total_price = int(total_price)
-            obj.user_created = user
-            invoice = InvoiceModel(
-                customer = CustomerModel.objects.get(company=form.cleaned_data.get('customer')),
-                amount = int(total_price)
-            )
-            invoice.save()
-            obj.invoice = invoice
-            obj.save()
-            messages.success(request, f'فاکتور برای مشارکت کننده نمایشگاه {obj.exhibition} با نام تجاری {obj.customer.company} با موفقیت ثبت شد.')
-            return render(request, 'office/invoice-add.html', {'form':form})
-        return render(request, 'office/invoice-add.html', {'form':form})
-    
-
 class InvoiceListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.view_invoicemodel']
 
     def get(self, request):
-        invoices = InvoiceModel.objects.all().order_by('-created_date')
+        invoices = InvoiceModel.objects.all().order_by('-modified_date')
         return render(request, 'office/invoice-list.html', {'invoices':invoices})
     
 
-class InvoiceUnpaidView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.view_invoicemodel']
-
-    def get(self, request):
-        invoices = InvoiceModel.objects.filter(Q(state=InvoiceModel.STATE_PREPAYMENT) | Q(state=InvoiceModel.STATE_UNPAID)).order_by('-created_date')
-        return render(request, 'office/invoice-list.html', {'invoices':invoices})
-    
-
-class InvoiceDetailsView(PermissionRequiredMixin, views.View):
+class InvoiceRemoveView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['clent.change_invoicemodel']
 
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
-        return render(request, 'office/invoice-details.html', {'invoice':invoice})
+        invoice.is_active = False
+        invoice.save()
+        ref = request.META['HTTP_REFERER']
+        return HttpResponseRedirect(ref)
     
 
 class InvoiceEditView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['client.change_invoiceitemmodel']
+    permission_required = ['client.change_invoicemodel']
 
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
-        item = get_object_or_404(InvoiceItemModel, invoice=invoice)
-        form = InvoiceItemForm(instance=item)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:invoice-list")
+        item = {
+            "is_active":invoice.is_active,
+            "valet":invoice.valet,
+            "exhibition":invoice.exhibition,
+            "booth_number":invoice.booth_number,
+            "area":invoice.area,
+            "discount":invoice.discount,
+        }
+        form = InvoiceEditForm(initial=item)
         context = {
+            "invoice":invoice,
             "form":form,
         }
-        return render(request, 'office/invoice-add.html', context)
+        return render(request, 'office/invoice-edit.html', context)
     
     def post(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
-        item = get_object_or_404(InvoiceItemModel, invoice=invoice)
-        form = InvoiceItemForm(request.POST, instance=item)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:invoice-list")
+        item = {
+            "is_active":invoice.is_active,
+            "valet":invoice.valet,
+            "exhibition":invoice.exhibition,
+            "booth_number":invoice.booth_number,
+            "area":invoice.area,
+            "discount":invoice.discount,
+        }
+        form = InvoiceEditForm(request.POST, initial=item)
         user = get_object_or_404(User, pk=request.user.id)
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj.user = item.user
-            obj.price = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price
-            obj.value_added = ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added
-            total = int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).price) * int(form.cleaned_data.get('area'))
-            amount = float(total + (total * int(ExhibitionModel.objects.get(pk=form.cleaned_data['exhibition'].id).value_added) / 100))
-            total_price = float(amount - float(amount * int(form.cleaned_data.get('discount')) / 100))
-            obj.total_price = int(total_price)
-            obj.user_modified = user
-            try:
-                invoice = InvoiceModel.objects.get(customer=form.cleaned_data.get('customer'))
-            except CustomerModel.DoesNotExist:
-                return render(request, 'office/invoice-add.html', {'form':form})
-            else:
-                invoice.amount = int(total_price)
-                invoice.save()
-                obj.invoice = invoice
-                obj.save()
-                messages.success(request, f'فاکتور برای مشارکت کننده نمایشگاه {obj.exhibition} با نام تجاری {obj.customer.company} با موفقیت ویرایش شد.')
-                return render(request, 'office/invoice-add.html', {'form':form})
-        return render(request, 'office/invoice-add.html', {'form':form})
+            is_active = form.cleaned_data.get("is_active")
+            valet = form.cleaned_data.get("valet")
+            exhibition = form.cleaned_data.get("exhibition")
+            booth_number = form.cleaned_data.get("booth_number")
+            area = form.cleaned_data.get("area")
+            discount = form.cleaned_data.get("discount")
+            invoice.is_active = is_active
+            invoice.valet = valet
+            invoice.exhibition = exhibition
+            invoice.booth_number = booth_number
+            invoice.area = area
+            invoice.discount = discount
+            invoice.save()
+            e_p = invoice.exhibition.price
+            e_v = invoice.exhibition.value_added
+            total = int(e_p) * int(area) - float(int(e_p) * int(area) * int(discount)) / 100
+            amount = int(total) + float(int(total) * int(e_v)) /100
+            invoice.value_added = str(e_v)
+            invoice.price = str(e_p)
+            invoice.amount = str(int(amount))
+            invoice.user_modified = user
+            invoice.save()
+            messages.success(request, f'فاکتور برای مشارکت کننده {invoice.exhibition.title} با نام تجاری {invoice.valet.customer.company} با موفقیت ویرایش شد.')
+            return render(request, 'office/invoice-edit.html', {'form':form})
+        return render(request, 'office/invoice-edit.html', {'form':form})
     
 
 class ExhibitionAddView(PermissionRequiredMixin, views.View):
@@ -713,8 +773,11 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.add_paymentmodel']
 
-    def get(self, request, id):
-        invoice = get_object_or_404(InvoiceModel, pk=id)
+    def get(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
+            return redirect("office:invoice-list")
         form = PaymentAddForm()
         context = {
             "invoice":invoice,
@@ -722,8 +785,11 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
         }
         return render(request, "office/payment-add.html", context)
     
-    def post(self, request, id):
-        invoice = get_object_or_404(InvoiceModel, pk=id)
+    def post(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
+            return redirect("office:invoice-list")
         user = get_object_or_404(User, pk=request.user.id)
         form = PaymentAddForm(request.POST)
         context = {
@@ -732,9 +798,10 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             state = form.cleaned_data.get("state")
+            valet = form.cleaned_data.get("valet")
+            bank = form.cleaned_data.get("bank")
             amount = form.cleaned_data.get("amount")
             check = form.cleaned_data.get("check")
-            issuerbank = form.cleaned_data.get("issuerbank")
             name = form.cleaned_data.get("name")
             tracenumber = form.cleaned_data.get("tracenumber")
             datepaid = form.cleaned_data.get("datepaid")
@@ -746,52 +813,52 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                 payment.datepaid = datepaid
                 payment.payload = description
                 payment.user_created = user
+                payment.valet = valet
+                payment.bank = bank
                 payment.invoice = invoice
                 payment.save()
                 messages.success(request, f"رسید پرداخت بصورت نقدی به مبلغ {amount} با موفقیت ثبت شد.")
             elif state == PaymentModel.STATE_CHECK:
-                if check and issuerbank and name:
+                if check and name:
                     payment.state = PaymentModel.STATE_CHECK
                     payment.amount = int(amount)
                     payment.cardnumber = check
-                    payment.issuerbank = issuerbank
                     payment.name = name
                     payment.datepaid = datepaid
                     payment.payload = description
                     payment.user_created = user
+                    payment.valet = valet
+                    payment.bank = bank
                     payment.invoice = invoice
                     payment.save()
                     messages.success(request, f"رسید پرداخت بصورت چک بانکی به مبلغ {amount} با موفقیت ثبت شد.")
                 else:
                     messages.error(request, "برای رسید پرداخت بصورت چک بانکی، شماره سریال چک، نام صاحب چک و نام بانک صادرکننده چک الزامی است!")
+                    return render(request, "office/payment-add.html", context)
             elif state == PaymentModel.STATE_POS:
-                if tracenumber:
+                if tracenumber and bank:
                     payment.state = PaymentModel.STATE_POS
                     payment.amount = int(amount)
                     payment.tracenumber = tracenumber
-                    payment.issuerbank = issuerbank
                     payment.datepaid = datepaid
                     payment.payload = description
                     payment.user_created = user
+                    payment.valet = valet
+                    payment.bank = bank
                     payment.invoice = invoice
                     payment.save()
                     messages.success(request, f"رسید پرداخت بصورت کارتخوان به مبلغ {amount} با موفقیت ثبت شد.")
                 else:
-                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری الزامی است!")
+                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری و حساب بانکی الزامی است!")
+                    return render(request, "office/payment-add.html", context)
             else:
                 return render(request, "office/payment-add.html", context)
-            payment_list = PaymentModel.objects.filter(invoice=invoice)
-            total_amount = 0
-            if payment_list:
-                for i in payment_list:
-                    total_amount += i.amount
-                if total_amount >= int(invoice.amount):
-                    invoice.state = InvoiceModel.STATE_PAID
-                    invoice.save()
-                else:
-                    invoice.state = InvoiceModel.STATE_PREPAYMENT
-                    invoice.save()
+            valet_c = get_object_or_404(ValetModel, pk=payment.valet.pk)
+            total = int(payment.amount) + int(valet_c.cash)
+            valet_c.cash = str(int(total))
+            valet_c.save()
             return render(request, "office/payment-add.html", context)
+        messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, "office/payment-add.html", context)
     
 

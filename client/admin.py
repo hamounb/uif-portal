@@ -98,7 +98,7 @@ class ExhibitionAdmin(admin.ModelAdmin):
 class InvoiceAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
     search_fields = ("customer", "amount", "exhibition", "booth_number")
-    list_display = ("pk", "state", "valet", "exhibition", "amount")
+    list_display = ("pk", "state", "is_active", "valet", "exhibition", "amount")
     
     def save_model(self, request, obj, form, change):
         if change:

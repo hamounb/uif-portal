@@ -52,13 +52,18 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-6">
-                                <form method="post">
+                            <div class="form-group col-md-6">
+                                <form method="post" class="form-validate">
                                     {% csrf_token %}
-                                    <div class="form-row mt-2">
-                                        <div class="col-lg-1">
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-12">
                                             {{ form.is_active.label_tag }}
                                             {{ form.is_active }}
+                                            {% if form.is_active.errors %}
+                                                {% for error in form.is_active.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                             {% if form.label_tag.errors %}
                                                 {% for error in form.label_tag.errors %}
                                                     <p class="text-danger">{{ error }}</p>
@@ -66,19 +71,21 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="line my-4"></div>
                                     <div class="form-row">
-                                        <div class="form-group col-lg-3">
-                                            {{ form.customer.label_tag }}
-                                            {{ form.customer }}
-                                            {% if form.customer.errors %}
-                                                {% for error in form.customer.errors %}
+                                        <div class="form-group col-lg-6">
+                                            {{ form.valet.label_tag }}
+                                            {{ form.valet }}
+                                            {% if form.valet.errors %}
+                                                {% for error in form.valet.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
-                                    </div>
-                                    <div class="form-row">
                                         <div class="form-group col-lg-6">
                                             {{ form.exhibition.label_tag }}
                                             {{ form.exhibition }}
@@ -87,8 +94,31 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-3">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-4">
+                                            {{ form.booth_number.label_tag }}
+                                            {{ form.booth_number }}
+                                            {% if form.booth_number.errors %}
+                                                {% for error in form.booth_number.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-4">
                                             {{ form.area.label_tag }}
                                             {{ form.area }}
                                             {% if form.area.errors %}
@@ -96,8 +126,15 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-3">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-lg-4">
                                             {{ form.discount.label_tag }}
                                             {{ form.discount }}
                                             {% if form.discount.errors %}
@@ -105,20 +142,18 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
-                                        </div>
-                                        <div class="form-group col-lg-12">
-                                            {{ form.description.label_tag }}
-                                            {{ form.description }}
-                                            {% if form.description.errors %}
-                                                {% for error in form.description.errors %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
                                     </div>
                                     <div class="form-row">
+                                        <div class="form-group col-lg-12">
+                                            <input type="submit" value="ذخیره تغییرات" class="btn btn-success">
+                                        </div>
                                     </div>
-                                    <input type="submit" class="btn btn-success" value="درج فاکتور">
                                 </form>
                             </div>
                             <div class="col-lg-6 text-center">
@@ -136,7 +171,10 @@
 <script>
     // Initialize Select2 on the select element
     $(document).ready(function() {
-      $('#id_customer').select2();
+      $('#id_valet').select2();
     });
+    $(document).ready(function() {
+        $('#id_exhibition').select2();
+      });
   </script>
 {% endblock script %}

@@ -48,20 +48,31 @@
                     {% endfor %}
                 {% endif %}
             </div>
-            <div class="col-lg-12">
+            <div class="col-lg-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <form method="post">
                                     {% csrf_token %}
                                     <div class="form-row">
-                                        <div class="form-group col-lg-12">
-                                            <p class="text-primary" style="font-size:15pt">این رسید پرداخت برای فاکتور شماره <b class="text-danger">{{ invoice.pk }}</b> با نام تجاری <b class="text-danger">{{ invoice.customer.company }}</b> ثبت خواهد شد.</p>
+                                        <div class="form-group col-md-6">
+                                            {{ form.valet.label_tag }}
+                                            {{ form.valet }}
+                                            {% if form.valet.errors %}
+                                                {% for error in form.valet.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="form-group col-lg-3">
+                                        <div class="form-group col-md-6">
                                             {{ form.state.label_tag }}
                                             {{ form.state }}
                                             {% if form.state.errors %}
@@ -69,10 +80,29 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            {{ form.bank.label_tag }}
+                                            {{ form.bank }}
+                                            {% if form.sbankerrors %}
+                                                {% for error in form.bank.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="form-group col-lg-4">
+                                        <div class="form-group col-md-6">
                                             {{ form.check.label_tag }}
                                             {{ form.check }}
                                             {% if form.check.errors %}
@@ -80,8 +110,13 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-4">
+                                        <div class="form-group col-md-6">
                                             {{ form.name.label_tag }}
                                             {{ form.name }}
                                             {% if form.name.errors %}
@@ -89,17 +124,15 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
-                                        </div>
-                                        <div class="form-group col-lg-4">
-                                            {{ form.issuerbank.label_tag }}
-                                            {{ form.issuerbank }}
-                                            {% if form.issuerbank.errors %}
-                                                {% for error in form.issuerbank.errors %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-4">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
                                             {{ form.amount.label_tag }}
                                             {{ form.amount }}
                                             {% if form.amount.errors %}
@@ -107,8 +140,13 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-4">
+                                        <div class="form-group col-md-6">
                                             {{ form.tracenumber.label_tag }}
                                             {{ form.tracenumber }}
                                             {% if form.tracenumber.errors %}
@@ -116,8 +154,13 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-4">
+                                        <div class="form-group col-md-6">
                                             {{ form.datepaid.label_tag }}
                                             {{ form.datepaid }}
                                             {% if form.datepaid.errors %}
@@ -125,12 +168,22 @@
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-12">
+                                        <div class="form-group col-md-12">
                                             {{ form.description.label_tag }}
                                             {{ form.description }}
                                             {% if form.description.errors %}
                                                 {% for error in form.description.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
@@ -141,10 +194,13 @@
                                     <input type="submit" class="btn btn-success" value="ثبت رسید پرداخت">
                                 </form>
                             </div>
-                            <div class="col-lg-6 text-center">
-                                <img src="{% static 'images/payment.png' %}">
-                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
                     </div>
                 </div>
             </div>
@@ -156,7 +212,7 @@
 <script>
     // Initialize Select2 on the select element
     $(document).ready(function() {
-      $('#id_customer').select2();
+      $('#id_valet').select2();
     });
   </script>
 {% endblock script %}

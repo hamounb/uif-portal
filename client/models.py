@@ -178,7 +178,16 @@ class ValetModel(BaseModel):
     cash = models.CharField(verbose_name="موجودی(ریال)", max_length=15, default="0")
 
     def __str__(self):
-        return self.customer.brand
+        if self.customer.kind == self.customer.KIND_REAL:
+            if self.customer.sid:
+                return f"{self.customer.brand}-{self.customer.first_name} {self.customer.last_name}-{self.customer.sid}"
+            else:
+                return f"{self.customer.brand}-{self.customer.first_name} {self.customer.last_name}"
+        else:
+            if self.customer.sid:
+                return f"{self.customer.brand}-{self.customer.company}-{self.customer.sid}"
+            else:
+                return f"{self.customer.brand}-{self.customer.company}"
     
     class Meta:
         verbose_name = "کیف پول"
@@ -236,13 +245,16 @@ class PaymentModel(BaseModel):
     STATE_CHECK = 'check'
     STATE_CASHE = 'cashe'
     STATE_POS = 'pos'
+    STATE_IPG = 'ipg'
     STATE_CHOICES = (
         (STATE_CHECK, 'چک بانکی'),
         (STATE_CASHE, 'نقدی'),
-        (STATE_POS, 'پوز بانکی')
+        (STATE_POS, 'پوز بانکی'),
+        (STATE_POS, 'درگاه اینترنتی'),
     )
     state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_POS)
     valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, verbose_name="کیف پول")
+    invoice = models.ForeignKey(InvoiceModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="فاکتور")
     bank = models.ForeignKey(BankModel, on_delete=models.SET_NULL, verbose_name="حساب بانکی", null=True, blank=True)
     amount = models.IntegerField(verbose_name="مبلغ", default=1000)
     cardnumber = models.CharField(verbose_name="شماره کارت/چک", max_length=32, null=True, blank=True)
