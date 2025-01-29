@@ -177,17 +177,10 @@ class PaymentAddForm(forms.Form):
         (STATE_CASHE, 'نقدی'),
     )
     state = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=STATE_CHOICES), label="نوع پرداخت")
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده", widget=forms.Select(attrs={'class':'form-control'}))
     bank = forms.ModelChoiceField(queryset=BankModel.objects.all(), required=False, label="حساب بانکی", widget=forms.Select(attrs={'class':'form-control'}))
     amount = forms.IntegerField(widget=forms.TextInput(attrs={"class":"form-control"}), min_value=0, label="مبلغ")
     check = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="سریال چک", required=False)
     name = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="نام صاحب چک", required=False)
     tracenumber = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="شماره پیگیری", required=False)
     datepaid = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="تاریخ پرداخت")
-    description = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":6}), label="توضیحات", required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(PaymentAddForm, self).__init__(*args, **kwargs)
-        self.fields['datepaid'] = JalaliDateField(label="تاریخ پرداخت", # date format is  "yyyy-mm-dd"
-            widget=AdminJalaliDateWidget() # optional, to use default datepicker
-        )
+    description = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":2}), label="توضیحات", required=False)

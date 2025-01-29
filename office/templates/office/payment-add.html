@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
+{% load jalali_tags %}
 {% block title %}
 ثبت رسید پرداخت
 {% endblock title %}
@@ -48,6 +50,110 @@
                     {% endfor %}
                 {% endif %}
             </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>شماره سند</th>
+                                        <th>نام تجاری</th>
+                                        <th>عنوان نمایشگاه</th>
+                                        <th>شماره فاکتور</th>
+                                        <th>ش.پ/ش.چ</th>
+                                        <th>وضعیت پرداخت</th>
+                                        <th>مبلغ(ریال)</th>
+                                        <th>تاریخ</th>
+                                        <th>اقدامات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    {% if payment.state == "pos" %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ payment.get_state_display }}">{{ payment.pk }}</td>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.valet.customer.kind == 'legal' %} {{ payment.valet.customer.company}} {% else %} {{ payment.valrt.customer.first_name }} {{ payment.valet.customer.last_name }} {% endif %}">
+                                            <b>{{ payment.valet.customer.brand }} - {% if payment.valet.customer.kind == 'legal' %} {{ payment.valet.customer.company}} {% else %} {{ payment.valet.customer.first_name }} {{ payment.valet.customer.last_name }} {% endif %}</b>
+                                        </td>
+                                        <td>{{ payment.invoice.exhibition.title }}</td>
+                                        <td>
+                                            {{ payment.invoice.pk }}
+                                        </td>
+                                        <td>
+                                            {% if payment.tracenumber %}{{ payment.tracenumber }}{% else %}-{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if payment.respmsg %}{{ payment.respmsg }}{% else %}-{% endif %}
+                                        </td>
+                                        <td>{{ payment.amount|intcomma:False }}</td>
+                                        <td class="text-primary">{{ payment.datepaid }}</td>
+                                        <td><a class="btn btn-sm" href="{% url 'office:payment-edit' id=payment.pk %}">ویرایش</a></td>
+                                    </tr>
+                                    {% elif payment.state == "check" %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td class="text-info">{{ payment.get_state_display }}</td>
+                                        <td>
+                                            {{ payment.invoice.pk }}
+                                        </td>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.valet.customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %} - {{ payment.invoice.customer.firstname }} {{ payment.invoice.customer.lastname }}">
+                                            <b>{{ payment.valet.customer.brand }}</b>
+                                        </td>
+                                        <td>
+                                            {{ payment.cardnumber }}
+                                        </td>
+                                        <td style="color:#665191">
+                                            -
+                                        </td>
+                                        <td>{{ payment.amount|intcomma:False }}</td>
+                                        <td class="text-primary">{{ payment.datepaid }}</td>
+                                        <td><a class="btn btn-sm" href="{% url 'office:payment-edit' id=payment.pk %}">ویرایش</a></td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td class="text-info">{{ payment.get_state_display }}</td>
+                                        <td>
+                                            {{ payment.invoice.pk }}
+                                        </td>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %} - {{ payment.invoice.customer.firstname }} {{ payment.invoice.customer.lastname }}">
+                                            <b>{{ payment.valet.customer.brand }}</b>
+                                        </td>
+                                        <td class="text-primary">
+                                            -
+                                        </td>
+                                        <td style="color:#665191">
+                                            -
+                                        </td>
+                                        <td class="text-info">{{ payment.amount|intcomma:False }}</td>
+                                        <td class="text-primary">{% if payment.datepaid %}{{ payment.datepaid }}{% else %}-{% endif %}</td>
+                                        <td><a class="btn btn-sm" href="{% url 'office:payment-edit' id=payment.pk %}">ویرایش</a></td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th>{{ total|intcomma:False}}</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-body">
@@ -56,23 +162,7 @@
                                 <form method="post">
                                     {% csrf_token %}
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
-                                            {{ form.valet.label_tag }}
-                                            {{ form.valet }}
-                                            {% if form.valet.errors %}
-                                                {% for error in form.valet.errors %}
-                                                    <p class="text-danger">{{ error }}</p>
-                                                {% endfor %}
-                                            {% endif %}
-                                            {% if form.label_tag.errors %}
-                                                {% for error in form.label_tag.errors %}
-                                                    <p class="text-danger">{{ error }}</p>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-4">
                                             {{ form.state.label_tag }}
                                             {{ form.state }}
                                             {% if form.state.errors %}
@@ -86,11 +176,25 @@
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-4">
                                             {{ form.bank.label_tag }}
                                             {{ form.bank }}
                                             {% if form.sbankerrors %}
                                                 {% for error in form.bank.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            {{ form.datepaid.label_tag }}
+                                            {{ form.datepaid }}
+                                            {% if form.datepaid.errors %}
+                                                {% for error in form.datepaid.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
@@ -160,20 +264,6 @@
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
-                                        <div class="form-group col-md-6">
-                                            {{ form.datepaid.label_tag }}
-                                            {{ form.datepaid }}
-                                            {% if form.datepaid.errors %}
-                                                {% for error in form.datepaid.errors %}
-                                                    <p class="text-danger">{{ error }}</p>
-                                                {% endfor %}
-                                            {% endif %}
-                                            {% if form.label_tag.errors %}
-                                                {% for error in form.label_tag.errors %}
-                                                    <p class="text-danger">{{ error }}</p>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </div>
                                         <div class="form-group col-md-12">
                                             {{ form.description.label_tag }}
                                             {{ form.description }}
@@ -189,8 +279,6 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="form-row">
-                                    </div>
                                     <input type="submit" class="btn btn-success" value="ثبت رسید پرداخت">
                                 </form>
                             </div>
@@ -201,6 +289,24 @@
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card mb-3">
+                                    <div class="card-header">شماره فاکتور: {{ invoice.pk }}</div>
+                                    <div class="card-body text-white bg-info">
+                                        <h5 class="card-title" style="font-size:1.4rem">نام مشارکت کننده: {{ invoice.valet.customer.brand }} {% if invoice.valet.customer.kind == "real" %} - {{ invoice.valet.customer.first_name }} {{ invoice.valet.customer.last_name }}{% else %} - {{ invoice.valet.customer.company }}{% endif %}</h5>
+                                        <p class="card-text" style="font-size:1.4rem">
+                                            نمایشگاه: {{ invoice.exhibition.title }}<br>
+                                            متراژ(مترمربع): {{ invoice.area }}<br>
+                                            قیمت واحد(ریال): {{ invoice.price|intcomma:False }}<br>
+                                            تخفیف(درصد): {{ invoice.discount }}<br>
+                                            ارزش افزوده(درصد): {{ invoice.value_added }}<br>
+                                            مبلغ قابل پرداخت: {{ invoice.amount|intcomma:False }} ریال
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -208,11 +314,7 @@
     </div>
 </section>
 {% endblock content %}
-{% block script%}
-<script>
-    // Initialize Select2 on the select element
-    $(document).ready(function() {
-      $('#id_valet').select2();
-    });
-  </script>
+{% block script %}
+
+
 {% endblock script %}

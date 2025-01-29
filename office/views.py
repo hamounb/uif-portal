@@ -775,6 +775,10 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
 
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
+        payments = PaymentModel.objects.filter(invoice=invoice)
+        total = 0
+        for i in payments:
+            total += int(i.amount)
         if invoice.state == InvoiceModel.STATE_PAID:
             messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
             return redirect("office:invoice-list")
@@ -782,6 +786,8 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
         context = {
             "invoice":invoice,
             "form":form,
+            "payments":payments,
+            "total":total,
         }
         return render(request, "office/payment-add.html", context)
     
@@ -798,7 +804,6 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             state = form.cleaned_data.get("state")
-            valet = form.cleaned_data.get("valet")
             bank = form.cleaned_data.get("bank")
             amount = form.cleaned_data.get("amount")
             check = form.cleaned_data.get("check")
@@ -813,7 +818,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                 payment.datepaid = datepaid
                 payment.payload = description
                 payment.user_created = user
-                payment.valet = valet
+                payment.valet = invoice.valet
                 payment.bank = bank
                 payment.invoice = invoice
                 payment.save()
@@ -827,7 +832,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                     payment.datepaid = datepaid
                     payment.payload = description
                     payment.user_created = user
-                    payment.valet = valet
+                    payment.valet = invoice.valet
                     payment.bank = bank
                     payment.invoice = invoice
                     payment.save()
@@ -843,7 +848,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                     payment.datepaid = datepaid
                     payment.payload = description
                     payment.user_created = user
-                    payment.valet = valet
+                    payment.valet = invoice.valet
                     payment.bank = bank
                     payment.invoice = invoice
                     payment.save()
@@ -857,7 +862,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
             total = int(payment.amount) + int(valet_c.cash)
             valet_c.cash = str(int(total))
             valet_c.save()
-            return render(request, "office/payment-add.html", context)
+            return redirect("office:payment-add", iid=invoice.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, "office/payment-add.html", context)
     

@@ -99,11 +99,11 @@
                                                             <td>
                                                                 {% if invoice.state == "unpaid" %}
                                                                 {% comment %}  {% endcomment %}
-                                                                <a class="btn btn-xs btn-info" href="{% url 'office:invoice-edit' iid=invoice.pk %}">ویرایش</a>
-                                                                <a class="btn btn-xs btn-success" href="{% url 'office:payment-add' iid=invoice.pk %}">تسویه حساب</a>
-                                                                <a class="btn btn-xs btn-danger" href="{% url 'office:invoice-remove' iid=invoice.pk %}">حذف</a>
+                                                                <a class="btn btn-sm btn-info" href="{% url 'office:invoice-edit' iid=invoice.pk %}">ویرایش</a>
+                                                                <a class="btn btn-sm btn-success" href="{% url 'office:payment-add' iid=invoice.pk %}">رسید دریافت</a>
+                                                                <a class="btn btn-sm btn-danger" href="{% url 'office:invoice-remove' iid=invoice.pk %}">حذف</a>
                                                                 {% else %}
-                                                                <a class="btn btn-outline btn-xs" href="">مشاهده فاکتور</a>
+                                                                <a class="btn btn-outline btn-sm" href="">مشاهده فاکتور</a>
                                                                 {% endif %}
                                                             </td>
                                                         </tr>

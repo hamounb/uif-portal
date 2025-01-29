@@ -250,7 +250,7 @@ class PaymentModel(BaseModel):
         (STATE_CHECK, 'چک بانکی'),
         (STATE_CASHE, 'نقدی'),
         (STATE_POS, 'پوز بانکی'),
-        (STATE_POS, 'درگاه اینترنتی'),
+        (STATE_IPG, 'درگاه اینترنتی'),
     )
     state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_POS)
     valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, verbose_name="کیف پول")
