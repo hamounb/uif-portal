@@ -152,7 +152,7 @@ class InvoiceAddForm(forms.Form):
 
 
 class AddToExhibitionForm(forms.Form):
-    exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه", widget=forms.Select(attrs={'class':'form-control'}))
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده")
     booth_number = forms.CharField(max_length=50, required=False, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
     discount = forms.CharField(max_length=50, required=True, label="تخفیف(درصد)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_discount])
     area = forms.CharField(max_length=15, required=True, label="متراژ(مترمربع)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])

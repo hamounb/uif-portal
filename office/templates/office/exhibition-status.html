@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block title %}
-لیست مشارکت کنندگان در نمایشگاه
+صورت وضعیت {{ exh.title }}
 {% endblock title %}
 
 {% block content %}
@@ -13,10 +13,9 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-body" data-bg-image="{% static 'images/exc.png' %}">
-                        <h2>لیست صورت وضعیت نمایشگاه {{ exh.title }}</h2>
+                    <div class="card-body">
+                        <h2>لیست صورت وضعیت {{ exh.title }}</h2>
                         <p>لطفاً از صحیح و بروز بودن اطلاعات مشارکت کنندگان اطمینان حاصل فرمایید!</p>
-                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
                     </div>
                 </div>
             </div>
@@ -59,7 +58,7 @@
                                                 <th>#</th>
                                                 <th>نام تجاری</th>
                                                 <th>متراژ</th>
-                                                <th>تخفیف</th>
+                                                <th>تخفیف(درصد)</th>
                                                 <th>مبلغ نهایی (ریال)</th>
                                                 <th>پرداخت‌ها (شماره پیگیری - مبلغ - تاریخ)</th>
 
@@ -69,7 +68,17 @@
                                             {% for item in items %}
                                             <tr>
                                                 <td>{{ forloop.counter }}</td>
-                                                <td style="color:blueviolet"><b>{{ item.customer.company }}</b></td>
+                                                <td style="color:blueviolet">
+                                                    <b>
+                                                        {{ item.valet.customer.brand }} (
+                                                        {% if item.valet.customer.kind == "legal" %}
+                                                        {{ item.valet.customer.company }}
+                                                        {% else %}
+                                                        {{ item.valet.customer.first_name }} {{ item.valet.customer.last_name }}
+                                                        {% endif %}
+                                                        )
+                                                    </b>
+                                                </td>
                                                 <td>{{ item.area }}</td>
                                                 <td>
                                                     {% if item.discount %}
@@ -78,22 +87,37 @@
                                                     0
                                                     {% endif %}
                                                 </td>
-                                                <td>{{ item.total_price|intcomma:False }}</td>
+                                                <td>{{ item.amount|intcomma:False }}</td>
                                                 <td>
-                                                    {% for pay in item.invoice.paymentmodel_set.all %}
+                                                    {% for pay in item.paymentmodel_set.all %}
+                                                    {% if pay.state == "check" %}
                                                     <ul class="list list-legend">
                                                         <li>
                                                         <b>وضعیت:</b> {{ pay.get_state_display }}
                                                         </li>
                                                         <li>
-                                                        {% if pay.tracenumber %}
-                                                        <b>ش.پ:</b> {{ pay.tracenumber }}
+                                                        {% if pay.cardnumber %}
+                                                        <b>ش.چ:</b> {{ pay.cardnumber }}
                                                         {% else %}
-                                                        <b>ش.پ:</b> ندارد
+                                                        <b>ش.چ:</b> ندارد
                                                         {% endif %}
                                                         </li>
                                                         <li>
-                                                        <b>مبلغ:</b> {{ pay.amount|intcomma:False  }}
+                                                            {% if pay.issuerbank %}
+                                                            <b>ب.ض:</b> {{ pay.issuerbank }}
+                                                            {% else %}
+                                                            <b>ب.ص:</b> ندارد
+                                                            {% endif %}
+                                                        </li>
+                                                        <li>
+                                                            {% if pay.name %}
+                                                            <b>صاحب‌چک:</b> {{ pay.name }}
+                                                            {% else %}
+                                                            <b>صاحب‌چک:</b> ندارد
+                                                            {% endif %}
+                                                        </li>
+                                                        <li>
+                                                        <b>مبلغ:</b> {{ pay.amount|intcomma:False }} ریال
                                                         </li>
                                                         <li>
                                                         {% if pay.datepaid %}
@@ -106,6 +130,86 @@
                                                             <b>تاریخ ایجاد:</b> {{ pay.created_date|to_jalali:"%Y/%m/%d" }}<br>
                                                         </li>
                                                     </ul>
+                                                    {% elif pay.state == "cash" %}
+                                                    <ul class="list list-legend">
+                                                        <li>
+                                                        <b>وضعیت:</b> {{ pay.get_state_display }}
+                                                        </li>
+                                                        <li>
+                                                        {% if pay.tracenumber %}
+                                                        <b>ش.پ:</b> {{ pay.tracenumber }}
+                                                        {% else %}
+                                                        <b>ش.پ:</b> ندارد
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
+                                                        <b>مبلغ:</b> {{ pay.amount|intcomma:False }} ریال
+                                                        </li>
+                                                        <li>
+                                                        {% if pay.datepaid %}
+                                                        <b>تاریخ:</b> {{ pay.datepaid }}<br>
+                                                        {% else %}
+                                                        <b>تاریخ:</b> ندارد<br>
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
+                                                            <b>تاریخ ایجاد:</b> {{ pay.created_date|to_jalali:"%Y/%m/%d" }}<br>
+                                                        </li>
+                                                    </ul>
+                                                    {% elif pay.state == "pos" %}
+                                                    <ul class="list list-legend">
+                                                        <li>
+                                                        <b>وضعیت:</b> {{ pay.get_state_display }}
+                                                        </li>
+                                                        <li>
+                                                        {% if pay.tracenumber %}
+                                                        <b>ش.پ:</b> {{ pay.tracenumber }}
+                                                        {% else %}
+                                                        <b>ش.پ:</b> ندارد
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
+                                                        <b>مبلغ:</b> {{ pay.amount|intcomma:False }} ریال
+                                                        </li>
+                                                        <li>
+                                                        {% if pay.datepaid %}
+                                                        <b>تاریخ:</b> {{ pay.datepaid }}<br>
+                                                        {% else %}
+                                                        <b>تاریخ:</b> ندارد<br>
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
+                                                            <b>تاریخ ایجاد:</b> {{ pay.created_date|to_jalali:"%Y/%m/%d" }}<br>
+                                                        </li>
+                                                    </ul>
+                                                    {% elif pay.state == "ipg" %}
+                                                    <ul class="list list-legend">
+                                                        <li>
+                                                        <b>وضعیت:</b> {{ pay.get_state_display }}
+                                                        </li>
+                                                        <li>
+                                                        {% if pay.tracenumber %}
+                                                        <b>ش.پ:</b> {{ pay.tracenumber }}
+                                                        {% else %}
+                                                        <b>ش.پ:</b> ندارد
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
+                                                        <b>مبلغ:</b> {{ pay.amount|intcomma:False }} ریال
+                                                        </li>
+                                                        <li>
+                                                        {% if pay.datepaid %}
+                                                        <b>تاریخ:</b> {{ pay.datepaid }}<br>
+                                                        {% else %}
+                                                        <b>تاریخ:</b> ندارد<br>
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
+                                                            <b>تاریخ ایجاد:</b> {{ pay.created_date|to_jalali:"%Y/%m/%d" }}<br>
+                                                        </li>
+                                                    </ul>
+                                                    {% else %}
+                                                    {% endif %}
                                                     {% endfor %}
                                                 </td>
                                             </tr>

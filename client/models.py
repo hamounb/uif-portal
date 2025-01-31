@@ -243,7 +243,7 @@ class BankModel(BaseModel):
 
 class PaymentModel(BaseModel):
     STATE_CHECK = 'check'
-    STATE_CASHE = 'cashe'
+    STATE_CASHE = 'cash'
     STATE_POS = 'pos'
     STATE_IPG = 'ipg'
     STATE_CHOICES = (

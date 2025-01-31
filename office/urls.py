@@ -27,6 +27,7 @@ urlpatterns = [
     path('exhibition/add/', ExhibitionAddView.as_view(), name='exhibition-add'),
     path('exhibition/list/', ExhibitionListView.as_view(), name='exhibition-list'),
     path('exhibition/details/<int:eid>/', ExhibitionDetailsView.as_view(), name='exhibition-details'),
+    path('exhibition/details/<int:eid>/<int:iid>/', ExhibitionDetailsEditView.as_view(), name='exhibition-details-edit'),
     path('exhibition/status/<int:id>/', ExhibitionStatusView.as_view(), name='exhibition-status'),
     path('payment/list/', PaymentListView.as_view(), name='payment-list'),
     path('payment/add/<int:iid>/', PaymentAddView.as_view(), name='payment-add'),

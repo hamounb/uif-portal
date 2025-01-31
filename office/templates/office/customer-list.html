@@ -13,9 +13,8 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>لیست مشارکت کنندگان</h2>
+                        <h2>لیست همه</h2>
                         <p>لطفاً از صحیح و بروز بودن اطلاعات مشارکت کنندگان اطمینان حاصل فرمایید!</p>
-                        <p class="text-danger">برای مشارکت کنندگان حقوقی شناسه ملی شرکت/سازمان و نام مدیرعامل الزامی است!</p>
                     </div>
                 </div>
             </div>
@@ -74,8 +73,8 @@
                                                     ---
                                                     {% endif %}
                                                 </td>
-                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %}">
-                                                    <b>{{ customer.brand }}</b>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if customer.kind == "legal" %}حقوقی{% else %}حقیقی{% endif %}">
+                                                    <b>{{ customer.brand }} ({% if customer.kind == "legal" %}{{ customer.company }}{% else %}{{ customer.last_name }} {{ customer.last_name }}{% endif %})</b>
                                                 </td>
                                                 <td class="text-dark">
                                                     {{ customer.code }}
@@ -83,8 +82,8 @@
                                                 <td class="text-dark">{{ customer.mobile }}</td>
                                                 <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
-                                                    <a class="btn btn-xs" href="{% url 'office:customer-change' cid=customer.pk %}">مشاهده و ویرایش</a>
-                                                    <a class="btn btn-success btn-xs" href="{% url 'office:customer-exhibition' id=customer.pk %}"> نمایشگاه ها</a>
+                                                    <a class="btn btn-sm" href="{% url 'office:customer-change' cid=customer.pk %}">مشاهده و ویرایش</a>
+                                                    <a class="btn btn-success btn-sm" href="{% url 'office:customer-exhibition' id=customer.pk %}"> نمایشگاه ها</a>
                                                 </td>
                                             </tr>
                                             {% endfor %}

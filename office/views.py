@@ -52,7 +52,7 @@ class CustomerListView(PermissionRequiredMixin, views.View):
     permission_required = ['client.view_customermodel']
 
     def get(self, request):
-        customer = CustomerModel.objects.all().order_by('-created_date')
+        customer = CustomerModel.objects.filter(is_active=True).order_by('-created_date')
         return render(request, 'office/customer-list.html', {'customer':customer})
     
 
@@ -67,6 +67,7 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
     def post(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         form = CustomerAddForm(request.POST)
+        submit_type = request.POST.get('submit_type')
         if form.is_valid():
             obj = form.save(commit=False)
             if obj.kind == "legal":
@@ -91,25 +92,37 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                         obj.user = new
                         obj.user_modified = user
                         obj.user_created = user
-                        obj.save()
+                        try:
+                            obj.save()
+                        except IntegrityError:
+                            messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
+                            return render(request, 'office/customer-add.html', {'form':form})
                         messages.success(request, f"مشتری حقوقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
                         try:
                             valet = ValetModel.objects.get(customer=obj)
                         except ValetModel.DoesNotExist:
                             valet = ValetModel(customer=obj)
                             valet.save()
-                        return redirect('office:customer-change', cid=obj.id)
+                        if submit_type == "save":
+                            return redirect('office:customer-list')
+                        return redirect("office:customer-add")
                     obj.user = cus
                     obj.user_modified = user
                     obj.user_created = user
-                    obj.save()
+                    try:
+                        obj.save()
+                    except IntegrityError:
+                        messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
+                        return render(request, 'office/customer-add.html', {'form':form})
                     messages.success(request, f"مشتری حقوقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
                     try:
                         valet = ValetModel.objects.get(customer=obj)
                     except ValetModel.DoesNotExist:
                         valet = ValetModel(customer=obj)
                         valet.save()
-                    return redirect('office:customer-change', cid=obj.id)
+                    if submit_type == "save":
+                        return redirect('office:customer-list')
+                    return redirect("office:customer-add")
             else:
                 code = form.cleaned_data.get('code')
                 mobile = form.cleaned_data.get('mobile')
@@ -125,28 +138,40 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     obj.company = ''
                     obj.user_modified = user
                     obj.user_created = user
-                    obj.save()
+                    try:
+                        obj.save()
+                    except IntegrityError:
+                        messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
+                        return render(request, 'office/customer-add.html', {'form':form})
                     messages.success(request, f"مشتری حقیقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
                     try:
                         valet = ValetModel.objects.get(customer=obj)
                     except ValetModel.DoesNotExist:
                         valet = ValetModel(customer=obj)
                         valet.save()
-                    return redirect('office:customer-change', cid=obj.pk)
+                    if submit_type == "save":
+                        return redirect('office:customer-list')
+                    return redirect("office:customer-add")
                 obj.user = cus
                 obj.ceoname = ''
                 obj.ncode = ''
                 obj.company = ''
                 obj.user_modified = user
                 obj.user_created = user
-                obj.save()
+                try:
+                    obj.save()
+                except IntegrityError:
+                    messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
+                    return render(request, 'office/customer-add.html', {'form':form})
                 messages.success(request, f"مشتری حقیقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
                 try:
                     valet = ValetModel.objects.get(customer=obj)
                 except ValetModel.DoesNotExist:
                     valet = ValetModel(customer=obj)
                     valet.save()
-                return redirect('office:customer-change', cid=obj.pk)
+                if submit_type == "save":
+                    return redirect('office:customer-list')
+                return redirect("office:customer-add")
         return render(request, 'office/customer-add.html', {'form':form})
     
 
@@ -155,7 +180,8 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
     permission_required = ['client.change_customermodel']
 
     def get(self, request, cid):
-        customer = get_object_or_404(CustomerModel, pk=cid)
+        query = Q(pk=cid) & Q(is_active=True)
+        customer = get_object_or_404(CustomerModel, query)
         form = CustomerChangeForm(instance=customer)
         docs = DocumentsModel.objects.filter(customer=customer).order_by('-created_date')
         form2 = DocumentForm()
@@ -168,7 +194,8 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
         return render(request, 'office/customer-change.html', context)
     
     def post(self, request, cid):
-        customer = get_object_or_404(CustomerModel, pk=cid)
+        query = Q(pk=cid) & Q(is_active=True)
+        customer = get_object_or_404(CustomerModel, query)
         user = get_object_or_404(User, pk=request.user.id)
         form = CustomerChangeForm(request.POST, instance=customer)
         context = {
@@ -592,12 +619,12 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
     permission_required = ['client.change_exhibitionmodel']
 
     def get(self, request, eid):
-        form = InvoiceAddForm()
+        form = AddToExhibitionForm()
         cus = InvoiceModel.objects.filter(Q(exhibition=eid) & Q(is_active=True))
         total = 0
         area = 0
         for i in cus:
-            total += float(i.amount)
+            total += int(i.amount)
             area += int(i.area)
         exhibition = get_object_or_404(ExhibitionModel, pk=eid)
         context = {
@@ -611,7 +638,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
     
     def post(self, request, eid):
         user = get_object_or_404(User, pk=request.user.id)
-        form = InvoiceAddForm(request.POST)
+        form = AddToExhibitionForm(request.POST)
         cus = InvoiceModel.objects.filter(Q(exhibition=eid) & Q(is_active=True))
         total = 0
         area = 0
@@ -630,7 +657,9 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             valet = form.cleaned_data.get("valet")
             booth_number = form.cleaned_data.get("booth_number")
             area_c = form.cleaned_data.get("area")
-            total = (int(area_c) * int(exhibition.price)) + float(int(exhibition.value_added) * (int(area_c) * int(exhibition.price))) / 100
+            discount = form.cleaned_data.get("discount")
+            pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
+            total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice = InvoiceModel(
                 valet=valet,
                 exhibition=exhibition,
@@ -638,6 +667,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
                 price=exhibition.price,
                 area=area_c,
                 value_added=exhibition.value_added,
+                discount=discount,
                 amount=int(total),
                 user_created=user,
             )
@@ -646,7 +676,89 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             return redirect("office:exhibition-details", eid=exhibition.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/exhibition-details.html', context)
+    
 
+class ExhibitionDetailsEditView(views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.change_exhibitionmodel']
+
+    def get(self, request, eid, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:exhibition-details", eid=exhibition.pk)
+        initial = {
+            "valet":invoice.valet,
+            "booth_number":invoice.booth_number,
+            "area":invoice.area,
+            "discount":invoice.discount,
+        }
+        form = AddToExhibitionForm(initial=initial)
+        cus = InvoiceModel.objects.filter(Q(exhibition=eid) & Q(is_active=True))
+        total = 0
+        area = 0
+        for i in cus:
+            total += int(i.amount)
+            area += int(i.area)
+        exhibition = get_object_or_404(ExhibitionModel, pk=eid)
+        context = {
+            'cus':cus,
+            'exh':exhibition,
+            'total':total,
+            'area':area,
+            'form':form,
+            "invoice":invoice,
+        }
+        return render(request, 'office/exhibition-details.html', context)
+    
+    def post(self, request, eid, iid):
+        user = get_object_or_404(User, pk=request.user.id)
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:exhibition-details", eid=exhibition.pk)
+        initial = {
+            "valet":invoice.valet,
+            "booth_number":invoice.booth_number,
+            "area":invoice.area,
+            "discount":invoice.discount,
+        }
+        form = AddToExhibitionForm(request.POST, initial=initial)
+        cus = InvoiceModel.objects.filter(Q(exhibition=eid) & Q(is_active=True))
+        total = 0
+        area = 0
+        for i in cus:
+            total += float(i.amount)
+            area += int(i.area)
+        exhibition = get_object_or_404(ExhibitionModel, pk=eid)
+        context = {
+            'cus':cus,
+            'exh':exhibition,
+            'total':total,
+            'area':area,
+            'form':form,
+            "invoice":invoice,
+        }
+        if form.is_valid():
+            valet = form.cleaned_data.get("valet")
+            booth_number = form.cleaned_data.get("booth_number")
+            area_c = form.cleaned_data.get("area")
+            discount = form.cleaned_data.get("discount")
+            pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
+            total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
+            invoice.valet = valet
+            invoice.booth_number = booth_number
+            invoice.price = exhibition.price
+            invoice.area = area_c
+            invoice.value_added = exhibition.value_added
+            invoice.discount = discount
+            invoice.amount = int(total)
+            invoice.user_modified = user
+            invoice.save()
+            messages.success(request, f'مشارکت کننده {valet} در {exhibition.title} با موفقیت ثبت نام شد.')
+            return redirect("office:exhibition-details", eid=exhibition.pk)
+        messages.error(request, "خطای سیستمی رخ داده است!")
+        return render(request, 'office/exhibition-details.html', context)
     
 
 class ExhibitionStatusView(PermissionRequiredMixin, views.View):
