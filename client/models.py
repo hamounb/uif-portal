@@ -291,12 +291,12 @@ class DepositModel(BaseModel):
         (STATE_PAYMENT, "اضافه به حساب")
     )
     state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_DEPOSIT)
-    valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, max_length="کیف پول")
+    valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, verbose_name="کیف پول")
     invoice_number = models.CharField(verbose_name="شماره سند", max_length=100, unique=True)
     description = models.TextField(verbose_name="توضیحات", null=True, blank=True)
 
     def __str__(self):
-        return f"{self.valet.customer.brand} - شماره سند: {self.invoice_number}"
+        return f"{self.valet.customer.brand}({self.valet.customer.first_name} {self.valet.customer.last_name}) - شماره سند: {self.invoice_number}"
     
     class Meta:
         verbose_name = "بیعانه"

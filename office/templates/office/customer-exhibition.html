@@ -166,7 +166,7 @@
                                                 <td style="color:blueviolet"><b>{{ invoice.exhibition.title }}</b></td>
                                                 <td>{{ invoice.booth_number }}</td>
                                                 <td>{{ invoice.area }}</td>
-                                                <td>{{ invoice.price }}</td>
+                                                <td>{{ invoice.price|intcomma }}</td>
                                                 <td>{{ invoice.value_added }}</td>
                                                 <td>
                                                     {% if invoice.discount %}
@@ -175,7 +175,7 @@
                                                     0
                                                     {% endif %}
                                                 </td>
-                                                <td>{{ invoice.amount|floatformat:"1"|intcomma }}</td>
+                                                <td>{{ invoice.amount|intcomma }}</td>
                                                 <td>{{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
                                                     {% if invoice.state == "unpaid" %}
@@ -197,7 +197,7 @@
                                                 <td style="color:blueviolet"><b>{{ invoice.exhibition.title }}</b></td>
                                                 <td>{{ invoice.booth_number }}</td>
                                                 <td>{{ invoice.area }}</td>
-                                                <td>{{ invoice.price }}</td>
+                                                <td>{{ invoice.price|intcomma:False }}</td>
                                                 <td>{{ invoice.value_added }}</td>
                                                 <td>
                                                     {% if invoice.discount %}
@@ -206,13 +206,13 @@
                                                     0
                                                     {% endif %}
                                                 </td>
-                                                <td>{{ invoice.amount|floatformat:"1"|intcomma }}</td>
+                                                <td>{{ invoice.amount|intcomma:False }}</td>
                                                 <td>{{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
                                                     {% if invoice.state == "unpaid" %}
                                                     <a class="btn btn-xs" href="{% url 'office:customer-exhibition-edit' id=invoice.pk %}">ویرایش</a>
+                                                    <a class="btn btn-success btn-xs" href="{% url 'office:payment-add' iid=invoice.pk %}">تسویه حساب</a>
                                                     <a class="btn btn-danger btn-xs" data-target="#modal{{ invoice.pk }}" data-toggle="modal" href="#">انصراف</a>
-                                                    <a class="btn btn-success btn-xs">تسویه حساب</a>
                                                     {% else %}
                                                     <a class="btn btn-info btn-xs">فاکتور</a>
                                                     <a class="btn btn-warning btn-xs">برگ خروج</a>

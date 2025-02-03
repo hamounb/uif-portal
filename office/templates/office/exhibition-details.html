@@ -165,11 +165,8 @@
                                                 </td>
                                                 <td>{{ cus.amount|intcomma:False }}</td>
                                                 <td>{{ cus.created_date|to_jalali:'%Y/%m/%d' }}</td>
-                                                <td>
-                                                    {% if cus.state == "unpaid" %}
-                                                    <a href="{% url 'office:exhibition-details-edit' eid=cus.exhibition.pk iid=cus.pk %}" class="btn btn-sm">ویرایش</a>
-                                                    <a href="{% url 'office:invoice-remove' iid=cus.pk %}" class="btn btn-danger btn-sm">حذف</a>
-                                                    {% endif %}
+                                                <td class="text-light">
+                                                    <b>این ردیف در وضعیت ویرایش می‌باشد...</b>
                                                 </td>
                                             </tr>
                                             {% endif %}
@@ -209,7 +206,11 @@
                                                 <td>
                                                     {% if cus.state == "unpaid" %}
                                                     <a href="{% url 'office:exhibition-details-edit' eid=cus.exhibition.pk iid=cus.pk %}" class="btn btn-sm">ویرایش</a>
+                                                    <a href="{% url 'office:payment-add' iid=cus.pk %}" class="btn btn-success btn-sm" target="blank">تسویه</a>
                                                     <a href="{% url 'office:invoice-remove' iid=cus.pk %}" class="btn btn-danger btn-sm">حذف</a>
+                                                    {% else %}
+                                                    <a href="{% url 'office:invoice-remove' iid=cus.pk %}" class="btn btn-outline btn-sm">صدور فاکتور</a>
+                                                    <a href="{% url 'office:invoice-remove' iid=cus.pk %}" class="btn btn-secondary btn-sm">مجوز خروج</a>
                                                     {% endif %}
                                                 </td>
                                             </tr>

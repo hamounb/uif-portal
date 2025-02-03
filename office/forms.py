@@ -145,6 +145,13 @@ class ExhibitionForm(forms.ModelForm):
         )
 
 
+class CustomerToExhibitionForm(forms.Form):
+    exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه")
+    booth_number = forms.CharField(max_length=50, required=False, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
+    discount = forms.CharField(max_length=50, required=True, label="تخفیف(درصد)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_discount])
+    area = forms.CharField(max_length=15, required=True, label="متراژ(مترمربع)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
+
+
 class InvoiceAddForm(forms.Form):
     valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده")
     booth_number = forms.CharField(label="شماره غرفه", max_length=4, required=False, validators=[is_positive], widget=forms.TextInput(attrs={'class':'form-control'}))
@@ -183,4 +190,13 @@ class PaymentAddForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="نام صاحب چک", required=False)
     tracenumber = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="شماره پیگیری", required=False)
     datepaid = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}), label="تاریخ پرداخت")
+    description = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":2}), label="توضیحات", required=False)
+
+
+class DepositAddForm(forms.Form):
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), required=True, label="مشارکت کننده")
+    invoice_number = forms.CharField(max_length=6, label="شماره سند", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
+    tracenumber = forms.CharField(max_length=12, label="شماره پیگیری", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
+    amount = forms.CharField(max_length=12, label="مبلغ(ریال)", required=True, widget=forms.TextInput(attrs={"class":"form-control"}), validators=[is_positive])
+    date = forms.CharField(max_length=10, label="تاریخ پرداخت", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
     description = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":2}), label="توضیحات", required=False)

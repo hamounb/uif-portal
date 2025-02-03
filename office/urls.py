@@ -31,5 +31,7 @@ urlpatterns = [
     path('exhibition/status/<int:id>/', ExhibitionStatusView.as_view(), name='exhibition-status'),
     path('payment/list/', PaymentListView.as_view(), name='payment-list'),
     path('payment/add/<int:iid>/', PaymentAddView.as_view(), name='payment-add'),
-    path('payment/edit/<int:id>/', PaymentEditView.as_view(), name='payment-edit'),
+    path('payment/edit/<int:iid>/<int:pid>/', PaymentEditView.as_view(), name='payment-edit'),
+    path('payment/checkout/<int:iid>/', CheckoutView.as_view(), name='checkout'),
+    path('payment/deposit/add/', DepositAddView.as_view(), name='deposit-add'),
     ]

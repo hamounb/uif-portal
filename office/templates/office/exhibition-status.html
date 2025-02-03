@@ -14,7 +14,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h2>لیست صورت وضعیت {{ exh.title }}</h2>
+                        <h2> صورت وضعیت <b class="text-info">{{ exhibition.title }}</b></h2>
                         <p>لطفاً از صحیح و بروز بودن اطلاعات مشارکت کنندگان اطمینان حاصل فرمایید!</p>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                                                         </li>
                                                         <li>
                                                             {% if pay.issuerbank %}
-                                                            <b>ب.ض:</b> {{ pay.issuerbank }}
+                                                            <b>ب.ص:</b> {{ pay.issuerbank }}
                                                             {% else %}
                                                             <b>ب.ص:</b> ندارد
                                                             {% endif %}
@@ -113,7 +113,7 @@
                                                             {% if pay.name %}
                                                             <b>صاحب‌چک:</b> {{ pay.name }}
                                                             {% else %}
-                                                            <b>صاحب‌چک:</b> ندارد
+                                                            <b>صاحب‌چک:</b> -
                                                             {% endif %}
                                                         </li>
                                                         <li>
@@ -123,7 +123,7 @@
                                                         {% if pay.datepaid %}
                                                         <b>تاریخ:</b> {{ pay.datepaid }}<br>
                                                         {% else %}
-                                                        <b>تاریخ:</b> ندارد<br>
+                                                        <b>تاریخ:</b> -<br>
                                                         {% endif %}
                                                         </li>
                                                         <li>
@@ -136,20 +136,13 @@
                                                         <b>وضعیت:</b> {{ pay.get_state_display }}
                                                         </li>
                                                         <li>
-                                                        {% if pay.tracenumber %}
-                                                        <b>ش.پ:</b> {{ pay.tracenumber }}
-                                                        {% else %}
-                                                        <b>ش.پ:</b> ندارد
-                                                        {% endif %}
-                                                        </li>
-                                                        <li>
                                                         <b>مبلغ:</b> {{ pay.amount|intcomma:False }} ریال
                                                         </li>
                                                         <li>
                                                         {% if pay.datepaid %}
                                                         <b>تاریخ:</b> {{ pay.datepaid }}<br>
                                                         {% else %}
-                                                        <b>تاریخ:</b> ندارد<br>
+                                                        <b>تاریخ:</b> -<br>
                                                         {% endif %}
                                                         </li>
                                                         <li>
@@ -169,13 +162,20 @@
                                                         {% endif %}
                                                         </li>
                                                         <li>
+                                                        {% if pay.bank %}
+                                                        <b>ش.ح:</b> {{ pay.bank.name }}-{{ pay.bank.account_number }}
+                                                        {% else %}
+                                                        <b>ش.ح:</b> ندارد
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
                                                         <b>مبلغ:</b> {{ pay.amount|intcomma:False }} ریال
                                                         </li>
                                                         <li>
                                                         {% if pay.datepaid %}
                                                         <b>تاریخ:</b> {{ pay.datepaid }}<br>
                                                         {% else %}
-                                                        <b>تاریخ:</b> ندارد<br>
+                                                        <b>تاریخ:</b> -<br>
                                                         {% endif %}
                                                         </li>
                                                         <li>
@@ -192,6 +192,13 @@
                                                         <b>ش.پ:</b> {{ pay.tracenumber }}
                                                         {% else %}
                                                         <b>ش.پ:</b> ندارد
+                                                        {% endif %}
+                                                        </li>
+                                                        <li>
+                                                        {% if pay.respcode %}
+                                                        <b>ک.ت:</b> {{ pay.respcode }}
+                                                        {% else %}
+                                                        <b>ک.ت:</b> ندارد
                                                         {% endif %}
                                                         </li>
                                                         <li>
@@ -219,9 +226,9 @@
                                             <tr>
                                                 <th></th>
                                                 <th></th>
+                                                <th>{{ total_area }}</th>
                                                 <th></th>
-                                                <th></th>
-                                                <th></th>
+                                                <th>{{ total_price|intcomma:False }}</th>
                                                 <th></th>
                                             </tr>
                                         </tfoot>

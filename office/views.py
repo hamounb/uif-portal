@@ -227,14 +227,14 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
         return render(request, 'office/customer-change.html', context)
     
 
-class CustomerExhibitionView(views.View):
+class CustomerExhibitionView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.add_invoicemodel']
 
     def get(self , request, id):
         customer = get_object_or_404(CustomerModel, pk=id)
         invoice = InvoiceModel.objects.filter(Q(valet__customer=customer) & Q(is_active=True)).order_by("-created_date")
-        form = AddToExhibitionForm()
+        form = CustomerToExhibitionForm()
         context = {
             'customer':customer,
             'form':form,
@@ -247,7 +247,7 @@ class CustomerExhibitionView(views.View):
         customer = get_object_or_404(CustomerModel, pk=id)
         invoice = InvoiceModel.objects.filter(Q(valet__customer=customer) & Q(is_active=True)).order_by("-created_date")
         valet = get_object_or_404(ValetModel, customer=customer)
-        form = AddToExhibitionForm(request.POST)
+        form = CustomerToExhibitionForm(request.POST)
         context = {
             'customer':customer,
             'form':form,
@@ -283,7 +283,7 @@ class CustomerExhibitionView(views.View):
         return render(request, "office/customer-exhibition.html", context)
     
 
-class CustomerExhibitionEditView(views.View):
+class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.change_invoicemodel']
 
@@ -300,7 +300,7 @@ class CustomerExhibitionEditView(views.View):
         }
         invo_id = invo.pk
         invoice = InvoiceModel.objects.filter(Q(valet__customer=invo.valet.customer) & Q(is_active=True)).order_by("-created_date")
-        form = AddToExhibitionForm(initial=init_data)
+        form = CustomerToExhibitionForm(initial=init_data)
         context = {
             'invoice':invoice,
             'form':form,
@@ -316,7 +316,7 @@ class CustomerExhibitionEditView(views.View):
             messages.error(request, f"{invo.valet.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:customer-exhibition", id=invo.valet.customer.pk)
         invoice = InvoiceModel.objects.filter(Q(valet__customer=invo.valet.customer) & Q(is_active=True)).order_by("-created_date")
-        form = AddToExhibitionForm(request.POST)
+        form = CustomerToExhibitionForm(request.POST)
         context = {
             'form':form,
             'invoice':invoice,
@@ -421,80 +421,6 @@ class DocumentsListView(PermissionRequiredMixin, views.View):
         return render(request, 'office/documents-list.html', {'doc':doc})
     
 
-# class RequestListView(PermissionRequiredMixin, views.View):
-#     login_url = 'accounts:signin'
-#     permission_required = ['client.view_requestmodel']
-
-#     def get(self, request):
-#         req = RequestModel.objects.all().order_by('-created_date')
-#         return render(request, 'office/request-list.html', {'req':req})
-    
-
-# class RequestDetailsView(PermissionRequiredMixin, views.View):
-#     login_url = 'accounts:signin'
-#     permission_required = ['client.add_requestmodel', 'client.add_invoicemodel', 'client.add_messagesmodel']
-
-#     def get(self, request, rid):
-#         req = get_object_or_404(RequestModel, pk=rid)
-#         mes = MessagesModel.objects.filter(customer=req.customer)
-#         form = MessageForm()
-#         form2 = RequestAcceptForm()
-#         context = {
-#             'req':req,
-#             'mes':mes,
-#             'form':form,
-#             'form2':form2,
-#         }
-#         return render(request, 'office/request-details.html', context)
-    
-    # def post(self, request, rid):
-    #     req = get_object_or_404(RequestModel, pk=rid)
-    #     mes = MessagesModel.objects.filter(customer=req.customer)
-    #     form = MessageForm(request.POST)
-    #     form2 = RequestAcceptForm(request.POST)
-    #     context = {
-    #         'req':req,
-    #         'mes':mes,
-    #         'form':form,
-    #         'form':form2,
-    #     }
-    #     if form.is_valid() and 'btn1' in request.POST:
-    #         text = form.cleaned_data.get('text')
-    #         mes = MessagesModel()
-    #         mes.text = text
-    #         mes.is_active = True
-    #         mes.customer = req.customer
-    #         mes.save()
-    #         req.state = req.STATE_DENY
-    #         req.save()
-    #         messages.success(request, 'پیغام شما با موفقیت ارسال شد.')
-    #         return render(request, 'office/request-details.html', context)
-    #     if form2.is_valid() and 'btn2' in request.POST:
-    #         area = form2.cleaned_data.get('area')
-    #         discount = form2.cleaned_data.get('discount')
-    #         description = form2.cleaned_data.get('description')
-    #         total = int(req.exhibition.price) * int(area) + int(int(req.exhibition.price) * int(area) * int(req.exhibition.value_added) / 100)
-    #         invoice = InvoiceModel(
-    #             is_active=True,
-    #             user=req.user,
-    #             customer=req.customer,
-    #             exhibition=req.exhibition,
-    #             price=req.exhibition.price,
-    #             area=area,
-    #             value_added=req.exhibition.value_added,
-    #             discount=discount,
-    #             total_price=total,
-    #             description=description,
-    #         )
-    #         invoice.save()
-    #         req.state = req.STATE_ACCEPT
-    #         req.save()
-    #         messages.success(request, f'موافقت شما با درخواست {req.customer.company} برای نمایشگاه {req.exhibition.title} به متراژ {area} ثبت شد.')
-    #         return render(request, 'office/request-details.html', context)
-    #     messages.error(request, 'درخواست عملیات شما با خطا مواجه شد!', extra_tags="danger")
-    #     return redirect('office:request-details', rid=req.pk)
-    
-
 class InvoiceListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.view_invoicemodel']
@@ -581,6 +507,338 @@ class InvoiceEditView(PermissionRequiredMixin, views.View):
             messages.success(request, f'فاکتور برای مشارکت کننده {invoice.exhibition.title} با نام تجاری {invoice.valet.customer.company} با موفقیت ویرایش شد.')
             return render(request, 'office/invoice-edit.html', {'form':form})
         return render(request, 'office/invoice-edit.html', {'form':form})
+    
+
+class PaymentListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.view_paymentmodel']
+
+    def get(self, request):
+        payments = PaymentModel.objects.all().order_by("-created_date")
+        context = {
+            "payments":payments,
+        }
+        return render(request, "office/payment-list.html", context)
+    
+
+class PaymentAddView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.add_paymentmodel']
+
+    def get(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        payments = PaymentModel.objects.filter(invoice=invoice)
+        total = 0
+        for i in payments:
+            total += int(i.amount)
+        if int(invoice.amount) - total < 0:
+            debit = 0
+            credit = total - int(invoice.amount)
+        elif int(invoice.amount) - total > 0:
+            debit = int(invoice.amount) - total
+            credit = 0
+        else:
+            debit = 0
+            credit = 0
+        form = PaymentAddForm()
+        context = {
+            "invoice":invoice,
+            "form":form,
+            "payments":payments,
+            "total":total,
+            "debit":debit,
+            "credit":credit,
+        }
+        return render(request, "office/payment-add.html", context)
+    
+    def post(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
+            return redirect("office:invoice-list")
+        user = get_object_or_404(User, pk=request.user.id)
+        form = PaymentAddForm(request.POST)
+        context = {
+            "invoice":invoice,
+            "form":form,
+        }
+        if form.is_valid():
+            state = form.cleaned_data.get("state")
+            bank = form.cleaned_data.get("bank")
+            amount = form.cleaned_data.get("amount")
+            check = form.cleaned_data.get("check")
+            name = form.cleaned_data.get("name")
+            tracenumber = form.cleaned_data.get("tracenumber")
+            datepaid = form.cleaned_data.get("datepaid")
+            description = form.cleaned_data.get("description")
+            payment = PaymentModel()
+            if state == PaymentModel.STATE_CASHE:
+                payment.state = PaymentModel.STATE_CASHE
+                payment.amount = int(amount)
+                payment.datepaid = datepaid
+                payment.payload = description
+                payment.user_created = user
+                payment.valet = invoice.valet
+                payment.bank = bank
+                payment.invoice = invoice
+                payment.save()
+                messages.success(request, f"رسید پرداخت بصورت نقدی به مبلغ {amount} با موفقیت ثبت شد.")
+            elif state == PaymentModel.STATE_CHECK:
+                if check and name:
+                    payment.state = PaymentModel.STATE_CHECK
+                    payment.amount = int(amount)
+                    payment.cardnumber = check
+                    payment.name = name
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_created = user
+                    payment.valet = invoice.valet
+                    payment.bank = bank
+                    payment.invoice = invoice
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت چک بانکی به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت چک بانکی، شماره سریال چک، نام صاحب چک و نام بانک صادرکننده چک الزامی است!")
+                    return render(request, "office/payment-add.html", context)
+            elif state == PaymentModel.STATE_POS:
+                if tracenumber and bank:
+                    payment.state = PaymentModel.STATE_POS
+                    payment.amount = int(amount)
+                    payment.tracenumber = tracenumber
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_created = user
+                    payment.valet = invoice.valet
+                    payment.bank = bank
+                    payment.invoice = invoice
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت کارتخوان به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری و حساب بانکی الزامی است!")
+                    return render(request, "office/payment-add.html", context)
+            else:
+                return render(request, "office/payment-add.html", context)
+            valet_c = get_object_or_404(ValetModel, pk=payment.valet.pk)
+            total = int(payment.amount) + int(valet_c.cash)
+            valet_c.cash = str(int(total))
+            valet_c.save()
+            return redirect("office:payment-add", iid=invoice.pk)
+        messages.error(request, "خطای سیستمی رخ داده است!")
+        return render(request, "office/payment-add.html", context)
+    
+
+class PaymentEditView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.change_paymentmodel']
+
+    def get(self, request, iid, pid):
+        payment = get_object_or_404(PaymentModel, pk=pid)
+        if payment.invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"فاکتور شماره {payment.invoice.pk} قبلاً تسویه حساب شده است.")
+            return redirect("office:payment-add", iid=payment.invoice.pk)
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        payments = PaymentModel.objects.filter(invoice=invoice)
+        initial = {
+            "state":payment.state,
+            "check":payment.cardnumber,
+            "name":payment.name,
+            "issuerbank":payment.issuerbank,
+            "amount":payment.amount,
+            "tracenumber":payment.tracenumber,
+            "datepaid":payment.datepaid,
+            "description":payment.payload,
+        }
+        form = PaymentAddForm(initial=initial)
+        context = {
+            "payment":payment,
+            "form":form,
+            "invoice":invoice,
+            "payments":payments,
+        }
+        return render(request, "office/payment-add.html", context)
+    
+    def post(self, request, iid, pid):
+        payment = get_object_or_404(PaymentModel, pk=pid)
+        if payment.invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"فاکتور شماره {payment.invoice.pk} قبلاً تسویه حساب شده است.")
+            return redirect("office:payment-add", iid=payment.invoice.pk)
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        old_price = int(payment.amount)
+        payments = PaymentModel.objects.filter(invoice=invoice)
+        user = get_object_or_404(User, pk=request.user.id)
+        initial = {
+            "state":payment.state,
+            "check":payment.cardnumber,
+            "name":payment.name,
+            "issuerbank":payment.issuerbank,
+            "amount":payment.amount,
+            "tracenumber":payment.tracenumber,
+            "datepaid":payment.datepaid,
+            "description":payment.payload,
+        }
+        form = PaymentAddForm(request.POST, initial=initial)
+        context = {
+            "payment":payment,
+            "invoice":invoice,
+            "form":form,
+            "payments":payments,
+        }
+        if form.is_valid():
+            state = form.cleaned_data.get("state")
+            amount = form.cleaned_data.get("amount")
+            check = form.cleaned_data.get("check")
+            issuerbank = form.cleaned_data.get("issuerbank")
+            name = form.cleaned_data.get("name")
+            tracenumber = form.cleaned_data.get("tracenumber")
+            datepaid = form.cleaned_data.get("datepaid")
+            description = form.cleaned_data.get("description")
+            if state == PaymentModel.STATE_CASHE:
+                payment.state = PaymentModel.STATE_CASHE
+                payment.amount = int(amount)
+                payment.cardnumber = ""
+                payment.issuerbank = ""
+                payment.name = ""
+                payment.datepaid = datepaid
+                payment.payload = description
+                payment.user_modified = user
+                payment.save()
+                messages.success(request, f"رسید پرداخت بصورت نقدی به مبلغ {amount} با موفقیت ثبت شد.")
+            elif state == PaymentModel.STATE_CHECK:
+                if check and issuerbank and name:
+                    payment.state = PaymentModel.STATE_CHECK
+                    payment.amount = int(amount)
+                    payment.cardnumber = check
+                    payment.issuerbank = issuerbank
+                    payment.name = name
+                    payment.tracenumber = ""
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_modified = user
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت چک بانکی به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت چک بانکی، شماره سریال چک، نام صاحب چک و نام بانک صادرکننده چک الزامی است!")
+            elif state == PaymentModel.STATE_POS:
+                if tracenumber:
+                    payment.state = PaymentModel.STATE_POS
+                    payment.amount = int(amount)
+                    payment.tracenumber = tracenumber
+                    payment.cardnumber = ""
+                    payment.issuerbank = issuerbank
+                    payment.name = ""
+                    payment.datepaid = datepaid
+                    payment.payload = description
+                    payment.user_modified = user
+                    payment.save()
+                    messages.success(request, f"رسید پرداخت بصورت کارتخوان به مبلغ {amount} با موفقیت ثبت شد.")
+                else:
+                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری الزامی است!")
+            else:
+                return render(request, "office/payment-add.html", context)
+            valet_c = get_object_or_404(ValetModel, pk=payment.valet.pk)
+            total = int(payment.amount) + int(valet_c.cash) - old_price
+            valet_c.cash = str(int(total))
+            valet_c.save()
+            return redirect("office:payment-add", iid=payment.invoice.pk)
+        return render(request, "office/payment-add.html", context)
+    
+
+class DepositAddView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.change_invoicemodel']
+
+    def get(self, request):
+        deposits = DepositModel.objects.filter(state=DepositModel.STATE_DEPOSIT).order_by("-created_date")
+        form = DepositAddForm()
+        context = {
+            "form":form,
+            "deposits":deposits,
+        }
+        return render(request, "office/deposit-add.html", context)
+
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        deposits = DepositModel.objects.filter(state=DepositModel.STATE_DEPOSIT).order_by("-created_date")
+        form = DepositAddForm(request.POST)
+        context = {
+            "form":form,
+            "deposits":deposits,
+        }
+        if form.is_valid():
+            valet = form.cleaned_data.get("valet")
+            invoice_number = form.cleaned_data.get("invoice_number")
+            tracenumber = form.cleaned_data.get("tracenumber")
+            amount = form.cleaned_data.get("amount")
+            date = form.cleaned_data.get("date")
+            description = form.cleaned_data.get("description")
+            try:
+                q = Q(invoice_number=invoice_number) & Q(state=DepositModel.STATE_DEPOSIT)
+                deposit = DepositModel.objects.get(q)
+            except DepositModel.DoesNotExist:
+                deposit = DepositModel(
+                    state=DepositModel.STATE_DEPOSIT,
+                    valet=valet,
+                    invoice_number=invoice_number,
+                    description=description,
+                    user_created=user,
+                )
+                deposit.save()
+                item = DepositPaymentModel(
+                    deposit=deposit,
+                    tracenumber=tracenumber,
+                    date=date,
+                    amount=amount,
+                    user_created=user,
+                )
+                item.save()
+                messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
+                return redirect("office:deposit-add")
+            if deposit.valet == valet:
+                item = DepositPaymentModel(
+                    deposit=deposit,
+                    tracenumber=tracenumber,
+                    date=date,
+                    amount=amount,
+                    user_created=user,
+                )
+                item.save()
+                messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
+                return redirect("office:deposit-add")
+            messages.error(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) ثبت شده است.")
+            return render(request, "office/deposit-add.html", context)
+        context = {
+            "form":form,
+        }
+        return render(request, "office/deposit-add.html", context)
+        
+
+class CheckoutView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.change_invoicemodel']
+
+    def get(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if not invoice.is_active:
+            return redirect("office:payment-add", iid=invoice.pk)
+        if invoice.state == InvoiceModel.STATE_PAID:
+            messages.error(request, f"فاکتور شماره {invoice.pk} قبلاً تسویه حساب شده است.")
+            return redirect("office:payment-add", iid=invoice.pk)
+        user = get_object_or_404(User, pk=request.user.id)
+        payments = PaymentModel.objects.filter(invoice=invoice)
+        credit = 0
+        for i in payments:
+            credit += int(i.amount)
+        if int(invoice.amount) > credit:
+            messages.error(request, "موجودی حساب برای تسویه حساب کافی  نیست.")
+            return redirect("office:payment-add", iid=invoice.pk)
+        valet = get_object_or_404(ValetModel, pk=invoice.valet.pk)
+        invoice.state = InvoiceModel.STATE_PAID
+        invoice.user_modified = user
+        valet.cash = str(int(valet.cash) - int(invoice.amount))
+        invoice.save()
+        valet.save()
+        messages.success(request, f"حساب مشارکت کننده {invoice.valet.customer.brand} برای {invoice.exhibition.title} با موفقیت تسویه شد.")
+        return redirect("office:payment-add", iid=invoice.pk)
     
 
 class ExhibitionAddView(PermissionRequiredMixin, views.View):
@@ -678,7 +936,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
         return render(request, 'office/exhibition-details.html', context)
     
 
-class ExhibitionDetailsEditView(views.View):
+class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.change_exhibitionmodel']
 
@@ -767,40 +1025,94 @@ class ExhibitionStatusView(PermissionRequiredMixin, views.View):
 
     def get(self, request, id):
         items = InvoiceModel.objects.filter(Q(exhibition__pk=id) & Q(is_active=True))
+        exhibition = get_object_or_404(ExhibitionModel, pk=id)
+        total_price = 0
+        total_area = 0
+        total_value_added = 0
+        for i in items:
+            total_price += int(i.amount)
+            total_area += int(i.area)
         context = {
             "items":items,
+            "total_price":total_price,
+            "total_area":total_area,
+            "exhibition":exhibition,
         }
         return render(request, "office/exhibition-status.html", context)
     
 
-# class AddToExhibitionView(PermissionRequiredMixin, views.View):
+# class RequestListView(PermissionRequiredMixin, views.View):
 #     login_url = 'accounts:signin'
-#     permission_required = ['client.add_customermodel']
+#     permission_required = ['client.view_requestmodel']
 
 #     def get(self, request):
-#         form = AddToExhibitionForm()
-#         context = {
-#             "form":form,
-#         }
-#         return render(request, "office/add-to-exhibition.html", context)
+#         req = RequestModel.objects.all().order_by('-created_date')
+#         return render(request, 'office/request-list.html', {'req':req})
     
-#     def post(self, request):
-#         user = get_object_or_404(User, pk=request.user.id)
-#         form = AddToExhibitionForm(request.POST)
-#         if form.is_valid():
-#             customer = form.cleaned_data.get("customer")
-#             exhibition = form.cleaned_data.get("exhibition")
-#             area = form.cleaned_data.get("area")
-#             booth_number = form.cleaned_data.get("booth_number")
-#             obj = InvoiceModel(
-#                 customer=customer,
-#                 exhibition=exhibition,
-#                 amount="0",
-#             )
-#             try:
-#                 obj.save()
-#             except IntegrityError:
-#                 messages.error(request, "")
+
+# class RequestDetailsView(PermissionRequiredMixin, views.View):
+#     login_url = 'accounts:signin'
+#     permission_required = ['client.add_requestmodel', 'client.add_invoicemodel', 'client.add_messagesmodel']
+
+#     def get(self, request, rid):
+#         req = get_object_or_404(RequestModel, pk=rid)
+#         mes = MessagesModel.objects.filter(customer=req.customer)
+#         form = MessageForm()
+#         form2 = RequestAcceptForm()
+#         context = {
+#             'req':req,
+#             'mes':mes,
+#             'form':form,
+#             'form2':form2,
+#         }
+#         return render(request, 'office/request-details.html', context)
+    
+    # def post(self, request, rid):
+    #     req = get_object_or_404(RequestModel, pk=rid)
+    #     mes = MessagesModel.objects.filter(customer=req.customer)
+    #     form = MessageForm(request.POST)
+    #     form2 = RequestAcceptForm(request.POST)
+    #     context = {
+    #         'req':req,
+    #         'mes':mes,
+    #         'form':form,
+    #         'form':form2,
+    #     }
+    #     if form.is_valid() and 'btn1' in request.POST:
+    #         text = form.cleaned_data.get('text')
+    #         mes = MessagesModel()
+    #         mes.text = text
+    #         mes.is_active = True
+    #         mes.customer = req.customer
+    #         mes.save()
+    #         req.state = req.STATE_DENY
+    #         req.save()
+    #         messages.success(request, 'پیغام شما با موفقیت ارسال شد.')
+    #         return render(request, 'office/request-details.html', context)
+    #     if form2.is_valid() and 'btn2' in request.POST:
+    #         area = form2.cleaned_data.get('area')
+    #         discount = form2.cleaned_data.get('discount')
+    #         description = form2.cleaned_data.get('description')
+    #         total = int(req.exhibition.price) * int(area) + int(int(req.exhibition.price) * int(area) * int(req.exhibition.value_added) / 100)
+    #         invoice = InvoiceModel(
+    #             is_active=True,
+    #             user=req.user,
+    #             customer=req.customer,
+    #             exhibition=req.exhibition,
+    #             price=req.exhibition.price,
+    #             area=area,
+    #             value_added=req.exhibition.value_added,
+    #             discount=discount,
+    #             total_price=total,
+    #             description=description,
+    #         )
+    #         invoice.save()
+    #         req.state = req.STATE_ACCEPT
+    #         req.save()
+    #         messages.success(request, f'موافقت شما با درخواست {req.customer.company} برای نمایشگاه {req.exhibition.title} به متراژ {area} ثبت شد.')
+    #         return render(request, 'office/request-details.html', context)
+    #     messages.error(request, 'درخواست عملیات شما با خطا مواجه شد!', extra_tags="danger")
+    #     return redirect('office:request-details', rid=req.pk)
 
 
 # class MessagesListView(PermissionRequiredMixin, views.View):
@@ -867,223 +1179,3 @@ class ExhibitionStatusView(PermissionRequiredMixin, views.View):
 #             mes.save()
 #             return redirect('office:message-list')
 #         return render(request, 'office/message-change.html', context)
-    
-
-class PaymentListView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.view_paymentmodel']
-
-    def get(self, request):
-        payments = PaymentModel.objects.all().order_by("-created_date")
-        context = {
-            "payments":payments,
-        }
-        return render(request, "office/payment-list.html", context)
-    
-
-class PaymentAddView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.add_paymentmodel']
-
-    def get(self, request, iid):
-        invoice = get_object_or_404(InvoiceModel, pk=iid)
-        payments = PaymentModel.objects.filter(invoice=invoice)
-        total = 0
-        for i in payments:
-            total += int(i.amount)
-        if invoice.state == InvoiceModel.STATE_PAID:
-            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
-            return redirect("office:invoice-list")
-        form = PaymentAddForm()
-        context = {
-            "invoice":invoice,
-            "form":form,
-            "payments":payments,
-            "total":total,
-        }
-        return render(request, "office/payment-add.html", context)
-    
-    def post(self, request, iid):
-        invoice = get_object_or_404(InvoiceModel, pk=iid)
-        if invoice.state == InvoiceModel.STATE_PAID:
-            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
-            return redirect("office:invoice-list")
-        user = get_object_or_404(User, pk=request.user.id)
-        form = PaymentAddForm(request.POST)
-        context = {
-            "invoice":invoice,
-            "form":form,
-        }
-        if form.is_valid():
-            state = form.cleaned_data.get("state")
-            bank = form.cleaned_data.get("bank")
-            amount = form.cleaned_data.get("amount")
-            check = form.cleaned_data.get("check")
-            name = form.cleaned_data.get("name")
-            tracenumber = form.cleaned_data.get("tracenumber")
-            datepaid = form.cleaned_data.get("datepaid")
-            description = form.cleaned_data.get("description")
-            payment = PaymentModel()
-            if state == PaymentModel.STATE_CASHE:
-                payment.state = PaymentModel.STATE_CASHE
-                payment.amount = int(amount)
-                payment.datepaid = datepaid
-                payment.payload = description
-                payment.user_created = user
-                payment.valet = invoice.valet
-                payment.bank = bank
-                payment.invoice = invoice
-                payment.save()
-                messages.success(request, f"رسید پرداخت بصورت نقدی به مبلغ {amount} با موفقیت ثبت شد.")
-            elif state == PaymentModel.STATE_CHECK:
-                if check and name:
-                    payment.state = PaymentModel.STATE_CHECK
-                    payment.amount = int(amount)
-                    payment.cardnumber = check
-                    payment.name = name
-                    payment.datepaid = datepaid
-                    payment.payload = description
-                    payment.user_created = user
-                    payment.valet = invoice.valet
-                    payment.bank = bank
-                    payment.invoice = invoice
-                    payment.save()
-                    messages.success(request, f"رسید پرداخت بصورت چک بانکی به مبلغ {amount} با موفقیت ثبت شد.")
-                else:
-                    messages.error(request, "برای رسید پرداخت بصورت چک بانکی، شماره سریال چک، نام صاحب چک و نام بانک صادرکننده چک الزامی است!")
-                    return render(request, "office/payment-add.html", context)
-            elif state == PaymentModel.STATE_POS:
-                if tracenumber and bank:
-                    payment.state = PaymentModel.STATE_POS
-                    payment.amount = int(amount)
-                    payment.tracenumber = tracenumber
-                    payment.datepaid = datepaid
-                    payment.payload = description
-                    payment.user_created = user
-                    payment.valet = invoice.valet
-                    payment.bank = bank
-                    payment.invoice = invoice
-                    payment.save()
-                    messages.success(request, f"رسید پرداخت بصورت کارتخوان به مبلغ {amount} با موفقیت ثبت شد.")
-                else:
-                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری و حساب بانکی الزامی است!")
-                    return render(request, "office/payment-add.html", context)
-            else:
-                return render(request, "office/payment-add.html", context)
-            valet_c = get_object_or_404(ValetModel, pk=payment.valet.pk)
-            total = int(payment.amount) + int(valet_c.cash)
-            valet_c.cash = str(int(total))
-            valet_c.save()
-            return redirect("office:payment-add", iid=invoice.pk)
-        messages.error(request, "خطای سیستمی رخ داده است!")
-        return render(request, "office/payment-add.html", context)
-    
-
-class PaymentEditView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.change_paymentmodel']
-
-    def get(self, request, id):
-        payment = get_object_or_404(PaymentModel, pk=id)
-        initial = {
-            "state":payment.state,
-            "check":payment.cardnumber,
-            "name":payment.name,
-            "issuerbank":payment.issuerbank,
-            "amount":payment.amount,
-            "tracenumber":payment.tracenumber,
-            "datepaid":payment.datepaid,
-            "description":payment.payload,
-        }
-        form = PaymentAddForm(initial=initial)
-        context = {
-            "payment":payment,
-            "form":form,
-        }
-        return render(request, "office/payment-edit.html", context)
-    
-    def post(self, request, id):
-        payment = get_object_or_404(PaymentModel, pk=id)
-        user = get_object_or_404(User, pk=request.user.id)
-        initial = {
-            "state":payment.state,
-            "check":payment.cardnumber,
-            "name":payment.name,
-            "issuerbank":payment.issuerbank,
-            "amount":payment.amount,
-            "tracenumber":payment.tracenumber,
-            "datepaid":payment.datepaid,
-            "description":payment.payload,
-        }
-        form = PaymentAddForm(request.POST, initial=initial)
-        context = {
-            "payment":payment,
-            "form":form,
-        }
-        if form.is_valid():
-            state = form.cleaned_data.get("state")
-            amount = form.cleaned_data.get("amount")
-            check = form.cleaned_data.get("check")
-            issuerbank = form.cleaned_data.get("issuerbank")
-            name = form.cleaned_data.get("name")
-            tracenumber = form.cleaned_data.get("tracenumber")
-            datepaid = form.cleaned_data.get("datepaid")
-            description = form.cleaned_data.get("description")
-            if state == PaymentModel.STATE_CASHE:
-                payment.state = PaymentModel.STATE_CASHE
-                payment.amount = int(amount)
-                payment.cardnumber = ""
-                payment.issuerbank = ""
-                payment.name = ""
-                payment.datepaid = datepaid
-                payment.payload = description
-                payment.user_modified = user
-                payment.save()
-                messages.success(request, f"رسید پرداخت بصورت نقدی به مبلغ {amount} با موفقیت ثبت شد.")
-            elif state == PaymentModel.STATE_CHECK:
-                if check and issuerbank and name:
-                    payment.state = PaymentModel.STATE_CHECK
-                    payment.amount = int(amount)
-                    payment.cardnumber = check
-                    payment.issuerbank = issuerbank
-                    payment.name = name
-                    payment.tracenumber = ""
-                    payment.datepaid = datepaid
-                    payment.payload = description
-                    payment.user_modified = user
-                    payment.save()
-                    messages.success(request, f"رسید پرداخت بصورت چک بانکی به مبلغ {amount} با موفقیت ثبت شد.")
-                else:
-                    messages.error(request, "برای رسید پرداخت بصورت چک بانکی، شماره سریال چک، نام صاحب چک و نام بانک صادرکننده چک الزامی است!")
-            elif state == PaymentModel.STATE_POS:
-                if tracenumber:
-                    payment.state = PaymentModel.STATE_POS
-                    payment.amount = int(amount)
-                    payment.tracenumber = tracenumber
-                    payment.cardnumber = ""
-                    payment.issuerbank = issuerbank
-                    payment.name = ""
-                    payment.datepaid = datepaid
-                    payment.payload = description
-                    payment.user_modified = user
-                    payment.save()
-                    messages.success(request, f"رسید پرداخت بصورت کارتخوان به مبلغ {amount} با موفقیت ثبت شد.")
-                else:
-                    messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری الزامی است!")
-            else:
-                return render(request, "office/payment-edit.html", context)
-            payment_list = PaymentModel.objects.filter(invoice=payment.invoice)
-            invoice = get_object_or_404(InvoiceModel, pk=payment.invoice.pk)
-            total_amount = 0
-            if payment_list:
-                for i in payment_list:
-                    total_amount += i.amount
-                if total_amount >= int(invoice.amount):
-                    invoice.state = InvoiceModel.STATE_PAID
-                    invoice.save()
-                else:
-                    invoice.state = InvoiceModel.STATE_PREPAYMENT
-                    invoice.save()
-            return render(request, "office/payment-edit.html", context)
-        return render(request, "office/payment-edit.html", context)
-        

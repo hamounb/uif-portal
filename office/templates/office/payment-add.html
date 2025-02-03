@@ -15,7 +15,6 @@
                     <div class="card-body">
                         <h2>فرم ثبت رسید پرداخت</h2>
                         <p>لطفا فرم زیر را با دقت ثبت کنید، زیرا هرگونه تغییرات در فاکتور ایجاد شده باعث بروز خطای سیستمی می‌شود.</p>
-                        <p>توجه داشته باشید مقدار تخفیف بصورت درصد محاسبه خواهد شد!</p>
                     </div>
                 </div>
             </div>
@@ -61,92 +60,80 @@
                                         <th>شماره سند</th>
                                         <th>نام تجاری</th>
                                         <th>عنوان نمایشگاه</th>
-                                        <th>شماره فاکتور</th>
-                                        <th>ش.پ/ش.چ</th>
-                                        <th>وضعیت پرداخت</th>
+                                        <th>نحوه پرداخت</th>
                                         <th>مبلغ(ریال)</th>
-                                        <th>تاریخ</th>
+                                        <th>تاریخ پرداخت</th>
                                         <th>اقدامات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for payment in payments %}
-                                    {% if payment.state == "pos" %}
-                                    <tr>
+                                    {% for pay in payments %}
+                                    {% if pay.pk == payment.pk %}
+                                    <tr style="background-color:pink">
                                         <td>{{ forloop.counter }}</td>
-                                        <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ payment.get_state_display }}">{{ payment.pk }}</td>
-                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.valet.customer.kind == 'legal' %} {{ payment.valet.customer.company}} {% else %} {{ payment.valrt.customer.first_name }} {{ payment.valet.customer.last_name }} {% endif %}">
-                                            <b>{{ payment.valet.customer.brand }} - {% if payment.valet.customer.kind == 'legal' %} {{ payment.valet.customer.company}} {% else %} {{ payment.valet.customer.first_name }} {{ payment.valet.customer.last_name }} {% endif %}</b>
+                                        <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ pay.get_state_display }}">{{ pay.pk }}</td>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valrt.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}">
+                                            <b>{{ pay.valet.customer.brand }} - {% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valet.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}</b>
                                         </td>
-                                        <td>{{ payment.invoice.exhibition.title }}</td>
+                                        <td>{{ pay.invoice.exhibition.title }}</td>
                                         <td>
-                                            {{ payment.invoice.pk }}
+                                            {{ pay.get_state_display }}
                                         </td>
-                                        <td>
-                                            {% if payment.tracenumber %}{{ payment.tracenumber }}{% else %}-{% endif %}
+                                        <td>{{ pay.amount|intcomma:False }}</td>
+                                        <td class="text-primary">{{ pay.datepaid }}</td>
+                                        <td class="text-light">
+                                            <b>این ردیف در وضعیت ویرایش می‌باشد...</b>
                                         </td>
-                                        <td>
-                                            {% if payment.respmsg %}{{ payment.respmsg }}{% else %}-{% endif %}
-                                        </td>
-                                        <td>{{ payment.amount|intcomma:False }}</td>
-                                        <td class="text-primary">{{ payment.datepaid }}</td>
-                                        <td><a class="btn btn-sm" href="{% url 'office:payment-edit' id=payment.pk %}">ویرایش</a></td>
                                     </tr>
-                                    {% elif payment.state == "check" %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% for pay in payments %}
+                                    {% if pay.pk != payment.pk %}
+                                    {% if pay.state == "ipg" %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td class="text-info">{{ payment.get_state_display }}</td>
+                                        <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ pay.get_state_display }}">{{ pay.pk }}</td>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valrt.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}">
+                                            <b>{{ pay.valet.customer.brand }} - {% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valet.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}</b>
+                                        </td>
+                                        <td>{{ pay.invoice.exhibition.title }}</td>
                                         <td>
-                                            {{ payment.invoice.pk }}
+                                            {{ pay.get_state_display }}
                                         </td>
-                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.valet.customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %} - {{ payment.invoice.customer.firstname }} {{ payment.invoice.customer.lastname }}">
-                                            <b>{{ payment.valet.customer.brand }}</b>
-                                        </td>
+                                        <td>{{ pay.amount|intcomma:False }}</td>
+                                        <td class="text-primary">{{ pay.datepaid }}</td>
                                         <td>
-                                            {{ payment.cardnumber }}
-                                        </td>
-                                        <td style="color:#665191">
                                             -
                                         </td>
-                                        <td>{{ payment.amount|intcomma:False }}</td>
-                                        <td class="text-primary">{{ payment.datepaid }}</td>
-                                        <td><a class="btn btn-sm" href="{% url 'office:payment-edit' id=payment.pk %}">ویرایش</a></td>
                                     </tr>
                                     {% else %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td class="text-info">{{ payment.get_state_display }}</td>
+                                        <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ pay.get_state_display }}">{{ pay.pk }}</td>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valrt.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}">
+                                            <b>{{ pay.valet.customer.brand }} - {% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valet.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}</b>
+                                        </td>
+                                        <td>{{ pay.invoice.exhibition.title }}</td>
                                         <td>
-                                            {{ payment.invoice.pk }}
+                                            {{ pay.get_state_display }}
                                         </td>
-                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.customer.state == "legal" %}حقوقی{% else %}حقیقی{% endif %} - {{ payment.invoice.customer.firstname }} {{ payment.invoice.customer.lastname }}">
-                                            <b>{{ payment.valet.customer.brand }}</b>
+                                        <td>{{ pay.amount|intcomma:False }}</td>
+                                        <td class="text-primary">{{ pay.datepaid }}</td>
+                                        <td>
+                                            {% if pay.invoice.state == "unpaid" %}
+                                            <a class="btn btn-sm" href="{% url 'office:payment-edit' pid=pay.pk iid=pay.invoice.pk %}">ویرایش</a>
+                                            {% endif %}
                                         </td>
-                                        <td class="text-primary">
-                                            -
-                                        </td>
-                                        <td style="color:#665191">
-                                            -
-                                        </td>
-                                        <td class="text-info">{{ payment.amount|intcomma:False }}</td>
-                                        <td class="text-primary">{% if payment.datepaid %}{{ payment.datepaid }}{% else %}-{% endif %}</td>
-                                        <td><a class="btn btn-sm" href="{% url 'office:payment-edit' id=payment.pk %}">ویرایش</a></td>
                                     </tr>
+                                    {% endif %}
                                     {% endif %}
                                     {% endfor %}
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
+                                        <th colspan="5"></th>
                                         <th>{{ total|intcomma:False}}</th>
-                                        <th></th>
-                                        <th></th>
+                                        <th colspan="2"></th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -154,7 +141,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
+                {% if invoice.state == "unpaid" %}
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
@@ -285,8 +273,9 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
@@ -294,16 +283,55 @@
                                 <div class="card mb-3">
                                     <div class="card-header">شماره فاکتور: {{ invoice.pk }}</div>
                                     <div class="card-body text-white bg-info">
-                                        <h5 class="card-title" style="font-size:1.4rem">نام مشارکت کننده: {{ invoice.valet.customer.brand }} {% if invoice.valet.customer.kind == "real" %} - {{ invoice.valet.customer.first_name }} {{ invoice.valet.customer.last_name }}{% else %} - {{ invoice.valet.customer.company }}{% endif %}</h5>
+                                        <h5 class="card-title" style="font-size:1.4rem"><b>نام مشارکت کننده:</b> {{ invoice.valet.customer.brand }} {% if invoice.valet.customer.kind == "real" %} - {{ invoice.valet.customer.first_name }} {{ invoice.valet.customer.last_name }}{% else %} - {{ invoice.valet.customer.company }}{% endif %}</h5>
                                         <p class="card-text" style="font-size:1.4rem">
-                                            نمایشگاه: {{ invoice.exhibition.title }}<br>
-                                            متراژ(مترمربع): {{ invoice.area }}<br>
-                                            قیمت واحد(ریال): {{ invoice.price|intcomma:False }}<br>
-                                            تخفیف(درصد): {{ invoice.discount }}<br>
-                                            ارزش افزوده(درصد): {{ invoice.value_added }}<br>
-                                            مبلغ قابل پرداخت: {{ invoice.amount|intcomma:False }} ریال
+                                            <b>نمایشگاه:</b> {{ invoice.exhibition.title }}<br>
+                                            <b>متراژ:</b> {{ invoice.area }} مترمربع<br>
+                                            <b>قیمت واحد:</b> {{ invoice.price|intcomma:False }} ریال<br>
+                                            <b>تخفیف:</b> {{ invoice.discount }} %<br>
+                                            <b>ارزش افزوده:</b> {{ invoice.value_added }} %<br>
+                                            <b>مبلغ قابل پرداخت:</b> {{ invoice.amount|intcomma:False }} ریال
                                         </p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="widget widget-mycart p-cb">
+                            <div class="cart-total">
+                                <div class="cart-total-labels">
+                                    <span class="mb-4">جمع رسیدهای دریافتی</span>
+                                    <span class="mb-4">هزینه غرفه</span>
+                                    <span class="mb-4 text-danger"><strong>مانده بدهکاری</strong></span>
+                                </div>
+                                <div class="cart-total-prices">
+                                    <span class="mb-4">{{ total|intcomma:False }} ریال</span>
+                                    <span class="mb-4">{{ invoice.amount|intcomma:False }} ریال</span>
+                                    <span class="mb-4 text-danger"><strong>{{ debit|intcomma:False }} ریال</strong></span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="cart-total">
+                                <div class="cart-total-labels">
+                                    {% if invoice.state == "unpaid" %}
+                                    <span class="mt-4 text-primary"><strong>عملیات</strong></span>
+                                    {% else %}
+                                    <span class="mt-4 text-primary"><strong>فاکتور</strong></span>
+                                    <span class="mt-4 text-primary"><strong>مجوز خروج</strong></span>
+                                    {% endif %}
+                                </div>
+                                <div class="cart-total-prices">
+                                    {% if invoice.state == "unpaid" %}
+                                    <a href="{% url 'office:checkout' iid=invoice.pk %}" class="btn btn-sm mt-4">تسویه حساب</a>
+                                    {% else %}
+                                    <span><a class="btn btn-sm btn-outline mt-4"><i class="fa fa-download"></i></a></span>
+                                    <span><a href="#" class="btn btn-sm btn-outline mt-4"><i class="icon-printer"></i></a></span>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
