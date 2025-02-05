@@ -176,12 +176,12 @@ class InvoiceEditForm(forms.Form):
 
 class PaymentAddForm(forms.Form):
     STATE_CHECK = 'check'
-    STATE_CASHE = 'cashe'
+    STATE_CASH = 'cash'
     STATE_POS = 'pos'
     STATE_CHOICES = (
         (STATE_POS, 'پوز بانکی'),
         (STATE_CHECK, 'چک بانکی'),
-        (STATE_CASHE, 'نقدی'),
+        (STATE_CASH, 'نقدی'),
     )
     state = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=STATE_CHOICES), label="نوع پرداخت")
     bank = forms.ModelChoiceField(queryset=BankModel.objects.all(), required=False, label="حساب بانکی", widget=forms.Select(attrs={'class':'form-control'}))
@@ -200,3 +200,7 @@ class DepositAddForm(forms.Form):
     amount = forms.CharField(max_length=12, label="مبلغ(ریال)", required=True, widget=forms.TextInput(attrs={"class":"form-control"}), validators=[is_positive])
     date = forms.CharField(max_length=10, label="تاریخ پرداخت", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
     description = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":2}), label="توضیحات", required=False)
+
+
+class DepositExhibitionForm(forms.Form):
+    exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه")

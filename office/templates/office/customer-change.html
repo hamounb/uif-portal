@@ -30,9 +30,8 @@
                         <p class="text-muted">اطلاعات مشارکت کننده را با دقت پر کنید.</p>
                     </div>
                     <div class="card-body">
-                        <form method="post" class="form-validate">
-                            {% csrf_token %}
-                            <div class-"form-row">
+                        <div class="row">
+                            <div class="col-lg-12">
                                 {% for error in form.non_field_errors %}
                                 <div role="alert" class="alert alert-danger alert-dismissible">
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
@@ -57,6 +56,10 @@
                                     {% endif %}
                                 {% endfor %}
                             </div>
+                        </div>
+
+                        <form method="post" class="form-validate">
+                            {% csrf_token %}
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     {{ form.is_active.label_tag }}
@@ -307,6 +310,23 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
+                        <h3 class="mb-5">توضیحات فرم</h3>
+                        <dl class="dl-horizontal">
+                            <dt>گزینه فعال:</dt>
+                            <dd class="mb-3">در صورتیکه این گزینه غیر فعال باشد، مشارکت کننده قابلیت ثبت نام در نمایشگاه‌ها و سایر امور را ندارد.</dd>
+                            <dt>نوع مشارکت کننده:</dt>
+                            <dd class="mb-3">ابتدا باید نوع حقیقی یا حقوقی مشارکت کننده تعیین شود.</dd>
+                            <dt>کد ملی و شماره موبایل:</dt>
+                            <dd>حتماً از صحیح بودن آنها اطمینان داشته باشید زیرا کاربر فقط با این اطلاعات قابلیت ورود به حساب کاربری خود را خواهد داشت.</dd>
+                            <dd class="mb-3">برای مشارک کننده نوع حقوقی جهت ایجاد حساب کاربری می‌توان اطلاعات نماینده یا مدیر عامل را درج کرد.</dd>
+                            <dt>نام تجاری:</dt>
+                            <dd>برای مشارکت کننده حقیقی و حقوقی باید نام تجاری درج شود و الزامیست.</dd>
+                            <dd class="mb-3">برای مشارکت کنندگان حقوقی اگر نام شرکت یا سازمان و نام تجاری همانند باشد باید نام تجاری نیز درج شود.</dd>
+                            <dt>مشارکت کنندگان حقوقی:</dt>
+                            <dd class="mb-3">برای نوع حقیقی، نام شرکت یا سازمان، نام مدیرعامل، شناسه ملی ، کد پستی و آدرس حتما درج شود.</dd>
+                            <dt>کد معین:</dt>
+                            <dd>این یک کد یکتا است که توسط امور مالی درج خواهد شد.</dd>
+                        </dl>
                     </div>
                 </div>
             </div>

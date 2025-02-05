@@ -84,10 +84,17 @@
                                             <li><a href="{% url 'office:exhibition-add' %}">جدید</a></li>
                                         </ul>
                                     </li>
-                                    <li class="dropdown"><a href="#">مالی</a>
+                                    <li class="dropdown-submenu"><a href="#">مالی</a>
                                         <ul class="dropdown-menu">
                                             <li><a href="{% url 'office:payment-list' %}">رسید دریافت</a></li>
-                                            <li><a href="{% url 'office:deposit-add' %}">بیعانه‌ها</a></li>
+                                            <li class="dropdown-submenu">
+                                                <a href="#">بیعانه‌ها</a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="{% url 'office:deposit-list' %}">لیست همه</a></li>
+                                                    <li><a href="{% url 'office:deposit-add' %}">جدید</a></li>
+                                                </ul>
+
+                                            </li>
                                         </ul>
                                     </li>
                                     {% comment %} <li><a href="{% url 'office:request-list' %}">درخواست‌ها</a></li>
@@ -109,7 +116,6 @@
     <script src="{% static 'js/plugins.js' %}"></script>
 
     <script src="{% static 'js/functions.js' %}"></script>
-    <script src="{% static 'admin/js/django_jalali.min.js' %}"></script>
     
   <!-- Include jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -59,7 +59,10 @@ class CustomerModel(BaseModel):
     address = models.TextField(verbose_name='آدرس')
 
     def __str__(self):
-        return f"{self.brand}"
+        if self.kind == self.KIND_REAL:
+            return f"{self.brand}({self.first_name} {self.last_name})"
+        else:
+            return f"{self.brand}({self.company})"
     
     class Meta:
         constraints = [
@@ -216,6 +219,9 @@ class InvoiceModel(BaseModel):
         return f"شماره فاکتور: {self.pk}-{self.valet} ({self.exhibition.title})"
     
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["valet", "exhibition"], name='valetex')
+    ]
         verbose_name = "فاکتور"
         verbose_name_plural = "فاکتورها"
 
@@ -243,12 +249,12 @@ class BankModel(BaseModel):
 
 class PaymentModel(BaseModel):
     STATE_CHECK = 'check'
-    STATE_CASHE = 'cash'
+    STATE_CASH = 'cash'
     STATE_POS = 'pos'
     STATE_IPG = 'ipg'
     STATE_CHOICES = (
         (STATE_CHECK, 'چک بانکی'),
-        (STATE_CASHE, 'نقدی'),
+        (STATE_CASH, 'نقدی'),
         (STATE_POS, 'پوز بانکی'),
         (STATE_IPG, 'درگاه اینترنتی'),
     )
@@ -305,7 +311,7 @@ class DepositModel(BaseModel):
 
 class DepositPaymentModel(BaseModel):
     deposit = models.ForeignKey(DepositModel, on_delete=models.PROTECT, max_length="بیعانه")
-    date = models.DateField(verbose_name="تاریخ رسید")
+    date = models.CharField(verbose_name="تاریخ رسید", max_length=10)
     tracenumber = models.CharField(verbose_name="شماره پیگیری", max_length=150, null=True, blank=True)
     amount = models.CharField(verbose_name="مبلغ", max_length=12, default="0")
 

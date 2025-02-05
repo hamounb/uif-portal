@@ -122,6 +122,7 @@
                                         <td>
                                             {% if pay.invoice.state == "unpaid" %}
                                             <a class="btn btn-sm" href="{% url 'office:payment-edit' pid=pay.pk iid=pay.invoice.pk %}">ویرایش</a>
+                                            <a class="btn btn-danger btn-sm" href="{% url 'office:payment-remove' pid=pay.pk %}">حذف</a>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -167,7 +168,7 @@
                                         <div class="form-group col-md-4">
                                             {{ form.bank.label_tag }}
                                             {{ form.bank }}
-                                            {% if form.sbankerrors %}
+                                            {% if form.bank.errors %}
                                                 {% for error in form.bank.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
