@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load jalali_tags %}
+{% load humanize %}
 {% load static %}
 {% block title %}
 خانه | مدیریت پورتال
@@ -13,11 +14,11 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="widget widget-mycart p-cb">
-                    <div>
+                    <div class="text-center">
                         <div class="mb-2"><img src="{% static 'images/7.jpg' %}" class="avatar avatar-lg"></div>
                         <div class="cart-product-meta">
                             <a href="#">{{ user.first_name }} {{ user.last_name }}</a>
-                            <p> مدیریت سیستم </p>
+                            <p class="text-primary"> مدیر سیستم </p>
                         </div>
                     </div>
                 </div>
@@ -39,8 +40,7 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>نام و نشان</th>
-                                    <th>نام تجاری</th>
+                                    <th>مشخصات</th>
                                     <th>کدملی</th>
                                     <th>شماره موبایل</th>
                                     <th>تاریخ ایجاد</th>
@@ -52,12 +52,15 @@
                             {% if forloop.counter < 6 %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td class="text-info">
-                                        {{ customer.firstname }} {{ customer.lastname }}
+                                    <td style="color:blueviolet">
+                                        {% if customer.kind == "legal" %}
+                                        {{ customer.brand }} ({{ customer.company }})
+                                        {% else %}
+                                        {{ customer.brand }} ({{ customer.first_name }} {{ customer.last_name }})
+                                        {% endif %}
                                     </td>
-                                    <td style="color:blueviolet">{{ customer.company }}</td>
-                                    <td class="text-primary">{{ customer.code }}</td>
-                                    <td class="text-primary">{{ customer.mobile }}</td>
+                                    <td>{{ customer.code }}</td>
+                                    <td>{{ customer.mobile }}</td>
                                     <td>{{ customer.created_date|to_jalali:"%Y/%m/%d" }}</td>
                                     <td>
                                         {% if customer.is_active %}
@@ -78,52 +81,39 @@
             </div>
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
-                    <h3>لیست درخواست‌ها</h3>
-                    {% for req in req %}
-                    {% if forloop.last %}
-                    <p class="text-danger">تعداد <b style="font-size:large">{{ forloop.counter }}</b> درخواست بررسی نشده</p>
-                    {% endif %}
-                    {% endfor %}
+                    <h3>لیست رسید دریافت</h3>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>نام تجاری</th>
-                                    <th>کدملی/شناسه‌ملی</th>
-                                    <th>عنوان نمایشگاه</th>
-                                    <th>متراژ</th>
-                                    <th>قوانین</th>
-                                    <th>تاریخ ایجاد</th>
-                                    <th>وضعیت</th>
+                                    <th>مشخصات</th>
+                                    <th>نمایشگاه</th>
+                                    <th>نوع پرداخت</th>
+                                    <th>مبلغ(ریال)</th>
+                                    <th>شماره پیگیری</th>
+                                    <th>تاریخ پرداخت</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for req in req %}
+                            {% for payment in payment %}
                             {% if forloop.counter < 6 %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td style="color:blueviolet">{{ req.customer.company }}</td>
-                                    <td>{{ req.customer.code }}</td>
-                                    <td>{{ req.exhibition.title }}</td>
-                                    <td>{{ req.area }}</td>
-                                    <td>
-                                        {% if req.rules %}
-                                        <i class="icon-check-square"></i>
+                                    <td style="color:blueviolet">
+                                        {% if payment.valet.customer.kind == "legal" %}
+                                        {{ payment.valet.customer.brand }} ({{ payment.valet.customer.company }})
                                         {% else %}
-                                        <i class="icon-x"></i>
+                                        {{ payment.valet.customer.brand }} ({{ payment.valet.customer.first_name }} {{ payment.valet.customer.last_name }})
                                         {% endif %}
                                     </td>
-                                    <td>{{ req.created_date|to_jalali:"%Y/%m/%d" }}</td>
+                                    <td>{{ payment.invoice.exhibition.title }}</td>
+                                    <td>{{ payment.get_state_display }}</td>
+                                    <td>{{ payment.amount|intcomma:False }}</td>
                                     <td>
-                                        {% if req.state == "wait" %}
-                                        <h4><span class="badge badge-warning">در انتظار بررسی</span></h4>
-                                        {% elif req.state == "accept" %}
-                                        <h4><span class="badge badge-success">قبول</span></h4>
-                                        {% else %}
-                                        <h4><span class="badge badge-danger">رد شده</span></h4>
-                                        {% endif %}
+                                        {{ payment.tracenumber }}
                                     </td>
+                                    <td>{{ payment.datepaid }}</td>
                                 </tr>
                             {% endif %}
                             {% endfor %}
@@ -131,7 +121,7 @@
                         </table>
                     </div>
                     <hr>
-                    {% comment %} <div><a class="btn" href="{% url 'office:request-list' %}">مشاهده همه</a></div> {% endcomment %}
+                    <div><a class="btn" href="{% url 'office:payment-list' %}">مشاهده همه</a></div>
                 </div>
             </div>
         </div>
@@ -150,7 +140,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>عنوان نمایشگاه</th>
-                                    <th>قیمت</th>
+                                    <th>قیمت(ریال)</th>
                                     <th>تاریخ برگزاری</th>
                                     <th>وضعیت</th>
                                 </tr>
@@ -160,7 +150,7 @@
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td style="color:blueviolet">{{ exhibition.title }}</td>
-                                    <td>{{ exhibition.price }}</td>
+                                    <td>{{ exhibition.price|intcomma:False }}</td>
                                     <td>{{ exhibition.date|to_jalali:"%Y/%m/%d" }}</td>
                                     <td>
                                         {% if exhibition.is_active %}
@@ -180,7 +170,7 @@
             </div>
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
-                    <div style="height:445px">
+                    <div style="height:300px">
                         <div class="text-center"><h2>هنوز پنل فعالی وجود ندارد</h2></div>
                     </div>
                 </div>

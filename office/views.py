@@ -6,8 +6,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
-from django.db.models import Sum
-from accounts.models import MobileModel
 from client.models import *
 from django.db.utils import IntegrityError
 
@@ -35,13 +33,13 @@ class HomeView(PermissionRequiredMixin, views.View):
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        customer = CustomerModel.objects.filter(is_active=False).order_by('-created_date')
-        # req = RequestModel.objects.filter(state=RequestModel.STATE_WAIT).order_by('-created_date')
+        customer = CustomerModel.objects.filter(is_active=True).order_by('-created_date')[:7]
+        payment = PaymentModel.objects.all().order_by('-created_date')[:7]
         exhibition = ExhibitionModel.objects.filter(is_active=True)
         context = {
             'customer':customer,
+            'payment':payment,
             'exhibition':exhibition,
-            # 'req':req,
             'user':user,
         }
         return render(request, 'office/home.html', context)
@@ -444,7 +442,7 @@ class InvoiceListView(PermissionRequiredMixin, views.View):
 
 class InvoiceRemoveView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['clent.change_invoicemodel']
+    permission_required = ['clent.delete_invoicemodel']
 
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
@@ -761,7 +759,7 @@ class PaymentEditView(PermissionRequiredMixin, views.View):
 
 class PaymentRemoveView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['client.change_invoicemodel']
+    permission_required = ['client.delete_paymentmodel']
 
     def get(self, request, pid):
         payment = get_object_or_404(PaymentModel, pk=pid)
@@ -781,7 +779,7 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
 
 class DepositAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['client.change_invoicemodel']
+    permission_required = ['client.add_depositmodel']
 
     def get(self, request):
         deposits = DepositModel.objects.filter(state=DepositModel.STATE_DEPOSIT).order_by("-created_date")
@@ -849,7 +847,7 @@ class DepositAddView(PermissionRequiredMixin, views.View):
 
 class DepositListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['client.change_invoicemodel']
+    permission_required = ['client.view_depositmodel']
 
     def get(self, request):
         deposits = DepositModel.objects.filter(Q(state=DepositModel.STATE_DEPOSIT))
@@ -863,7 +861,7 @@ class DepositListView(PermissionRequiredMixin, views.View):
 
 class DepositStateAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['client.change_invoicemodel']
+    permission_required = ['client.view_depositmodel', 'client.add_invoicemodel']
 
     def post(self, request, did):
         deposit = get_object_or_404(DepositModel, pk=did)
@@ -897,7 +895,7 @@ class DepositStateAddView(PermissionRequiredMixin, views.View):
 
 class CheckoutView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
-    permission_required = ['client.change_invoicemodel']
+    permission_required = ['client.add_invoicemodel', 'client.add_paymentmodel']
 
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
