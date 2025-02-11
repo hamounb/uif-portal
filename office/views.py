@@ -209,6 +209,9 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
                 elif not obj.ceoname:
                     messages.error(request, f"مشارکت کننده با نوع حقوقی باید دارای نام مدیرعامل باشد.")
                     return redirect('office:customer-change', cid=customer.pk)
+                elif not obj.company:
+                    messages.error(request, f"مشتری با نوع حقوقی باید دارای نام شرکت یا سازمان باشد.")
+                    return render(request, 'office/customer-add.html', {'form':form})
                 else:
                     obj.user_modified = user
                     obj.save()

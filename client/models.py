@@ -41,7 +41,7 @@ class CustomerModel(BaseModel):
         (KIND_LEGAL, 'حقوقی')
     )
     is_active = models.BooleanField(verbose_name='فعال', default=False)
-    sid = models.CharField(verbose_name='کد معین', max_length=50, null=True, blank=True)
+    sid = models.CharField(verbose_name='کد تفصیلی', max_length=50, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     kind = models.CharField(verbose_name='نوع مشارکت کننده', max_length=50, choices=KIND_CHOICES, default=KIND_REAL)
     first_name = models.CharField(verbose_name='نام', max_length=100)
