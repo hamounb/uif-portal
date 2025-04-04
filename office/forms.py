@@ -38,6 +38,15 @@ def is_discount(value):
     if str(value).isnumeric():
         if int(value) < 0:
             raise ValidationError('کمترین مقدار می‌تواند عدد صفر باشد!')
+        
+
+class UserAddForm(forms.Form):
+    is_active = forms.BooleanField(label="فعال",required=False, widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
+    is_staff = forms.BooleanField(label="کارمند",required=False, widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
+    first_name = forms.CharField(max_length=255, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام")
+    last_name = forms.CharField(max_length=255, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام خانوادگی")
+    code = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
+    mobile = forms.CharField(max_length=11, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="موبایل", validators=[is_mobile])
 
 
 class CustomerAddForm(forms.ModelForm):

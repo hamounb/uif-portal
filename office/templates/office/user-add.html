@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+ایجاد کاربر جدید
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>کاربر جدید</h2>
+                        <p>لطفا اطلاعات خواسته شده در فرم زیر را با دقت وارد کنید، درصورت عدم درج اطلاعات صحیح سیستم با مشکل مواجه خواهد شد!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="h4">فرم ایجاد</span>
+                        <p class="text-muted">اطلاعات کاربر را با دقت پر کنید.</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-lg-12">
+                                {% for error in form.non_field_errors %}
+                                <div role="alert" class="alert alert-danger alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                                    <strong><i class="fa fa-exclamation-circle"></i> خطا!</strong> 
+                                    {{ error }}
+                                </div>
+                                {% endfor %}
+                                {% for message in messages %}
+                                    {% if message.tags == 'error' %}
+                                        <div role="alert" class="alert alert-danger alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                                            <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                                            {{ message}}
+                                        </div>
+                                    {% endif %}
+                                    {% if message.tags == 'success' %}
+                                        <div role="alert" class="alert alert-success alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                                            <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                                            {{ message}}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                             </div>
+                        </div>
+                        <form method="post" class="form-validate">
+                            {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                {{ form.is_active.label_tag }}
+                                {{ form.is_active }}
+                                {% if form.is_active.errors %}
+                                    {% for error in form.is_active.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if form.label_tag.errors %}
+                                    {% for error in form.label_tag.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="form-group col-md-6">
+                                {{ form.is_staff.label_tag }}
+                                {{ form.is_staff }}
+                                {% if form.is_staff.errors %}
+                                    {% for error in form.is_staff.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if form.label_tag.errors %}
+                                    {% for error in form.label_tag.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                {{ form.first_name.label_tag }}
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    {% for error in form.first_name.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if form.label_tag.errors %}
+                                    {% for error in form.label_tag.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="form-group col-md-6">
+                                {{ form.last_name.label_tag }}
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    {% for error in form.last_name.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if form.label_tag.errors %}
+                                    {% for error in form.label_tag.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                {{ form.code.label_tag }}
+                                {{ form.code }}
+                                {% if form.code.errors %}
+                                    {% for error in form.code.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if form.label_tag.errors %}
+                                    {% for error in form.label_tag.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="form-group col-md-6">
+                                {{ form.mobile.label_tag }}
+                                {{ form.mobile }}
+                                {% if form.mobile.errors %}
+                                    {% for error in form.mobile.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if form.label_tag.errors %}
+                                    {% for error in form.label_tag.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <button type="submit" name="submit_type" value="save" class="btn m-t-30 mt-3">ذخیره</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+
+                        <h3 class="mb-5">توضیحات فرم</h3>
+                        <dl class="dl-horizontal">
+                            <dt>گزینه فعال:</dt>
+                            <dd class="mb-3">در صورتیکه این گزینه غیر فعال باشد، کاربر قابلیت دسترسی به بخش کارمندان و سایر امور را ندارد.</dd>
+                            <dt>کد ملی و شماره موبایل:</dt>
+                            <dd>حتماً از صحیح بودن آنها اطمینان داشته باشید زیرا کاربر فقط با این اطلاعات قابلیت ورود به حساب کاربری خود را خواهد داشت.</dd>
+                            <dd class="mb-3">برای مشارک کننده نوع حقوقی جهت ایجاد حساب کاربری می‌توان اطلاعات نماینده یا مدیر عامل را درج کرد.</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% block script%}
+<script>
+    // Initialize Select2 on the select element
+    $(document).ready(function() {
+      $('#id_user').select2();
+    });
+  </script>
+{% endblock script %}
+{% endblock content %}

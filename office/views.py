@@ -45,6 +45,41 @@ class HomeView(PermissionRequiredMixin, views.View):
         return render(request, 'office/home.html', context)
     
 
+class UserAddView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.add_usermodel']
+
+    def get(self, request):
+        form = UserAddForm()
+        return render(request, 'office/user-add.html', {'form':form})
+    
+    def post(self, request):
+        form = UserAddForm(request.POST)
+        if form.is_valid():
+            first_name = form.cleaned_data.get('first_name')
+            last_name = form.cleaned_data.get('last_name')
+            code = form.cleaned_data.get('code')
+            mobile = form.cleaned_data.get('mobile')
+            is_active = form.cleaned_data.get('is_active')
+            is_staff = form.cleaned_data.get('is_staff')
+            user = User(
+                first_name=first_name,
+                last_name=last_name,
+                username=code,
+            )
+            user.is_active = is_active
+            user.is_staff = is_staff
+            user.set_password(mobile)
+            try:
+                user.save()
+            except IntegrityError:
+                messages.error(request, f"کاربر با کدملی {code} قبلاً ثبت شده است!")
+                return render(request, 'office/user-add.html', {'form':form})
+            messages.success(request, f"کابر جدید با کدملی {code} با موفقیت ثبت شد.")
+            return redirect('office:user-add')
+        return render(request, 'office/user-add.html', {'form':form})
+
+    
 class CustomerListView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.view_customermodel']

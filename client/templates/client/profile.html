@@ -1,0 +1,208 @@
+{% extends "base-c.html" %}
+
+{% block title %}
+حساب من | شرکت نمایشگاه بین‌المللی ارومیه
+{% endblock title %}
+
+{% block content %}
+<section id="page-title">
+    <div class="container">
+        <div class="breadcrumb">
+            <ul>
+                <li><a href="#">خانه</a> </li>
+                <li><a href="#">عنوان صفحه</a> </li>
+                <li class="active"><a href="#">پیش فرض</a> </li>
+            </ul>
+        </div>
+        <div class="page-title">
+            <h1>صفحه اصلی حساب کاربری</h1>
+        </div>
+    </div>
+</section>
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-3 text-center">
+            <div class="card">
+                <div class="card-header">
+                    <h4>حساب ها</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group ">
+                            {% for profile in profile %}
+                            {% if forloop.first %}
+                                <a class="list-group-item list-group-item-action active" id="{{ forloop.counter }}-tab" data-toggle="tab" href="#profile-{{ profile.pk }}" role="tab" aria-controls="{{ profile.pk }}" aria-selected="true">{{ profile.brand }}</a>
+                            {% else %}
+                                <a class="list-group-item list-group-item-action" id="{{ forloop.counter }}-tab" data-toggle="tab" href="#profile-{{ profile.pk }}" role="tab" aria-controls="{{ profile.pk }}" aria-selected="false">{{ profile.brand }}</a>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>مشخصات</h4>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="myTabContent4">
+                        {% for profile in profile %}
+                        {% if forloop.first %}
+                        <div class="tab-pane fade active show p-2" id="profile-{{ profile.pk }}" role="tabpanel" aria-labelledby="{{ forloop.counter }}-tab">
+
+                            <div class="form-group row">
+                                <div class="form-group col-md-6">
+                                    <label>نوع حساب</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.get_kind_display }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>وضعیت</label>
+                                    {% if profile.is_active %}
+                                    <input type="text" class="form-control" placeholder="فعال">
+                                    {% else %}
+                                    <input type="text" class="form-control" placeholder="غیر فعال">
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.first_name }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام خانوادگی</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.last_name }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>کد ملی</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.code %}{{ profile.code }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>موبایل</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.mobile %}{{ profile.mobile }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام تجاری</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.brand %}{{ profile.brand }}{% endif %}">
+                                </div>
+                                {% if profile.kind == "legal" %}
+                                <div class="form-group col-md-6">
+                                    <label>نام شرکت</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.company %}{{ profile.company }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>شناسه ملی</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.ncode %}{{ profile.ncode }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام مدیرعامل</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.ceoname %}{{ profile.ceoname }}{% endif %}">
+                                </div>
+                                {% endif %}
+                                <div class="form-group col-md-6">
+                                    <label>تلفن</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.phone %}{{ profile.phone }}{% endif %}">
+                                </div>
+                                {% if profile.kind == "legal" %}
+                                <div class="form-group col-md-6">
+                                    <label>فکس</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.fax %}{{ profile.fax }}{% endif %}">
+                                </div>
+                                {% endif %}
+                                <div class="form-group col-md-6">
+                                    <label>ایمیل</label>
+                                    <input type="email" class="form-control" placeholder="{% if profile.email %}{{ profile.email }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>کد پستی</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.postalcode %}{{ profile.postalcode }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label>آدرس</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.address }}">
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="tab-pane fade p-2" id="profile-{{ profile.pk }}" role="tabpanel" aria-labelledby="{{ forloop.counter }}-tab">
+
+                            <div class="form-group row">
+                                <div class="form-group col-md-6">
+                                    <label>نوع حساب</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.get_kind_display }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>وضعیت</label>
+                                    {% if profile.is_active %}
+                                    <input type="text" class="form-control" placeholder="فعال">
+                                    {% else %}
+                                    <input type="text" class="form-control" placeholder="غیر فعال">
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.first_name }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام خانوادگی</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.last_name }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>کد ملی</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.code %}{{ profile.code }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>موبایل</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.mobile %}{{ profile.mobile }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام تجاری</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.brand %}{{ profile.brand }}{% endif %}">
+                                </div>
+                                {% if profile.kind == "legal" %}
+                                <div class="form-group col-md-6">
+                                    <label>نام شرکت</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.company %}{{ profile.company }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>شناسه ملی</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.ncode %}{{ profile.ncode }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>نام مدیرعامل</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.ceoname %}{{ profile.ceoname }}{% endif %}">
+                                </div>
+                                {% endif %}
+                                <div class="form-group col-md-6">
+                                    <label>تلفن</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.phone %}{{ profile.phone }}{% endif %}">
+                                </div>
+                                {% if profile.kind == "legal" %}
+                                <div class="form-group col-md-6">
+                                    <label>فکس</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.fax %}{{ profile.fax }}{% endif %}">
+                                </div>
+                                {% endif %}
+                                <div class="form-group col-md-6">
+                                    <label>ایمیل</label>
+                                    <input type="email" class="form-control" placeholder="{% if profile.email %}{{ profile.email }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>کد پستی</label>
+                                    <input type="text" class="form-control" placeholder="{% if profile.postalcode %}{{ profile.postalcode }}{% endif %}">
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label>آدرس</label>
+                                    <input type="text" class="form-control" placeholder="{{ profile.address }}">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
