@@ -9,7 +9,7 @@
 {% block content %}
 
 
-<section id="page-content" class="background-light">
+{% comment %} <section id="page-content" class="background-light">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -25,7 +25,7 @@
             </div>
         </div>
     </div>
-    <div class="container-fluid">
+     <div class="container-fluid">
         <div class="grid-layout grid-1-columns" data-item="grid-item" data-margin="10">
             <div class="grid-item">
                 <div class="widget widget-notification p-cb">
@@ -176,6 +176,67 @@
                 </div>
             </div>
         </div>
+    </div> 
+</section> {% endcomment %}
+<section>
+<div class="container">
+    <div class="row col-no-margin equalize" data-equalize-item=".text-box">
+
+        <div class="col-lg-4" style="background-color: #41566f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="{% url 'office:customer-list' %}"> <i class="icon-users"></i>
+                    <h3>مشارکت کنندگان </h3>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم، لورم ایپسوم متن ساختگی.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4" style="background-color: #41566f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="{% url 'office:exhibition-list' %}"> <i class="icon-flag"></i>
+                    <h3>نمایشگاه‌ ها </h3>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم، لورم ایپسوم متن ساختگی.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4" style="background-color: #41566f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="#"> <i class="icon-map"></i>
+                    <h3>فاکتور ها </h3>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم، لورم ایپسوم متن ساختگی.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4" style="background-color: #41566f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="{% url 'office:payment-list' %}"> <i class="icon-dollar-sign"></i>
+                    <h3>پرداخت ها </h3>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم، لورم ایپسوم متن ساختگی.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4" style="background-color: #41566f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="#"> <i class="icon-mail"></i>
+                    <h3>پیغام ها </h3>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم، لورم ایپسوم متن ساختگی.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4" style="background-color: #41566f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="#"> <i class="icon-log-out"></i>
+                    <h3>خروج </h3>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم، لورم ایپسوم متن ساختگی.</p>
+                </a>
+            </div>
+        </div>
+
     </div>
+</div>
 </section>
 {% endblock content %}

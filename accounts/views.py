@@ -162,7 +162,6 @@ class SignInView(views.View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            print(self.request.user)
             user = get_object_or_404(User, pk=request.user.id)
             if user.is_staff:
                 return redirect('office:home')
@@ -174,7 +173,7 @@ class SignInView(views.View):
         if request.user.is_authenticated:
             user = get_object_or_404(User, pk=request.user.id)
             if user.is_staff:
-                return redirect('staff:home')
+                return redirect('office:home')
             return redirect('client:index')
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -189,7 +188,7 @@ class SignInView(views.View):
             if auser is not None:
                 login(request, user)
                 if user.get_user_permissions():
-                    return redirect('staff:home')
+                    return redirect('office:home')
                 return redirect('client:index')
             elif not user.is_active and user.check_password(mobile):
                 try:
