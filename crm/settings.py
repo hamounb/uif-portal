@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'office.apps.OfficeConfig',
     'client.apps.ClientConfig',
+    'portal.apps.PortalConfig',
 ]
 
 MIDDLEWARE = [

@@ -25,6 +25,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('client/', include('client.urls', namespace='client')),
     path('main/', include('office.urls', namespace='office')),
+    path('', include('portal.urls', namespace='portal')),
 ]
 
 if settings.DEBUG:

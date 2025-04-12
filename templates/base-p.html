@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="author" content="example" />
+    <meta name="description" content="سامانه مشتریان شرکت نمایشگاه بین‌المللی ارومیه">
+    <link rel="icon" type="image/png" href="{% static 'images/fav-logo.png' %}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>{% block title %}{% endblock title %}</title>
+
+    <link href="{% static 'css/plugins.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/rtl.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+<body>
+</head>
+
+<body data-icon="17">
+
+    <div class="body-inner">
+        <header id="header" data-fullwidth="true" class="header-always-fixed">
+            <div class="header-inner">
+                <div class="container">
+                    <div id="logo">
+                        <a href="index.html">
+                            <span class="logo-default">UIF</span>
+                            <span class="logo-dark">UIF</span>
+                        </a>
+                    </div>
+                        
+                    <div class="header-extras">
+                        <ul>
+                            <li>
+                                <div class="p-dropdown">
+                                    <a href="#"><i class="icon-user"></i></a>
+                                    <ul class="p-dropdown-content">
+                                        <ul class="text-center">
+                                            {% comment %} <li><a href="#"><i class="icon-mail"></i>پیام ها</a></li> {% endcomment %}
+                                            <li><a href="#"><i class="icon-settings"></i>تنظیمات</a></li>
+                                            <li>
+                                                <a href="{% url 'accounts:signout' %}"><i class="icon-log-out"></i>خروج</a>
+                                            </li>
+                                        </ul>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#"> <i class="icon-bell"></i><sup style="top:-0.6em; font-size:1.2em"><b class="text-danger"></b></sup></a>
+                            </li>
+                        </ul>
+                    </div>
+                        
+                        
+                    <div id="mainMenu-trigger">
+                        <a class="lines-button x"><span class="lines"></span></a>
+                    </div>
+
+                    <div id="mainMenu" class="menu-center">
+                        <div class="container">
+                            <nav>
+                                <ul>
+                                    <li><a href="{% url 'client:index' %}">خانه</a></li>
+                                    {% comment %} <li class="dropdown"><a href="#">درخواست‌ها</a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="{% url 'crm:request-list' %}">لیست همه</a></li>
+                                            <li><a href="{% url 'crm:request-add' %}">جدید</a></li>
+                                        </ul>
+                                    </li>
+                                    <li><a href="{% url 'crm:messages' %}">پیام‌ها</a>  </li>
+                                    <li><a href="{% url 'crm:help' %}">راهنما</a></li> {% endcomment %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+        {% block content %}{% endblock content %}
+        <footer id="footer">
+            <div class="footer-content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="icon-box effect medium center">
+                                <div class="icon">
+                                    <a href="#"><i class="fa fa-clock"></i></a>
+                                </div>
+                                <h3>روزهای کاری</h3>
+                                <p><strong>شنبه - چهارشنبه</strong>
+                                    <br>15:30 صبح - 08:30 عصر</p>
+                                <p><strong>پنج شنبه ها</strong>
+                                    <br>13:30 صبح - 08:30 عصر</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="icon-box effect medium center">
+                                <div class="icon">
+                                    <a href="#"><i class="fas fa-map-marker-alt"></i></a>
+                                </div>
+                                <h3>موقعیت مکانی</h3>
+                                <p>
+                                     
+                                     پارک جنگلی
+                                    <br>محل دائمی نمایشگاه‌‌ها
+                                    <br>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="icon-box effect medium center">
+                                <div class="icon">
+                                    <a href="#"><i class="fa fa-phone"></i></a>
+                                </div>
+                                <h3>شماره تماس پشتیبانی</h3>
+                                <p>04433374557
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright-content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6">
+
+                            <div class="social-icons social-icons-colored float-left">
+                                <img src="{% static 'images/uif-f.png' %}" alt="logo" style="max-width:70px">
+                            </div>
+
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="copyright-text text-center">© تمام حقوق این سامانه متعلق به شرکت نمایشگاه بین‌المللی ارومیه می‌باشد.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <a id="scrollTop"><i class="icon-chevron-up"></i><i class="icon-chevron-up"></i></a>
+    <script src="{% static 'plugins/popper/popper.min.js' %}"></script>
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/plugins.js' %}"></script>
+
+    <script src="{% static 'js/functions.js' %}"></script>
+    <script src="{% static 'admin/js/django_jalali.min.js' %}"></script>
+    
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Include Select2 JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+   
+{% block script %}{% endblock script %}
+</body>
+
+</html>

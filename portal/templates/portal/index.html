@@ -1,0 +1,53 @@
+{% extends "base-p.html" %}
+{% load static %}
+
+{% block title %}
+صفحه اصلی | پورتال شرکت نمایشگاه بین‌المللی ارومیه
+{% endblock title %}
+
+{% block content %}
+<section id="page-title" class="text-light" style="background-image:url({% static 'images/1.jpg' %}); background-size: cover; background-position: center center;">
+    <div class="container">
+        <div class="breadcrumb">
+        </div>
+        <div class="page-title">
+            <h1>به سامانه مشتریان نمایشگاه بین‌المللی ارومیه خوش آمدید</h1>
+            <span></span>
+        </div>
+    </div>
+</section>
+<div class="container my-5">
+    <div class="row col-no-margin equalize" data-equalize-item=".text-box">
+
+        <div class="col-lg-4" style="background-color: #506681;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="{% url 'accounts:signin' %}"> <i class="fa fa-file-alt"></i>
+                    <h3>ثبت نام </h3>
+                    <p>این بخش جهت ثبت نام، رزرو غرفه و اطلاع از حساب مشتریان میباشد.</p>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="col-lg-4" style="background-color: #41566f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="#"> <i class="fa fa-users"></i>
+                    <h3>همکاران </h3>
+                    <p>این بخش جهت استفاده امور نمایشگاهی می‌باشد.</p>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="col-lg-4" style="background-color: #32475f;">
+            <div class="text-box hover-effect" style="height: 343.667px;">
+                <a href="#"> <i class="icon-help-circle"></i>
+                    <h3>آموزش سامانه</h3>
+                    <p>این بخش جهت آموزش و نحوه استفاده از این سامانه می‌باشد.</p>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock content %}
