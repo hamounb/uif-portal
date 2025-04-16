@@ -70,11 +70,11 @@
                                                 <td>{{ forloop.counter }}</td>
                                                 <td style="color:blueviolet">
                                                     <b>
-                                                        {{ item.valet.customer.brand }} (
-                                                        {% if item.valet.customer.kind == "legal" %}
-                                                        {{ item.valet.customer.company }}
+                                                        {{ item.customer.brand }} (
+                                                        {% if item.customer.kind == "legal" %}
+                                                        {{ item.customer.company }}
                                                         {% else %}
-                                                        {{ item.valet.customer.first_name }} {{ item.valet.customer.last_name }}
+                                                        {{ item.customer.user.first_name }} {{ item.customer.user.last_name }}
                                                         {% endif %}
                                                         )
                                                     </b>

@@ -73,11 +73,11 @@
                                                     ---
                                                     {% endif %}
                                                 </td>
-                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if customer.kind == "legal" %}حقوقی{% else %}حقیقی{% endif %}">
-                                                    <b>{{ customer.brand }} ({% if customer.kind == "legal" %}{{ customer.company }}{% else %}{{ customer.last_name }} {{ customer.last_name }}{% endif %})</b>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if customer.kind == 'legal' %}حقوقی{% else %}حقیقی{% endif %}">
+                                                    <b>{{ customer.brand }} ({% if customer.kind == "legal" %}{{ customer.company }}{% else %}{{ customer.user.first_name }} {{ customer.user.last_name }}{% endif %})</b>
                                                 </td>
                                                 <td class="text-dark">
-                                                    {{ customer.code }}
+                                                    {{ customer.user.username }}
                                                 </td>
                                                 <td class="text-dark">{{ customer.mobile }}</td>
                                                 <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>

@@ -49,10 +49,10 @@
                                     {% csrf_token %}
                                     <div class="row">
                                         <div class="form-group col-lg-3">
-                                            {{ form.valet.label_tag }}
-                                            {{ form.valet }}
-                                            {% if form.valet.errors %}
-                                                {% for error in form.valet.errors %}
+                                            {{ form.customer.label_tag }}
+                                            {{ form.customer }}
+                                            {% if form.customer.errors %}
+                                                {% for error in form.customer.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
@@ -139,11 +139,11 @@
                                                 <td>{{ forloop.counter }}</td>
                                                 <td style="color:blueviolet">
                                                     <b>
-                                                        {{ cus.valet.customer.brand }} (
-                                                        {% if cus.valet.customer.kind == "legal" %}
-                                                        {{ cus.valet.customer.company }}
+                                                        {{ cus.customer.brand }} (
+                                                        {% if cus.customer.kind == "legal" %}
+                                                        {{ cus.customer.company }}
                                                         {% else %}
-                                                        {{ cus.valet.customer.first_name }} {{ cus.valet.customer.last_name }}
+                                                        {{ cus.customer.user.first_name }} {{ cus.customer.user.last_name }}
                                                         {% endif %}
                                                         )
                                                     </b>
@@ -178,10 +178,10 @@
                                                 <td style="color:blueviolet">
                                                     <b>
                                                         {{ cus.valet.customer.brand }} (
-                                                        {% if cus.valet.customer.kind == "legal" %}
-                                                        {{ cus.valet.customer.company }}
+                                                        {% if cus.customer.kind == "legal" %}
+                                                        {{ cus.customer.company }}
                                                         {% else %}
-                                                        {{ cus.valet.customer.first_name }} {{ cus.valet.customer.last_name }}
+                                                        {{ cus.customer.user.first_name }} {{ cus.customer.user.last_name }}
                                                         {% endif %}
                                                         )
                                                     </b>
@@ -270,7 +270,7 @@
 <script>
     // Initialize Select2 on the select element
     $(document).ready(function() {
-      $('#id_valet').select2();
+      $('#id_customer').select2();
     });
   </script>
 {% endblock script %}

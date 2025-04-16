@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from client.models import *
+from accounts.models import MobileModel
 from django.db.utils import IntegrityError
 
 # Create your views here.
@@ -102,26 +103,63 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
         form = CustomerAddForm(request.POST)
         submit_type = request.POST.get('submit_type')
         if form.is_valid():
-            obj = form.save(commit=False)
-            if obj.kind == "legal":
-                if not obj.ncode:
+            kind = form.cleaned_data.get("kind")
+            sid = form.cleaned_data.get("sid")
+            if sid:
+                sid = sid
+            else:
+                sid = None
+            is_active = form.cleaned_data.get("is_active")
+            first_name = form.cleaned_data.get("first_name")
+            last_name = form.cleaned_data.get("last_name")
+            code = form.cleaned_data.get("code")
+            brand = form.cleaned_data.get("brand")
+            ceoname = form.cleaned_data.get("ceoname")
+            company = form.cleaned_data.get("company")
+            ncode = form.cleaned_data.get("ncode")
+            mobile = form.cleaned_data.get("mobile")
+            phone = form.cleaned_data.get("phone")
+            fax = form.cleaned_data.get("fax")
+            email = form.cleaned_data.get("email")
+            postalcode = form.cleaned_data.get("postalcode")
+            address = form.cleaned_data.get("address")
+            if kind == "legal":
+                if not ncode:
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای شناسه ملی باشد.")
                     return render(request, 'office/customer-add.html', {'form':form})
-                elif not obj.ceoname:
+                elif not ceoname:
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای نام مدیرعامل باشد.")
                     return render(request, 'office/customer-add.html', {'form':form})
-                elif not obj.company:
+                elif not company:
                     messages.error(request, f"مشتری با نوع حقوقی باید دارای نام شرکت یا سازمان باشد.")
                     return render(request, 'office/customer-add.html', {'form':form})
                 else:
-                    code = form.cleaned_data.get('code')
-                    mobile = form.cleaned_data.get('mobile')
                     try:
                         cus = User.objects.get(username=code)
                     except User.DoesNotExist:
                         new = User(username=code)
+                        new.first_name = first_name
+                        new.last_name = last_name
                         new.set_password(mobile)
                         new.save()
+                        v = ValetModel(user=new)
+                        v.save()
+                        m = MobileModel(user=new, mobile=mobile)
+                        m.save()
+                        obj = CustomerModel(
+                            kind=kind,
+                            sid=sid,
+                            is_active=is_active,
+                            brand=brand,
+                            ceoname=ceoname,
+                            company=company,
+                            ncode=ncode,
+                            phone=phone,
+                            fax=fax,
+                            email=email,
+                            postalcode=postalcode,
+                            address=address
+                        )
                         obj.user = new
                         obj.user_modified = user
                         obj.user_created = user
@@ -130,78 +168,123 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                         except IntegrityError:
                             messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
                             return render(request, 'office/customer-add.html', {'form':form})
-                        messages.success(request, f"مشتری حقوقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
-                        try:
-                            valet = ValetModel.objects.get(customer=obj)
-                        except ValetModel.DoesNotExist:
-                            valet = ValetModel(customer=obj)
-                            valet.save()
+                        messages.success(request, f"مشتری حقوقی با نام تجاری {brand} با موفقیت ثبت شد.")
                         if submit_type == "save":
                             return redirect('office:customer-list')
                         return redirect("office:customer-add")
+                    obj = CustomerModel(
+                        kind=kind,
+                        sid=sid,
+                        is_active=is_active,
+                        brand=brand,
+                        ceoname=ceoname,
+                        company=company,
+                        ncode=ncode,
+                        phone=phone,
+                        fax=fax,
+                        email=email,
+                        postalcode=postalcode,
+                        address=address
+                    )
                     obj.user = cus
                     obj.user_modified = user
                     obj.user_created = user
+                    try:
+                        valet = ValetModel.objects.get(user=cus)
+                    except ValetModel.DoesNotExist:
+                        valet = ValetModel(user=cus)
+                        valet.save()
+                    try:
+                        m = MobileModel.objects.get(user=cus)
+                        m.mobile = mobile
+                        m.save()
+                    except MobileModel.DoesNotExist:
+                        m = MobileModel(user=cus, mobile=mobile)
+                        m.save()
                     try:
                         obj.save()
                     except IntegrityError:
                         messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
                         return render(request, 'office/customer-add.html', {'form':form})
                     messages.success(request, f"مشتری حقوقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
-                    try:
-                        valet = ValetModel.objects.get(customer=obj)
-                    except ValetModel.DoesNotExist:
-                        valet = ValetModel(customer=obj)
-                        valet.save()
                     if submit_type == "save":
                         return redirect('office:customer-list')
                     return redirect("office:customer-add")
             else:
-                code = form.cleaned_data.get('code')
-                mobile = form.cleaned_data.get('mobile')
                 try:
                     cus = User.objects.get(username=code)
                 except User.DoesNotExist:
                     new = User(username=code)
+                    new.first_name = first_name
+                    new.last_name = last_name
                     new.set_password(mobile)
                     new.save()
+                    v = ValetModel(user=new)
+                    v.save()
+                    m = MobileModel(user=new, mobile=mobile)
+                    m.save()
+                    obj = CustomerModel(
+                        kind=kind,
+                        sid=sid,
+                        is_active=is_active,
+                        brand=brand,
+                        ceoname=ceoname,
+                        company=company,
+                        ncode=ncode,
+                        phone=phone,
+                        fax=fax,
+                        email=email,
+                        postalcode=postalcode,
+                        address=address
+                    )
                     obj.user = new
-                    obj.ceoname = ''
-                    obj.ncode = ''
-                    obj.company = ''
                     obj.user_modified = user
                     obj.user_created = user
                     try:
                         obj.save()
                     except IntegrityError:
-                        messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
+                        messages.error(request, "این اطلاعات قبلاً ثبت شده است!1")
                         return render(request, 'office/customer-add.html', {'form':form})
                     messages.success(request, f"مشتری حقیقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
-                    try:
-                        valet = ValetModel.objects.get(customer=obj)
-                    except ValetModel.DoesNotExist:
-                        valet = ValetModel(customer=obj)
-                        valet.save()
                     if submit_type == "save":
                         return redirect('office:customer-list')
                     return redirect("office:customer-add")
+                obj = CustomerModel(
+                    kind=kind,
+                    sid=sid,
+                    is_active=is_active,
+                    brand=brand,
+                    ceoname="",
+                    company="",
+                    ncode="",
+                    phone=phone,
+                    fax=fax,
+                    email=email,
+                    postalcode=postalcode,
+                    address=address
+                )
                 obj.user = cus
-                obj.ceoname = ''
-                obj.ncode = ''
-                obj.company = ''
                 obj.user_modified = user
                 obj.user_created = user
                 try:
                     obj.save()
                 except IntegrityError:
-                    messages.error(request, "این اطلاعات قبلاً ثبت شده است!")
+                    messages.error(request, "این اطلاعات قبلاً ثبت شده است!2")
                     return render(request, 'office/customer-add.html', {'form':form})
                 messages.success(request, f"مشتری حقیقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
                 try:
-                    valet = ValetModel.objects.get(customer=obj)
+                    valet = ValetModel.objects.get(user=cus)
                 except ValetModel.DoesNotExist:
-                    valet = ValetModel(customer=obj)
+                    valet = ValetModel(user=cus)
                     valet.save()
+                try:
+                    m = MobileModel.objects.get(user=cus)
+                    m.mobile = mobile
+                    m.save()
+                except MobileModel.DoesNotExist:
+                    m = MobileModel(user=cus)
+                    m.mobile = mobile
+                    m.save()
                 if submit_type == "save":
                     return redirect('office:customer-list')
                 return redirect("office:customer-add")
@@ -269,7 +352,7 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
 
     def get(self , request, id):
         customer = get_object_or_404(CustomerModel, pk=id)
-        invoice = InvoiceModel.objects.filter(Q(valet__customer=customer) & Q(is_active=True)).order_by("-created_date")
+        invoice = InvoiceModel.objects.filter(Q(customer=customer) & Q(is_active=True)).order_by("-created_date")
         form = CustomerToExhibitionForm()
         context = {
             'customer':customer,
@@ -488,9 +571,9 @@ class InvoiceRemoveView(PermissionRequiredMixin, views.View):
             invoice.is_active = False
             invoice.save()
             ref = request.META['HTTP_REFERER']
-            messages.error(request, f"مشارکت کننده {invoice.valet.customer.brand} از نمایشگاه {invoice.exhibition.title} حذف شد.")
+            messages.error(request, f"مشارکت کننده {invoice.customer.brand} از نمایشگاه {invoice.exhibition.title} حذف شد.")
             return HttpResponseRedirect(ref)
-        messages.error(request, f"مشارکت کننده {invoice.valet.customer.brand} تسویه حساب شده است و قابلیت حذف ندارد.")
+        messages.error(request, f"مشارکت کننده {invoice.customer.brand} تسویه حساب شده است و قابلیت حذف ندارد.")
         return HttpResponseRedirect(ref)
     
 
@@ -501,7 +584,7 @@ class InvoiceEditView(PermissionRequiredMixin, views.View):
     def get(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         if invoice.state == InvoiceModel.STATE_PAID:
-            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            messages.error(request, f"{invoice.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:invoice-list")
         item = {
             "is_active":invoice.is_active,
@@ -556,7 +639,7 @@ class InvoiceEditView(PermissionRequiredMixin, views.View):
             invoice.amount = str(int(amount))
             invoice.user_modified = user
             invoice.save()
-            messages.success(request, f'فاکتور برای مشارکت کننده {invoice.exhibition.title} با نام تجاری {invoice.valet.customer.company} با موفقیت ویرایش شد.')
+            messages.success(request, f'فاکتور برای مشارکت کننده {invoice.exhibition.title} با نام تجاری {invoice.customer.company} با موفقیت ویرایش شد.')
             return render(request, 'office/invoice-edit.html', {'form':form})
         return render(request, 'office/invoice-edit.html', {'form':form})
     
@@ -606,7 +689,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
     def post(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         if invoice.state == InvoiceModel.STATE_PAID:
-            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
+            messages.error(request, f"{invoice.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت پرداخت ندارد.")
             return redirect("office:invoice-list")
         user = get_object_or_404(User, pk=request.user.id)
         form = PaymentAddForm(request.POST)
@@ -815,120 +898,120 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
         return HttpResponseRedirect(ref)
     
 
-class DepositAddView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.add_depositmodel']
+# class DepositAddView(PermissionRequiredMixin, views.View):
+#     login_url = 'accounts:signin'
+#     permission_required = ['client.add_depositmodel']
 
-    def get(self, request):
-        deposits = DepositModel.objects.filter(state=DepositModel.STATE_DEPOSIT).order_by("-created_date")
-        form = DepositAddForm()
-        context = {
-            "form":form,
-            "deposits":deposits,
-        }
-        return render(request, "office/deposit-add.html", context)
+#     def get(self, request):
+#         deposits = DepositModel.objects.filter(state=DepositModel.STATE_DEPOSIT).order_by("-created_date")
+#         form = DepositAddForm()
+#         context = {
+#             "form":form,
+#             "deposits":deposits,
+#         }
+#         return render(request, "office/deposit-add.html", context)
 
-    def post(self, request):
-        user = get_object_or_404(User, pk=request.user.id)
-        deposits = DepositModel.objects.filter(state=DepositModel.STATE_DEPOSIT).order_by("-created_date")
-        form = DepositAddForm(request.POST)
-        context = {
-            "form":form,
-            "deposits":deposits,
-        }
-        if form.is_valid():
-            valet = form.cleaned_data.get("valet")
-            invoice_number = form.cleaned_data.get("invoice_number")
-            tracenumber = form.cleaned_data.get("tracenumber")
-            amount = form.cleaned_data.get("amount")
-            date = form.cleaned_data.get("date")
-            description = form.cleaned_data.get("description")
-            try:
-                deposit = DepositModel.objects.get(Q(invoice_number=invoice_number))
-            except DepositModel.DoesNotExist:
-                deposit = DepositModel(
-                    state=DepositModel.STATE_DEPOSIT,
-                    valet=valet,
-                    invoice_number=invoice_number,
-                    description=description,
-                    user_created=user,
-                )
-                deposit.save()
-                item = DepositPaymentModel(
-                    deposit=deposit,
-                    tracenumber=tracenumber,
-                    date=date,
-                    amount=amount,
-                    user_created=user,
-                )
-                item.save()
-                messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
-                return redirect("office:deposit-add")
-            if deposit.valet == valet and deposit.state == DepositModel.STATE_DEPOSIT:
-                item = DepositPaymentModel(
-                    deposit=deposit,
-                    tracenumber=tracenumber,
-                    date=date,
-                    amount=amount,
-                    user_created=user,
-                )
-                item.save()
-                messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
-                return redirect("office:deposit-add")
-            messages.error(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) قبلاً ثبت شده است.")
-            return render(request, "office/deposit-add.html", context)
-        context = {
-            "form":form,
-        }
-        return render(request, "office/deposit-add.html", context)
+#     def post(self, request):
+#         user = get_object_or_404(User, pk=request.user.id)
+#         deposits = DepositModel.objects.filter(state=DepositModel.STATE_DEPOSIT).order_by("-created_date")
+#         form = DepositAddForm(request.POST)
+#         context = {
+#             "form":form,
+#             "deposits":deposits,
+#         }
+#         if form.is_valid():
+#             valet = form.cleaned_data.get("valet")
+#             invoice_number = form.cleaned_data.get("invoice_number")
+#             tracenumber = form.cleaned_data.get("tracenumber")
+#             amount = form.cleaned_data.get("amount")
+#             date = form.cleaned_data.get("date")
+#             description = form.cleaned_data.get("description")
+#             try:
+#                 deposit = DepositModel.objects.get(Q(invoice_number=invoice_number))
+#             except DepositModel.DoesNotExist:
+#                 deposit = DepositModel(
+#                     state=DepositModel.STATE_DEPOSIT,
+#                     valet=valet,
+#                     invoice_number=invoice_number,
+#                     description=description,
+#                     user_created=user,
+#                 )
+#                 deposit.save()
+#                 item = DepositPaymentModel(
+#                     deposit=deposit,
+#                     tracenumber=tracenumber,
+#                     date=date,
+#                     amount=amount,
+#                     user_created=user,
+#                 )
+#                 item.save()
+#                 messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
+#                 return redirect("office:deposit-add")
+#             if deposit.valet == valet and deposit.state == DepositModel.STATE_DEPOSIT:
+#                 item = DepositPaymentModel(
+#                     deposit=deposit,
+#                     tracenumber=tracenumber,
+#                     date=date,
+#                     amount=amount,
+#                     user_created=user,
+#                 )
+#                 item.save()
+#                 messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
+#                 return redirect("office:deposit-add")
+#             messages.error(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) قبلاً ثبت شده است.")
+#             return render(request, "office/deposit-add.html", context)
+#         context = {
+#             "form":form,
+#         }
+#         return render(request, "office/deposit-add.html", context)
     
 
-class DepositListView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.view_depositmodel']
+# class DepositListView(PermissionRequiredMixin, views.View):
+#     login_url = 'accounts:signin'
+#     permission_required = ['client.view_depositmodel']
 
-    def get(self, request):
-        deposits = DepositModel.objects.filter(Q(state=DepositModel.STATE_DEPOSIT))
-        form = DepositExhibitionForm()
-        context = {
-            "deposits":deposits,
-            "form":form,
-        }
-        return render(request, "office/deposit-list.html", context)
+#     def get(self, request):
+#         deposits = DepositModel.objects.filter(Q(state=DepositModel.STATE_DEPOSIT))
+#         form = DepositExhibitionForm()
+#         context = {
+#             "deposits":deposits,
+#             "form":form,
+#         }
+#         return render(request, "office/deposit-list.html", context)
     
 
-class DepositStateAddView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
-    permission_required = ['client.view_depositmodel', 'client.add_invoicemodel']
+# class DepositStateAddView(PermissionRequiredMixin, views.View):
+#     login_url = 'accounts:signin'
+#     permission_required = ['client.view_depositmodel', 'client.add_invoicemodel']
 
-    def post(self, request, did):
-        deposit = get_object_or_404(DepositModel, pk=did)
-        form = DepositExhibitionForm(request.POST)
-        if form.is_valid():
-            deposit_payment = DepositPaymentModel.objects.filter(deposit=deposit)
-            exhibition = form.cleaned_data.get("exhibition")
-            valet = get_object_or_404(ValetModel, pk=deposit.valet.pk)
-            invoice = get_object_or_404(InvoiceModel, Q(exhibition=exhibition) & Q(valet=valet) & Q(is_active=True))
-            total = 0
-            for i in deposit_payment:
-                total += int(i.amount)
-                payment = PaymentModel(
-                    state=PaymentModel.STATE_POS,
-                    invoice=invoice,
-                    valet=valet,
-                    amount=i.amount,
-                    tracenumber=i.tracenumber,
-                    datepaid=i.date,
-                )
-                payment.save()
-            valet.cash = str(int(valet.cash) + int(total))
-            valet.save()
-            deposit.state = DepositModel.STATE_PAYMENT
-            deposit.save()
-            messages.success(request, f"بیعانه با شماره سند {deposit.invoice_number} و مبلغ {total} به {exhibition.title} اضافه شد.")
-            return redirect("office:deposit-list")
-        messages.error(request, "خطای سیستمی رخ داده استُ لطفا دوباره اقدام کنید!")
-        return redirect("office:deposit-list")
+#     def post(self, request, did):
+#         deposit = get_object_or_404(DepositModel, pk=did)
+#         form = DepositExhibitionForm(request.POST)
+#         if form.is_valid():
+#             deposit_payment = DepositPaymentModel.objects.filter(deposit=deposit)
+#             exhibition = form.cleaned_data.get("exhibition")
+#             valet = get_object_or_404(ValetModel, pk=deposit.valet.pk)
+#             invoice = get_object_or_404(InvoiceModel, Q(exhibition=exhibition) & Q(valet=valet) & Q(is_active=True))
+#             total = 0
+#             for i in deposit_payment:
+#                 total += int(i.amount)
+#                 payment = PaymentModel(
+#                     state=PaymentModel.STATE_POS,
+#                     invoice=invoice,
+#                     valet=valet,
+#                     amount=i.amount,
+#                     tracenumber=i.tracenumber,
+#                     datepaid=i.date,
+#                 )
+#                 payment.save()
+#             valet.cash = str(int(valet.cash) + int(total))
+#             valet.save()
+#             deposit.state = DepositModel.STATE_PAYMENT
+#             deposit.save()
+#             messages.success(request, f"بیعانه با شماره سند {deposit.invoice_number} و مبلغ {total} به {exhibition.title} اضافه شد.")
+#             return redirect("office:deposit-list")
+#         messages.error(request, "خطای سیستمی رخ داده استُ لطفا دوباره اقدام کنید!")
+#         return redirect("office:deposit-list")
         
 
 class CheckoutView(PermissionRequiredMixin, views.View):
@@ -956,7 +1039,7 @@ class CheckoutView(PermissionRequiredMixin, views.View):
         valet.cash = str(int(valet.cash) - int(invoice.amount))
         invoice.save()
         valet.save()
-        messages.success(request, f"حساب مشارکت کننده {invoice.valet.customer.brand} برای {invoice.exhibition.title} با موفقیت تسویه شد.")
+        messages.success(request, f"حساب مشارکت کننده {invoice.customer.brand} برای {invoice.exhibition.title} با موفقیت تسویه شد.")
         return redirect("office:payment-add", iid=invoice.pk)
     
 
@@ -1031,7 +1114,9 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             'form':form,
         }
         if form.is_valid():
-            valet = form.cleaned_data.get("valet")
+            customer = form.cleaned_data["customer"]
+            customer_id = get_object_or_404(CustomerModel, pk=customer.id)
+            valet = get_object_or_404(ValetModel, user=customer_id.user)
             booth_number = form.cleaned_data.get("booth_number")
             area_c = form.cleaned_data.get("area")
             discount = form.cleaned_data.get("discount")
@@ -1039,6 +1124,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice = InvoiceModel(
                 valet=valet,
+                customer=customer,
                 exhibition=exhibition,
                 booth_number=booth_number,
                 price=exhibition.price,
@@ -1069,7 +1155,7 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
             messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:exhibition-details", eid=exhibition.pk)
         initial = {
-            "valet":invoice.valet,
+            "customer":invoice.customer,
             "booth_number":invoice.booth_number,
             "area":invoice.area,
             "discount":invoice.discount,
@@ -1099,7 +1185,7 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
             messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:exhibition-details", eid=exhibition.pk)
         initial = {
-            "valet":invoice.valet,
+            "customer":invoice.customer,
             "booth_number":invoice.booth_number,
             "area":invoice.area,
             "discount":invoice.discount,
@@ -1121,13 +1207,15 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
             "invoice":invoice,
         }
         if form.is_valid():
-            valet = form.cleaned_data.get("valet")
+            customer = form.cleaned_data.get("customer")
+            valet = get_object_or_404(ValetModel, user=customer.user)
             booth_number = form.cleaned_data.get("booth_number")
             area_c = form.cleaned_data.get("area")
             discount = form.cleaned_data.get("discount")
             pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
             total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice.valet = valet
+            invoice.customer = customer
             invoice.booth_number = booth_number
             invoice.price = exhibition.price
             invoice.area = area_c
@@ -1155,7 +1243,6 @@ class ExhibitionStatusView(PermissionRequiredMixin, views.View):
         exhibition = get_object_or_404(ExhibitionModel, pk=id)
         total_price = 0
         total_area = 0
-        total_value_added = 0
         for i in items:
             total_price += int(i.amount)
             total_area += int(i.area)

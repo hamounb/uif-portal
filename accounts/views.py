@@ -34,13 +34,21 @@ class SignUpView(views.View):
             except IntegrityError as e:
                 messages.error(request, 'قبلا با این کد ملی حساب کاربری ایجاد شده است!')
                 return render(request, 'accounts/signup.html', {'form':form})
+            try:
+                tk = TokenModel.objects.get(user=new)
+            except TokenModel.DoesNotExist:
+                otp = send_token(mobile)
+                tk = TokenModel(user=new, otp=otp['code'], status=otp['status'])
+                tk.save()
+                number = MobileModel()
+                number.user = new
+                number.mobile = mobile
+                number.save()
+                return redirect('accounts:verify', code=code)
             otp = send_token(mobile)
-            tk = TokenModel(user=new, otp=otp['code'], status=otp['status'])
+            tk.otp = otp['code']
+            tk.status = otp['status']
             tk.save()
-            number = MobileModel()
-            number.user = new
-            number.mobile = mobile
-            number.save()
             return redirect('accounts:verify', code=code)
         else:
             return render(request, 'accounts/signup.html', {'form':form})
@@ -164,7 +172,10 @@ class SignInView(views.View):
         if request.user.is_authenticated:
             user = get_object_or_404(User, pk=request.user.id)
             if user.is_staff:
-                return redirect('office:home')
+                if user.is_active:
+                    return redirect('office:home')
+                messages.error(request, "کاربر گرامی حساب شما غیرفعال شده است!")
+                return redirect('accounts:signin')
             return redirect('client:index')
         form = LoginForm()
         return render(request, 'accounts/signin.html', {'form':form})
@@ -173,7 +184,10 @@ class SignInView(views.View):
         if request.user.is_authenticated:
             user = get_object_or_404(User, pk=request.user.id)
             if user.is_staff:
-                return redirect('office:home')
+                if user.is_active:
+                    return redirect('office:home')
+                messages.error(request, "کاربر گرامی حساب شما غیرفعال شده است!")
+                return redirect('accounts:signin')
             return redirect('client:index')
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -187,7 +201,7 @@ class SignInView(views.View):
             auser = authenticate(username=code, password=mobile)
             if auser is not None:
                 login(request, user)
-                if user.get_user_permissions():
+                if user.is_staff:
                     return redirect('office:home')
                 return redirect('client:index')
             elif not user.is_active and user.check_password(mobile):

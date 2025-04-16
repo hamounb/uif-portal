@@ -24,5 +24,5 @@ class ProfileView(LoginRequiredMixin, views.View):
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
-        profile = CustomerModel.objects.filter(Q(user=user) & Q(code=user.username))
+        profile = CustomerModel.objects.filter(user=user)
         return render(request, "client/profile.html", {"profile":profile})

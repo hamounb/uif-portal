@@ -49,51 +49,65 @@ class UserAddForm(forms.Form):
     mobile = forms.CharField(max_length=11, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="موبایل", validators=[is_mobile])
 
 
-class CustomerAddForm(forms.ModelForm):
+class CustomerAddForm(forms.Form):
+    KIND_REAL = 'real'
+    KIND_LEGAL = 'legal'
+    KIND_CHOICES = (
+        (KIND_REAL, 'حقیقی'),
+        (KIND_LEGAL, 'حقوقی')
+    )
+    kind = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=KIND_CHOICES), label="نوع مشارکت کننده")
+    sid = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد تفصیلی")
+    is_active = forms.BooleanField(label="فعال", required=False, widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
+    first_name = forms.CharField(max_length=250, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام")
+    last_name = forms.CharField(max_length=250, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام خانوادگی")
     code = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
-    mobile = forms.CharField(max_length=11, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="موبایل", validators=[is_mobile])
+    brand = forms.CharField(max_length=250, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام تجاری")
+    ceoname = forms.CharField(max_length=250, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام مدیرعامل")
+    company = forms.CharField(max_length=250, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام شرکت")
     ncode = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
+    mobile = forms.CharField(max_length=11, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="موبایل", validators=[is_mobile])
     phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره ثابت", validators=[is_phone])
     fax = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره فکس", validators=[is_phone])
+    email = forms.EmailField(max_length=250, required=False, widget=forms.EmailInput(attrs={'class':'form-control'}), label="ایمیل")
     postalcode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد پستی", validators=[is_postal])
+    address = forms.CharField(max_length=250, required=False, widget=forms.Textarea(attrs={'class':'form-control', 'rows':3}), label="آدرس")
+
+
+class CustomerChangeForm(forms.ModelForm):
 
     class Meta:
         model = CustomerModel
         fields = (
-                  'kind',
-                  'sid',
-                  'is_active',
-                  'first_name',
-                  'last_name',
-                  'code',
-                  'brand',
-                  'ceoname',
-                  'company',
-                  'ncode',
-                  'mobile',
-                  'phone',
-                  'fax',
-                  'email',
-                  'postalcode',
-                  'address',
-                  )
+            'kind',
+            'is_active',
+            'sid',
+            'user',
+            'brand',
+            'company',
+            'ceoname',
+            'ncode',
+            'phone',
+            'fax',
+            'email',
+            'postalcode',
+            'address',
+        )
         widgets = {
             'kind': forms.Select(attrs={'class':'form-control'}),
-            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right', "checked":True}),
+            'is_active': forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}),
             'sid': forms.TextInput(attrs={'class':'form-control'}),
-            'first_name': forms.TextInput(attrs={'class':'form-control'}),
-            'last_name': forms.TextInput(attrs={'class':'form-control'}),
+            'user': forms.TextInput(attrs={'class':'form-control', 'type':'hidden'}),
             'brand': forms.TextInput(attrs={'class':'form-control'}),
-            'ceoname': forms.TextInput(attrs={'class':'form-control'}),
             'company': forms.TextInput(attrs={'class':'form-control'}),
-            'email': forms.EmailInput(attrs={'class':'form-control'}),
-            'address': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
+            'ceoname': forms.TextInput(attrs={'class':'form-control'}),
+            'ncode': forms.TextInput(attrs={'class':'form-control'}),
+            'phone': forms.TextInput(attrs={'class':'form-control'}),
+            'fax': forms.TextInput(attrs={'class':'form-control'}),
+            'email': forms.TextInput(attrs={'class':'form-control'}),
+            'postalcode': forms.TextInput(attrs={'class':'form-control'}),
+            'address': forms.TextInput(attrs={'class':'form-control'}),
         }
-
-
-class CustomerChangeForm(CustomerAddForm):
-    code = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'class':'form-control', 'hidden':True}), validators=[is_code])
-    mobile = forms.CharField(max_length=11, required=True, widget=forms.TextInput(attrs={'class':'form-control', 'hidden':True}), label="موبایل", validators=[is_mobile])
 
 
 class DocumentForm(forms.Form):
@@ -162,13 +176,13 @@ class CustomerToExhibitionForm(forms.Form):
 
 
 class InvoiceAddForm(forms.Form):
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده")
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(user__is_active=True), label="مشارکت کننده")
     booth_number = forms.CharField(label="شماره غرفه", max_length=4, required=False, validators=[is_positive], widget=forms.TextInput(attrs={'class':'form-control'}))
     area = forms.CharField(label="متراژ(مترمربع)", max_length=6, required=True, validators=[is_positive], widget=forms.TextInput(attrs={'class':'form-control'}))
 
 
 class AddToExhibitionForm(forms.Form):
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده")
+    customer = forms.ModelChoiceField(queryset=CustomerModel.objects.filter(is_active=True), label="مشارکت کننده")
     booth_number = forms.CharField(max_length=50, required=False, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
     discount = forms.CharField(max_length=50, required=True, label="تخفیف(درصد)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_discount])
     area = forms.CharField(max_length=15, required=True, label="متراژ(مترمربع)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
@@ -176,7 +190,7 @@ class AddToExhibitionForm(forms.Form):
 
 class InvoiceEditForm(forms.Form):
     is_active = forms.BooleanField(label="فعال", widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), label="مشارکت کننده", widget=forms.Select(attrs={'class':'form-control'}))
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(user__is_active=True), label="مشارکت کننده", widget=forms.Select(attrs={'class':'form-control'}))
     exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه", widget=forms.Select(attrs={'class':'form-control'}))
     booth_number = forms.CharField(max_length=50, required=False, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
     area = forms.CharField(max_length=15, required=True, label="متراژ(مترمربع)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
@@ -203,7 +217,7 @@ class PaymentAddForm(forms.Form):
 
 
 class DepositAddForm(forms.Form):
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(customer__is_active=True), required=True, label="مشارکت کننده")
+    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(user__is_active=True), required=True, label="مشارکت کننده")
     invoice_number = forms.CharField(max_length=6, label="شماره سند", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
     tracenumber = forms.CharField(max_length=12, label="شماره پیگیری", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
     amount = forms.CharField(max_length=12, label="مبلغ(ریال)", required=True, widget=forms.TextInput(attrs={"class":"form-control"}), validators=[is_positive])

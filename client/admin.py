@@ -97,8 +97,8 @@ class ExhibitionAdmin(admin.ModelAdmin):
 @admin.register(InvoiceModel)
 class InvoiceAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("customer", "amount", "exhibition", "booth_number")
-    list_display = ("pk", "state", "is_active", "valet", "exhibition", "amount")
+    search_fields = ("customer", "valet", "amount", "exhibition", "booth_number")
+    list_display = ("pk", "state", "is_active", "customer", "exhibition", "amount")
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -112,8 +112,8 @@ class InvoiceAdmin(admin.ModelAdmin):
 @admin.register(ValetModel)
 class ValetAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("customer", )
-    list_display = ("pk", "customer", "cash")
+    search_fields = ("user", )
+    list_display = ("pk", "user", "cash")
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -154,31 +154,31 @@ class PaymentAdmin(admin.ModelAdmin):
         return super().save_model(request, obj, form, change)
 
     
-@admin.register(DepositModel)
-class DepositAdmin(admin.ModelAdmin):
-    readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("invoice_number", "customer")
-    list_display = ("pk", "state", "valet", "invoice_number")
+# @admin.register(DepositModel)
+# class DepositAdmin(admin.ModelAdmin):
+#     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
+#     search_fields = ("invoice_number", "customer")
+#     list_display = ("pk", "state", "valet", "invoice_number")
     
-    def save_model(self, request, obj, form, change):
-        if change:
-            obj.user_modified = request.user
-        else:
-            obj.user_created = request.user
-            obj.user_modified = request.user
-        return super().save_model(request, obj, form, change)
+#     def save_model(self, request, obj, form, change):
+#         if change:
+#             obj.user_modified = request.user
+#         else:
+#             obj.user_created = request.user
+#             obj.user_modified = request.user
+#         return super().save_model(request, obj, form, change)
     
 
-@admin.register(DepositPaymentModel)
-class DepositPaymentAdmin(admin.ModelAdmin):
-    readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("deposit", "tracenumber", "date")
-    list_display = ("deposit", "amount", "tracenumber", "date")
+# @admin.register(DepositPaymentModel)
+# class DepositPaymentAdmin(admin.ModelAdmin):
+#     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
+#     search_fields = ("deposit", "tracenumber", "date")
+#     list_display = ("deposit", "amount", "tracenumber", "date")
     
-    def save_model(self, request, obj, form, change):
-        if change:
-            obj.user_modified = request.user
-        else:
-            obj.user_created = request.user
-            obj.user_modified = request.user
-        return super().save_model(request, obj, form, change)
+#     def save_model(self, request, obj, form, change):
+#         if change:
+#             obj.user_modified = request.user
+#         else:
+#             obj.user_created = request.user
+#             obj.user_modified = request.user
+#         return super().save_model(request, obj, form, change)

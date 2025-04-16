@@ -35,7 +35,7 @@ urlpatterns = [
     path('payment/remove/<int:pid>/', PaymentRemoveView.as_view(), name='payment-remove'),
     path('payment/edit/<int:iid>/<int:pid>/', PaymentEditView.as_view(), name='payment-edit'),
     path('payment/checkout/<int:iid>/', CheckoutView.as_view(), name='checkout'),
-    path('payment/deposit/add/', DepositAddView.as_view(), name='deposit-add'),
-    path('payment/deposit/state/<int:did>/', DepositStateAddView.as_view(), name='deposit-state-add'),
-    path('payment/deposit/list/', DepositListView.as_view(), name='deposit-list'),
+    # path('payment/deposit/add/', DepositAddView.as_view(), name='deposit-add'),
+    # path('payment/deposit/state/<int:did>/', DepositStateAddView.as_view(), name='deposit-state-add'),
+    # path('payment/deposit/list/', DepositListView.as_view(), name='deposit-list'),
     ]
