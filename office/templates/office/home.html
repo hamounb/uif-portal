@@ -9,173 +9,64 @@
 {% block content %}
 
 
-<section id="page-content" class="background-light">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="widget widget-mycart p-cb">
-                    <div class="text-center">
-                        <div class="mb-2"><img src="{% static 'images/7.jpg' %}" class="avatar avatar-lg"></div>
-                        <div class="cart-product-meta">
-                            <a href="#">{{ user.first_name }} {{ user.last_name }}</a>
-                            <p class="text-primary"> مدیر سیستم </p>
-                        </div>
+    <section>
+        <div class="container">
+            <div class="row col-no-margin equalize" data-equalize-item=".text-box">
+        
+                <div class="col-lg-4" style="background-color: #41566f;">
+                    <div class="text-box hover-effect" style="height: 343.667px;">
+                        <a href="{% url 'office:customer-list' %}" target="_blank"> <i class="icon-users"></i>
+                            <h3>مشارکت کنندگان </h3>
+                            <p>این بخش جهت مشاهده اطلاعات مشارکت کنندگان می‌باشد.</p>
+                        </a>
                     </div>
                 </div>
+        
+                <div class="col-lg-4" style="background-color: #41566f;">
+                    <div class="text-box hover-effect" style="height: 343.667px;">
+                        <a href="{% url 'office:exhibition-list' %}" target="_blank"> <i class="icon-flag"></i>
+                            <h3>نمایشگاه‌ ها </h3>
+                            <p>این بخش جهت مشاهده جزئیات نمایشگاه‌ها، ثبت نام و صورت وضعیت می‌باشد.</p>
+                        </a>
+                    </div>
+                </div>
+        
+                <div class="col-lg-4" style="background-color: #41566f;">
+                    <div class="text-box hover-effect" style="height: 343.667px;">
+                        <a href="#" target="_blank"> <i class="icon-map"></i>
+                            <h3>فاکتور ها </h3>
+                            <p>این بخش جهت اطلاع از وضعیت فاکتورهای مشارکت کنندگان می‌باشد.</p>
+                        </a>
+                    </div>
+                </div>
+        
+                <div class="col-lg-4" style="background-color: #41566f;">
+                    <div class="text-box hover-effect" style="height: 343.667px;">
+                        <a href="{% url 'office:payment-list' %}" target="_blank"> <i class="icon-dollar-sign"></i>
+                            <h3>پرداخت ها </h3>
+                            <p>این بخش جهت مشاهده واریزی‌ها و اطلاع از وضعیت پرداخت‌ها می‌باشد.</p>
+                        </a>
+                    </div>
+                </div>
+        
+                <div class="col-lg-4" style="background-color: #41566f;">
+                    <div class="text-box hover-effect" style="height: 343.667px;">
+                        <a href="#" target="_blank"> <i class="icon-mail"></i>
+                            <h3>پیغام ها </h3>
+                            <p>این بخش جهت مشاهده پیغام‌ها می‌باشد.</p>
+                        </a>
+                    </div>
+                </div>
+        
+                <div class="col-lg-4" style="background-color: #41566f;">
+                    <div class="text-box hover-effect" style="height: 343.667px;">
+                        <a href="#" target="_blank"> <i class="icon-log-out"></i>
+                            <h3>خروج </h3>
+                        </a>
+                    </div>
+                </div>
+        
             </div>
         </div>
-    </div>
-    <div class="container-fluid">
-        <div class="grid-layout grid-1-columns" data-item="grid-item" data-margin="10">
-            <div class="grid-item">
-                <div class="widget widget-notification p-cb">
-                    <h3>لیست مشارکت کنندگان</h3>
-                    {% for customer in customer %}
-                    {% if forloop.last %}
-                    <p class="text-danger">تعداد <b style="font-size:large">{{ forloop.counter }}</b> مشارکت کننده غیر فعال</p>
-                    {% endif %}
-                    {% endfor %}
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>مشخصات</th>
-                                    <th>کدملی</th>
-                                    <th>شماره موبایل</th>
-                                    <th>تاریخ ایجاد</th>
-                                    <th>وضعیت</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for customer in customer %}
-                            {% if forloop.counter < 6 %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td style="color:blueviolet">
-                                        {% if customer.kind == "legal" %}
-                                        {{ customer.brand }} ({{ customer.company }})
-                                        {% else %}
-                                        {{ customer.brand }} ({{ customer.first_name }} {{ customer.last_name }})
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ customer.code }}</td>
-                                    <td>{{ customer.mobile }}</td>
-                                    <td>{{ customer.created_date|to_jalali:"%Y/%m/%d" }}</td>
-                                    <td>
-                                        {% if customer.is_active %}
-                                        فعال
-                                        {% else %}
-                                        <h4><span class="badge badge-warning">غیر فعال</span></h4>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <hr>
-                    <div><a class="btn" href="{% url 'office:customer-list' %}">مشاهده همه</a></div>
-                </div>
-            </div>
-            <div class="grid-item">
-                <div class="widget widget-notification p-cb">
-                    <h3>لیست رسید دریافت</h3>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>مشخصات</th>
-                                    <th>نمایشگاه</th>
-                                    <th>نوع پرداخت</th>
-                                    <th>مبلغ(ریال)</th>
-                                    <th>شماره پیگیری</th>
-                                    <th>تاریخ پرداخت</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for payment in payment %}
-                            {% if forloop.counter < 6 %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td style="color:blueviolet">
-                                        {% if payment.valet.customer.kind == "legal" %}
-                                        {{ payment.valet.customer.brand }} ({{ payment.valet.customer.company }})
-                                        {% else %}
-                                        {{ payment.valet.customer.brand }} ({{ payment.valet.customer.first_name }} {{ payment.valet.customer.last_name }})
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ payment.invoice.exhibition.title }}</td>
-                                    <td>{{ payment.get_state_display }}</td>
-                                    <td>{{ payment.amount|intcomma:False }}</td>
-                                    <td>
-                                        {{ payment.tracenumber }}
-                                    </td>
-                                    <td>{{ payment.datepaid }}</td>
-                                </tr>
-                            {% endif %}
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <hr>
-                    <div><a class="btn" href="{% url 'office:payment-list' %}">مشاهده همه</a></div>
-                </div>
-            </div>
-        </div>
-        <div class="grid-layout grid-2-columns" data-item="grid-item" data-margin="0">
-            <div class="grid-item">
-                <div class="widget widget-notification p-cb">
-                    <h3>لیست نمایشگاه‌ها</h3>
-                    {% for exhibition in exhibition %}
-                    {% if forloop.last %}
-                    <p class="text-danger">تعداد <b style="font-size:large">{{ forloop.counter }}</b> نمایشگاه در حال ثبت‌نام</p>
-                    {% endif %}
-                    {% endfor %}
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>عنوان نمایشگاه</th>
-                                    <th>قیمت(ریال)</th>
-                                    <th>تاریخ برگزاری</th>
-                                    <th>وضعیت</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for exhibition in exhibition %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td style="color:blueviolet">{{ exhibition.title }}</td>
-                                    <td>{{ exhibition.price|intcomma:False }}</td>
-                                    <td>{{ exhibition.date|to_jalali:"%Y/%m/%d" }}</td>
-                                    <td>
-                                        {% if exhibition.is_active %}
-                                        <h4><span class="badge badge-success"> فعال</span></h4>
-                                        {% else %}
-                                        <h4><span class="badge badge-warning">غیر فعال</span></h4>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <hr>
-                    <div><a class="btn" href="{% url 'office:exhibition-list' %}">مشاهده همه</a></div>
-                </div>
-            </div>
-            <div class="grid-item">
-                <div class="widget widget-notification p-cb">
-                    <div style="height:300px">
-                        <div class="text-center"><h2>هنوز پنل فعالی وجود ندارد</h2></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 {% endblock content %}

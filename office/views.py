@@ -364,8 +364,8 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
         customer = get_object_or_404(CustomerModel, pk=id)
-        invoice = InvoiceModel.objects.filter(Q(valet__customer=customer) & Q(is_active=True)).order_by("-created_date")
-        valet = get_object_or_404(ValetModel, customer=customer)
+        invoice = InvoiceModel.objects.filter(Q(customer=customer) & Q(is_active=True)).order_by("-created_date")
+        valet = get_object_or_404(ValetModel, user=customer.user)
         form = CustomerToExhibitionForm(request.POST)
         context = {
             'customer':customer,
@@ -391,7 +391,7 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
             try:
                 invoice_n.save()
             except IntegrityError:
-                messages.error(request, f"مشارکت کننده {valet.customer.brand} قبلاً ثبت نام شده است!")
+                messages.error(request, f"مشارکت کننده {customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, "office/customer-exhibition.html", context)
             exh = get_object_or_404(ExhibitionModel, pk=invoice_n.exhibition.pk)
             total = (int(area) * int(exh.price)) + float(int(exh.value_added) * (int(area) * int(exh.price))) / 100
