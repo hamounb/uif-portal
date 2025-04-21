@@ -60,8 +60,13 @@ class InvoiceDetailsView(LoginRequiredMixin, views.View):
         user = get_object_or_404(User, pk=request.user.id)
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         valet = get_object_or_404(ValetModel, user=user)
+        try:
+            mobile = MobileModel.objects.get(user=user)
+        except MobileModel.DoesNotExist:
+            mobile = "-"
         context = {
             "invoice":invoice,
             "valet":valet,
+            "mobile":mobile,
         }
         return render(request, "client/invoice-details.html", context)
