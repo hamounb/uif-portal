@@ -1,0 +1,111 @@
+{% extends "base-c.html" %}
+{% load static %}
+{% load jalali_tags %}
+
+{% block title %}
+جزئیات فاکتور | شرکت نمایشگاه بین‌المللی ارومیه
+{% endblock title %}
+
+{% block content %}
+<section id="page-title">
+    <div class="container">
+        <div class="breadcrumb">
+        </div>
+        <div class="page-title">
+            <h1>فاکتورها</h1>
+        </div>
+    </div>
+</section>
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    کیف پول شما
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">اعتبار مانده:</h5>
+                    <p class="card-text">{{ valet.cash }} ریال
+                    </p>
+                    <a href="#" class="btn btn-primary">برو یه جایی</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-4">
+                            <p class="h5">شماره فاکتور: {{ invoice.pk }}</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <img src="{% static 'images/uif-f.png' %}" style="width:40%">
+                        </div>
+                        <div class="col-4">
+                            <p class="h5 text-right">تاریخ فاکتور: {{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</p>
+                        </div>
+                    </div>
+                    <div class="row align-items-center my-4">
+                        <div class="col-12 my-4">
+                            <h5><b>مشخصات فروشنده</b></h5>
+                        </div>
+                        <div class="col-12 my-4">
+                            <h5><b>مشخصات خریدار</b></h5>
+                        </div>
+                        {% if invoice.customer.kind == "legal" %}
+                        <div class="col-4">
+                            نام تجاری: {{ invoice.customer.brand }}
+                        </div>
+                        <div class="col-4">
+                            نام کامل شرکت: {{ invoice.customer.company }}
+                        </div>
+                        <div class="col-4">
+                            شناسه ملی: {{ invoice.customer.ncode }}
+                        </div>
+                        {% else %}
+                        <div class="col-4">
+                            نام تجاری: {{ invoice.customer.brand }}
+                        </div>
+                        <div class="col-4">
+                            نام و نام خانوادگی: {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }}
+                        </div>
+                        <div class="col-4">
+                            کد ملی: {{ invoice.customer.user.username }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered nobottommargin">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>عنوان</th>
+                                            <th>قیمت واحد</th>
+                                            <th>مساحت</th>
+                                            <th>تخفیف</th>
+                                            <th>ارزش افزوده</th>
+                                            <th>مبلغ نهایی</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>{{ invoice.exhibition.title }}</td>
+                                            <td>{{ invoice.price }}</td>
+                                            <td>{{ invoice.area }}</td>
+                                            <td>{{ invoice.discount }}</td>
+                                            <td>{{ invoice.value_added }}</td>
+                                            <td>{{ invoice.amount }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

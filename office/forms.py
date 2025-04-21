@@ -58,7 +58,7 @@ class CustomerAddForm(forms.Form):
     )
     kind = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=KIND_CHOICES), label="نوع مشارکت کننده")
     sid = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد تفصیلی")
-    is_active = forms.BooleanField(label="فعال", required=False, widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
+    is_active = forms.BooleanField(label="فعال", required=False, widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right', 'checked': True}))
     first_name = forms.CharField(max_length=250, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام")
     last_name = forms.CharField(max_length=250, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام خانوادگی")
     code = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])

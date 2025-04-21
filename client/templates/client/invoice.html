@@ -1,0 +1,45 @@
+{% extends "base-c.html" %}
+
+{% block title %}
+فاکتورها | شرکت نمایشگاه بین‌المللی ارومیه
+{% endblock title %}
+
+{% block content %}
+<section id="page-title">
+    <div class="container">
+        <div class="breadcrumb">
+        </div>
+        <div class="page-title">
+            <h1>فاکتورها</h1>
+        </div>
+    </div>
+</section>
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group">
+                {% for invoice in invoices %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <h3>
+                        {% if invoice.state == "paid" %}
+                        <span class="badge badge-success">
+                        <i class="icon-check"></i>
+                        </span>
+                        {% else %}
+                        <span class="badge badge-danger">
+                        <i class="icon-x"></i>
+                        </span>
+                        {% endif %}
+                    </h3>
+                    <p class="h3">{{ invoice.exhibition.title }} - {{ invoice.customer.brand }}<br>
+                        <span class="text-muted"><small>شماره فاکتور: {{ invoice.pk }}</small></span>
+                    </p>
+
+                    <a href="#" class="h3 text-primary"><i class="icon-chevron-left"> </i></a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}
