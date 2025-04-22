@@ -35,7 +35,7 @@
                         <span class="text-muted"><small>شماره فاکتور: {{ invoice.pk }}</small></span>
                     </p>
 
-                    <a href="#" class="h3 text-primary"><i class="icon-chevron-left"> </i></a>
+                    <a href="{% url 'client:invoice-details' iid=invoice.pk %}" class="h5 text-primary">جزئیات<i class="icon-chevron-left"> </i></a>
                 </li>
                 {% endfor %}
             </ul>

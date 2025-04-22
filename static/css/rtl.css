@@ -70,6 +70,16 @@ input[type=date], input[type=datetime-local], input[type=month], input[type=time
 }
 }
 
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 1cm;
+    }
+    #invoiceDiv {
+        width: 100%;
+    }
+}
+
 
 .right {
   float: left !important;

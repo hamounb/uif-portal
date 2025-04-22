@@ -21,7 +21,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-body">
+                <div id="invoiceDiv" class="card-body">
                     <div class="row align-items-center">
                         <div class="col-4">
                             <p class="h5">شماره فاکتور: {{ invoice.pk }}</p>
@@ -154,12 +154,43 @@
 
                         <div class="col-6">
                             امضاء فروشنده:
+                            {% if invoice.state == "paid" %}
                             <img src="{% static 'images/uif-f.png' %}" style="width:45%">
+                            {% endif %}
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <button class="btn" onclick="printInvoice()">چاپ</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">اعتبار کیف پول: {{ valet.cash|intcomma:False }} ریال</h4>
+                    <a href="#" class="btn btn-primary">تسویه حساب</a>
+                    <a href="#" class="btn btn-success">افزایش اعتبار</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock content %}
+
+{% block script %}
+<script>
+function printInvoice() {
+    var invoice = document.getElementById('invoiceDiv').innerHTML;
+    var originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = invoice;
+    window.print();
+    document.body.innerHTML = originalContent;
+}
+</script>
+{% endblock script %}
