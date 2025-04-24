@@ -72,11 +72,11 @@
                                     <tr style="background-color:pink">
                                         <td>{{ forloop.counter }}</td>
                                         <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ pay.get_state_display }}">{{ pay.pk }}</td>
-                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valrt.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}">
-                                            <b>{{ pay.valet.customer.brand }} - {% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valet.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}</b>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}">
+                                            <b>{{ invoice.customer.brand }} - {% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}</b>
                                         </td>
                                         <td>{{ pay.invoice.exhibition.title }}</td>
-                                        <td>
+                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}{{ pay.tracenumber }}{% endif %}">
                                             {{ pay.get_state_display }}
                                         </td>
                                         <td>{{ pay.amount|intcomma:False }}</td>
@@ -93,11 +93,11 @@
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
                                         <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ pay.get_state_display }}">{{ pay.pk }}</td>
-                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valrt.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}">
-                                            <b>{{ pay.valet.customer.brand }} - {% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valet.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}</b>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}">
+                                            <b>{{ invoice.customer.brand }} - {% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}</b>
                                         </td>
                                         <td>{{ pay.invoice.exhibition.title }}</td>
-                                        <td>
+                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}{{ pay.tracenumber }}{% endif %}">
                                             {{ pay.get_state_display }}
                                         </td>
                                         <td>{{ pay.amount|intcomma:False }}</td>
@@ -110,11 +110,11 @@
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
                                         <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ pay.get_state_display }}">{{ pay.pk }}</td>
-                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valrt.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}">
-                                            <b>{{ pay.valet.customer.brand }} - {% if pay.valet.customer.kind == 'legal' %} {{ pay.valet.customer.company}} {% else %} {{ pay.valet.customer.first_name }} {{ pay.valet.customer.last_name }} {% endif %}</b>
+                                        <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}">
+                                            <b>{{ invoice.customer.brand }} - {% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}</b>
                                         </td>
                                         <td>{{ pay.invoice.exhibition.title }}</td>
-                                        <td>
+                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}{{ pay.tracenumber }}{% endif %}">
                                             {{ pay.get_state_display }}
                                         </td>
                                         <td>{{ pay.amount|intcomma:False }}</td>
@@ -284,7 +284,7 @@
                                 <div class="card mb-3">
                                     <div class="card-header">شماره فاکتور: {{ invoice.pk }}</div>
                                     <div class="card-body text-white bg-info">
-                                        <h5 class="card-title" style="font-size:1.4rem"><b>نام مشارکت کننده:</b> {{ invoice.valet.customer.brand }} {% if invoice.valet.customer.kind == "real" %} - {{ invoice.valet.customer.first_name }} {{ invoice.valet.customer.last_name }}{% else %} - {{ invoice.valet.customer.company }}{% endif %}</h5>
+                                        <h5 class="card-title" style="font-size:1.4rem"><b>نام مشارکت کننده:</b> {{ invoice.customer.brand }} {% if invoice.customer.kind == "real" %} - {{ invoice.valet.user.first_name }} {{ invoice.valet.user.last_name }}{% else %} - {{ invoice.customer.company }}{% endif %}</h5>
                                         <p class="card-text" style="font-size:1.4rem">
                                             <b>نمایشگاه:</b> {{ invoice.exhibition.title }}<br>
                                             <b>متراژ:</b> {{ invoice.area }} مترمربع<br>
