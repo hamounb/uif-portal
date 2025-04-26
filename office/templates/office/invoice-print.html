@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load jalali_tags %}
+{% block title %}
+فاکتور شماره {{ invoice.pk }} - {{ invoice.customer.brand }} - {{ invoice.exhibition.title }}
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div id="invoiceDiv" class="card-body">   
+                        <div class="row align-items-center">
+                            <div class="col-4">
+                                <p class="h5">شماره فاکتور: {{ invoice.pk }}</p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <img src="{% static 'images/uif-f.png' %}" style="width:35%">
+                            </div>
+                            <div class="col-4">
+                                <p class="h5 text-right">تاریخ فاکتور: {{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</p>
+                            </div>
+                        </div>
+                        <div class="row align-items-center my-5">
+                            <div class="col-12 text-center">
+                                <h4>
+                                    {% if invoice.state == "paid" %}
+                                    فاکتور فروش
+                                    {% else %}
+                                    پیش فاکتور
+                                    {% endif %}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="row align-items-center my-4">
+                            <div class="col-12">
+                                <h5><b>مشخصات فروشنده :</b></h5>
+                            </div>
+                            <div class="col-4">
+                                نام: شرکت نمایشگاه بین‌المللی ارومیه
+                            </div>
+                            <div class="col-4">
+                                شناسه ملی: 1022
+                            </div>
+                            <div class="col-4">
+                                شماره تماس: 04433370902
+                            </div>
+                            <div class="col-4">
+                                کد پستی: 57186255
+                            </div>
+                            <div class="col-8">
+                                آدرس: آذربایجان غربی، ارومیه، بلوار نبوت، پارک جنگلی، محل دائمی نمایشگاه‌‌های بین‌المللی
+                            </div>
+                            <div class="col-12 mt-4">
+                                <h5><b>مشخصات خریدار :</b></h5>
+                            </div>
+                            {% if invoice.customer.kind == "legal" %}
+                            <div class="col-4">
+                                نام تجاری: {{ invoice.customer.brand }}
+                            </div>
+                            <div class="col-4">
+                                نام: {{ invoice.customer.company }}
+                            </div>
+                            <div class="col-4">
+                                شناسه ملی: {{ invoice.customer.ncode }}
+                            </div>
+                            <div class="col-4">
+                                شماره تماس: {{ invoice.customer.phone }}
+                            </div>
+                            <div class="col-4">
+                                کد پستی: {{ invoice.customer.postalcode }}
+                            </div>
+                            <div class="col-4">
+                                آدرس: {{ invoice.customer.address }}
+                            </div>
+                            {% else %}
+                            <div class="col-4">
+                                نام تجاری: {{ invoice.customer.brand }}
+                            </div>
+                            <div class="col-4">
+                                نام و نام خانوادگی: {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }}
+                            </div>
+                            <div class="col-4">
+                                کد ملی: {{ invoice.customer.user.username }}
+                            </div>
+                            <div class="col-4">
+                                شماره تماس: {{ mobile }}
+                            </div>
+                            <div class="col-4">
+                                کد پستی: {{ invoice.customer.postalcode }}
+                            </div>
+                            <div class="col-4">
+                                آدرس: {{ invoice.customer.address }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered nobottommargin">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>عنوان</th>
+                                                <th>قیمت واحد</th>
+                                                <th>مساحت</th>
+                                                <th>تخفیف</th>
+                                                <th>ارزش افزوده</th>
+                                                <th>مبلغ نهایی</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>{{ invoice.exhibition.title }}</td>
+                                                <td>{{ invoice.price|intcomma:False }}</td>
+                                                <td>{{ invoice.area }}</td>
+                                                <td>{{ invoice.discount }}</td>
+                                                <td>{{ invoice.value_added }}</td>
+                                                <td>{{ invoice.amount|intcomma:False }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right" colspan="6">جمع کل:</td>
+                                                <td>{{ invoice.amount|intcomma:False }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-12 p-4">
+                                <p class="h5">
+                                    وضعیت: {% if invoice.state == "paid" %}<b>تسویه شده</b>{% else %}<b>تسویه نشده</b>{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                امضاء خریدار:
+                            </div>
+
+                            <div class="col-6">
+                                امضاء فروشنده:
+                                {% if invoice.state == "paid" %}
+                                <img src="{% static 'images/uif-f.png' %}" style="width:25%">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn" onclick="printInvoice()">چاپ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+<script>
+function printInvoice() {
+    var invoice = document.getElementById('invoiceDiv').innerHTML;
+    var originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = invoice;
+    window.print();
+    document.body.innerHTML = originalContent;
+}
+</script>
+{% endblock script %}

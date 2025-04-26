@@ -76,7 +76,7 @@
                                             <b>{{ invoice.customer.brand }} - {% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}</b>
                                         </td>
                                         <td>{{ pay.invoice.exhibition.title }}</td>
-                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}{{ pay.tracenumber }}{% endif %}">
+                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}ش.پ : {{ pay.tracenumber }}{% endif %}">
                                             {{ pay.get_state_display }}
                                         </td>
                                         <td>{{ pay.amount|intcomma:False }}</td>
@@ -97,7 +97,7 @@
                                             <b>{{ invoice.customer.brand }} - {% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}</b>
                                         </td>
                                         <td>{{ pay.invoice.exhibition.title }}</td>
-                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}{{ pay.tracenumber }}{% endif %}">
+                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}ش.پ : {{ pay.tracenumber }}{% endif %}">
                                             {{ pay.get_state_display }}
                                         </td>
                                         <td>{{ pay.amount|intcomma:False }}</td>
@@ -114,7 +114,7 @@
                                             <b>{{ invoice.customer.brand }} - {% if invoice.customer.kind == 'legal' %} {{ invoice.customer.company}} {% else %} {{ invoice.customer.user.first_name }} {{ invoice.customer.user.last_name }} {% endif %}</b>
                                         </td>
                                         <td>{{ pay.invoice.exhibition.title }}</td>
-                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}{{ pay.tracenumber }}{% endif %}">
+                                        <td data-toggle="tooltip" data-placement="top" title="{% if pay.state == 'pos' %}ش.پ : {{ pay.tracenumber }}{% endif %}">
                                             {{ pay.get_state_display }}
                                         </td>
                                         <td>{{ pay.amount|intcomma:False }}</td>
@@ -330,7 +330,7 @@
                                     {% if invoice.state == "unpaid" %}
                                     <a href="{% url 'office:checkout' iid=invoice.pk %}" class="btn btn-sm mt-4">تسویه حساب</a>
                                     {% else %}
-                                    <span><a class="btn btn-sm btn-outline mt-4"><i class="fa fa-download"></i></a></span>
+                                    <span><a href="{% url 'office:invoice-print' iid=invoice.pk %}" target="_blank" class="btn btn-sm btn-outline mt-4"><i class="fa fa-download"></i></a></span>
                                     <span><a href="#" class="btn btn-sm btn-outline mt-4"><i class="icon-printer"></i></a></span>
                                     {% endif %}
                                 </div>

@@ -1043,6 +1043,30 @@ class CheckoutView(PermissionRequiredMixin, views.View):
         return redirect("office:payment-add", iid=invoice.pk)
     
 
+class InvoicePrintView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.add_invoicemodel', 'client.add_paymentmodel']
+
+    def get(self, request, iid):
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if not invoice.is_active:
+            return redirect("office:payment-add", iid=invoice.pk)
+        if invoice.state != InvoiceModel.STATE_PAID:
+            messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب نشده است.")
+            return redirect("office:payment-add", iid=invoice.pk)
+        try:
+            mobile_model = MobileModel.objects.get(user=invoice.valet.user)
+        except MobileModel.DoesNotExist:
+            messages.error(request, f"شماره موبایل برای مشارکت کننده {invoice.customer.brand} ثبت نشده است!")
+            return redirect("office:payment-add", iid=invoice.pk)
+        mobile = mobile_model.mobile
+        context = {
+            "invoice":invoice,
+            "mobile":mobile,
+        }
+        return render(request, "office/invoice-print.html", context)
+    
+
 class ExhibitionAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.add_exhibitionmodel']
