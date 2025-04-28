@@ -1048,6 +1048,7 @@ class InvoicePrintView(PermissionRequiredMixin, views.View):
     permission_required = ['client.add_invoicemodel', 'client.add_paymentmodel']
 
     def get(self, request, iid):
+        user = get_object_or_404(User, pk=request.user.id)
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         if not invoice.is_active:
             return redirect("office:payment-add", iid=invoice.pk)
@@ -1063,8 +1064,29 @@ class InvoicePrintView(PermissionRequiredMixin, views.View):
         context = {
             "invoice":invoice,
             "mobile":mobile,
+            "user":user,
         }
         return render(request, "office/invoice-print.html", context)
+    
+
+class ExitPermitView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.add_invoicemodel', 'client.add_paymentmodel']
+
+    def get(self, request, iid):
+        user = get_object_or_404(User, pk=request.user.id)
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        if not invoice.is_active:
+            return redirect("office:payment-add", iid=invoice.pk)
+        if invoice.state != InvoiceModel.STATE_PAID:
+            messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب نشده است.")
+            return redirect("office:payment-add", iid=invoice.pk)
+        context = {
+            "invoice":invoice,
+            "user":user,
+        }
+        return render(request, "office/exit-permit.html", context)
+        
     
 
 class ExhibitionAddView(PermissionRequiredMixin, views.View):

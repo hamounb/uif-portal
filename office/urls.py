@@ -36,6 +36,7 @@ urlpatterns = [
     path('payment/edit/<int:iid>/<int:pid>/', PaymentEditView.as_view(), name='payment-edit'),
     path('payment/checkout/<int:iid>/', CheckoutView.as_view(), name='checkout'),
     path('payment/checkout/invoice/<int:iid>/', InvoicePrintView.as_view(), name='invoice-print'),
+    path('payment/exit/permit/<int:iid>/', ExitPermitView.as_view(), name='exit-permit'),
     # path('payment/deposit/add/', DepositAddView.as_view(), name='deposit-add'),
     # path('payment/deposit/state/<int:did>/', DepositStateAddView.as_view(), name='deposit-state-add'),
     # path('payment/deposit/list/', DepositListView.as_view(), name='deposit-list'),

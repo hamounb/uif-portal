@@ -331,7 +331,7 @@
                                     <a href="{% url 'office:checkout' iid=invoice.pk %}" class="btn btn-sm mt-4">تسویه حساب</a>
                                     {% else %}
                                     <span><a href="{% url 'office:invoice-print' iid=invoice.pk %}" target="_blank" class="btn btn-sm btn-outline mt-4"><i class="fa fa-download"></i></a></span>
-                                    <span><a href="#" class="btn btn-sm btn-outline mt-4"><i class="icon-printer"></i></a></span>
+                                    <span><a href="{% url 'office:exit-permit' iid=invoice.pk %}" class="btn btn-sm btn-outline mt-4"><i class="icon-printer"></i></a></span>
                                     {% endif %}
                                 </div>
                             </div>

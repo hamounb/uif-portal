@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load jalali_tags %}
+{% block title %}
+تسویه حساب - {{ invoice.customer.brand }} در {{ invoice.exhibition.title }}
+{% endblock title %}
+
+{% block content %}
+<section id="page-content" class="background-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row mx-3" id="exitDiv">
+                            <div class="col-12">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <p class="h5">شماره غرفه: {{ invoice.booth_number }}</p>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <img src="{% static 'images/uif-f.png' %}" style="width:35%">
+                                    </div>
+                                    <div class="col-4">
+                                        <p class="h5 text-right">تاریخ تخلیه: {{ invoice.created_date|to_jalali:'%Y/%m/%d' }}</p>
+                                    </div>
+                                </div>
+                                <div class="row align-items-center mt-4">
+                                    <div class="col-12 text-center">
+                                        <h3>
+                                            برگه تسویه حساب {{ invoice.exhibition.title }}
+                                        </h3>
+                                    </div>
+                                </div>
+                                <h4 class="mt-3">مشارکت کننده: 
+                                    {% if invoice.customer.kind == "real" %}
+                                    {{ invoice.customer.user.first_name }} {{invoice.customer.user.last_name }}({{ invoice.customer.brand }})
+                                    {% else %}
+                                    {{ invoice.customer.company }}
+                                    {% endif %}
+                                </h4>
+                                <div class="row" style="border:solid;">
+                                    <div class="col-12 p-4">
+                                        <p class="h5">
+                                            <b>
+                                            احتراماً گواهی می شود شرکت فوق الذکراز بابت مشارکت درنمایشگاه با امورنمایشگاهی تسویه حساب نموده و خروج کالاهای آن بلامانع می‌باشد.
+                                            </b>
+                                        </p>
+                                        <p class="text-right h5 mt-4 ml-4">
+                                            <b>
+                                            امور نمایشگاهی
+                                            </b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row" style="border:solid; border-top:0">
+                                    <div class="col-12 p-4">
+                                        <p class="h5">
+                                            <b>
+                                            احتراماً گواهی می شود شرکت مذکور ازبابت اجاره تجهیزات برقی و تحویل لامپها و پروژکتورهای غرفه با واحد برق تسویه حساب نموده است.
+                                            </b>
+                                        </p>
+                                        <p class="text-right h5 mt-4 ml-4">
+                                            <b>
+                                            واحد برق
+                                            </b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row" style="border:solid; border-top:0">
+                                    <div class="col-12 p-4">
+                                        <h5 class="text-center"><b>خروج کالا</b></h5>
+                                        <p class="h5">
+                                            <b>
+                                            مسئول سالن:  خروج کالاهای شرکت مذکور از محل نمایشگاه در صورت رعایت نظافت و پاک سازی کف و دیواره ها، و تحویل سیستم های برقی، لامپ و پروژکتور، میز و صندلی بصورت مطلوب بلامانع می باشد.
+                                            </b>
+                                        </p>
+                                        <p class="text-right h5 mt-4 ml-4">
+                                            <b>
+                                            امور اجرایی
+                                            </b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row" style="border:solid; border-top:0">
+                                    <div class="col-12 p-4">
+                                        <p class="h5">
+                                            <b>
+                                            کلیه کالاهای شرکت مذکور توسط نماینده آن شرکت آقای/خانم ------------------------------------------ از محل نمایشگاه صحیح و سالم خارج شد.
+                                            </b>
+                                        </p>
+                                    </div>
+                                    <div class="col-6 mb-4">
+                                        <p class="text-center h5 mt-4">
+                                            <b>
+                                            مسئول سالن
+                                            </b>
+                                        </p>
+                                    </div>
+                                    <div class="col-6 mb-4">
+                                        <p class="text-center h5 mt-4">
+                                            <b>
+                                            غرفه دار
+                                            </b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row" style="border:solid; border-top:0">
+                                    <div class="col-12 p-4">
+                                        <h5><b>توضیحات:</b></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn" onclick="printInvoice()">چاپ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block script %}
+<script>
+function printInvoice() {
+    var invoice = document.getElementById('exitDiv').innerHTML;
+    var originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = invoice;
+    window.print();
+    document.body.innerHTML = originalContent;
+}
+</script>
+{% endblock script %}
