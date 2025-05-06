@@ -71,7 +71,7 @@
                                                 <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ deposit.pk }}">{{ deposit.get_state_display }}</td>
                                                 <td>{{ deposit.invoice_number }}</td>
                                                 <td style="color:blueviolet">
-                                                    <b>{{ deposit.valet.customer.brand }} - {% if deposit.valet.customer.kind == 'legal' %} {{ deposit.valet.customer.company}} {% else %} {{ deposit.valet.customer.first_name }} {{ deposit.valet.customer.last_name }} {% endif %}</b>
+                                                    <b>{{ deposit.wallet.customer.brand }} - {% if deposit.wallet.customer.kind == 'legal' %} {{ deposit.wallet.customer.company}} {% else %} {{ deposit.wallet.customer.first_name }} {{ deposit.wallet.customer.last_name }} {% endif %}</b>
                                                 </td>
                                                 <td>
                                                     {% for p in deposit.depositpaymentmodel_set.all %}

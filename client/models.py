@@ -62,9 +62,9 @@ class CustomerModel(BaseModel):
                 return f"{self.brand}"
         else:
             if self.user:
-                return f"{self.company}({self.user.first_name} {self.user.last_name})"
+                return f"{self.barnd}-{self.company}({self.user.first_name} {self.user.last_name})"
             else:
-                return f"{self.company}"
+                return f"{self.brand}-{self.company}"
     
     class Meta:
         constraints = [
@@ -115,7 +115,7 @@ class ExhibitionModel(BaseModel):
         verbose_name = 'نمایشگاه'
         verbose_name_plural = 'نمایشگاه‌ها'
 
-class ValetModel(BaseModel):
+class WalletModel(BaseModel):
     user = models.OneToOneField(User, on_delete=models.PROTECT, verbose_name="کاربر")
     cash = models.CharField(verbose_name="موجودی(ریال)", max_length=15, default="0")
 
@@ -136,7 +136,7 @@ class InvoiceModel(BaseModel):
     )
     is_active = models.BooleanField(verbose_name="فعال", default=True)
     state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_UNPAID)
-    valet = models.ForeignKey(ValetModel, on_delete=models.SET_NULL, verbose_name="کیف پول", null=True, blank=True)
+    wallet = models.ForeignKey(WalletModel, on_delete=models.SET_NULL, verbose_name="کیف پول", null=True, blank=True)
     customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, verbose_name="مشارکت کننده", null=True, blank=True)
     exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.SET_NULL, verbose_name="نمایشگاه", null=True, blank=True)
     booth_number = models.CharField(verbose_name="شماره غرفه", max_length=100, null=True, blank=True)
@@ -151,7 +151,7 @@ class InvoiceModel(BaseModel):
     
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["customer", "exhibition"], name='customerex')
+            models.UniqueConstraint(fields=["customer", "exhibition", "booth_number"], name='customer_exhibition_booth')
     ]
         verbose_name = "فاکتور"
         verbose_name_plural = "فاکتورها"
@@ -190,7 +190,7 @@ class PaymentModel(BaseModel):
         (STATE_IPG, 'درگاه اینترنتی'),
     )
     state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_POS)
-    valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, verbose_name="کیف پول")
+    wallet = models.ForeignKey(WalletModel, on_delete=models.PROTECT, verbose_name="کیف پول")
     invoice = models.ForeignKey(InvoiceModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="فاکتور")
     bank = models.ForeignKey(BankModel, on_delete=models.SET_NULL, verbose_name="حساب بانکی", null=True, blank=True)
     amount = models.IntegerField(verbose_name="مبلغ", default=1000)
@@ -207,8 +207,8 @@ class PaymentModel(BaseModel):
 
     def __str__(self):
         if self.state == self.STATE_POS:
-            return f"{self.valet.user.username} - شماره پیگیری: {self.tracenumber}"
-        return f"{self.state}-{self.valet.customer.brand} - مبلغ: {self.amount}"
+            return f"{self.wallet.user.username} - شماره پیگیری: {self.tracenumber}"
+        return f"{self.state}-{self.invoice.customer.brand} - مبلغ: {self.amount}"
     
     class Meta:
         constraints = [
@@ -228,12 +228,12 @@ class PaymentModel(BaseModel):
 #         (STATE_PAYMENT, "اضافه به حساب")
 #     )
 #     state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_DEPOSIT)
-#     valet = models.ForeignKey(ValetModel, on_delete=models.PROTECT, verbose_name="کیف پول")
+#     wallet = models.ForeignKey(WalletModel, on_delete=models.PROTECT, verbose_name="کیف پول")
 #     invoice_number = models.CharField(verbose_name="شماره سند", max_length=100, unique=True)
 #     description = models.TextField(verbose_name="توضیحات", null=True, blank=True)
 
 #     def __str__(self):
-#         return f"{self.valet.customer.brand}({self.valet.customer.first_name} {self.valet.customer.last_name}) - شماره سند: {self.invoice_number}"
+#         return f"{self.wallet.customer.brand}({self.wallet.customer.first_name} {self.wallet.customer.last_name}) - شماره سند: {self.invoice_number}"
     
 #     class Meta:
 #         verbose_name = "بیعانه"

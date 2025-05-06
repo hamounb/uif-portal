@@ -284,7 +284,7 @@
                                 <div class="card mb-3">
                                     <div class="card-header">شماره فاکتور: {{ invoice.pk }}</div>
                                     <div class="card-body text-white bg-info">
-                                        <h5 class="card-title" style="font-size:1.4rem"><b>نام مشارکت کننده:</b> {{ invoice.customer.brand }} {% if invoice.customer.kind == "real" %} - {{ invoice.valet.user.first_name }} {{ invoice.valet.user.last_name }}{% else %} - {{ invoice.customer.company }}{% endif %}</h5>
+                                        <h5 class="card-title" style="font-size:1.4rem"><b>نام مشارکت کننده:</b> {{ invoice.customer.brand }} {% if invoice.customer.kind == "real" %} - {{ invoice.wallet.user.first_name }} {{ invoice.wallet.user.last_name }}{% else %} - {{ invoice.customer.company }}{% endif %}</h5>
                                         <p class="card-text" style="font-size:1.4rem">
                                             <b>نمایشگاه:</b> {{ invoice.exhibition.title }}<br>
                                             <b>متراژ:</b> {{ invoice.area }} مترمربع<br>

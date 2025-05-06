@@ -1,0 +1,10 @@
+{% extends "base-c.html" %}
+
+{% block content %}
+<form id="myForm" method="post" action="https://sepehr.shaparak.ir:8080/Pay">
+    {% csrf_token %}
+    {{ form.TermialID }}
+    {{ form.token }}
+    <input type="submit" value=" پرداخت" class="submit" />
+</form>
+{% endblock content %}

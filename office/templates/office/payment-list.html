@@ -69,11 +69,12 @@
                                         </thead>
                                         <tbody>
                                             {% for payment in payments %}
+                                            {% if payment %}
                                             <tr>
                                                 <td>{{ forloop.counter }}</td>
                                                 <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ payment.get_state_display }}">{{ payment.pk }}</td>
-                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.valet.customer.kind == 'legal' %} {{ payment.valet.customer.company}} {% else %} {{ payment.valrt.customer.first_name }} {{ payment.valet.customer.last_name }} {% endif %}">
-                                                    <b>{{ payment.valet.customer.brand }} - {% if payment.valet.customer.kind == 'legal' %} {{ payment.valet.customer.company}} {% else %} {{ payment.valet.customer.first_name }} {{ payment.valet.customer.last_name }} {% endif %}</b>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.customer.kind == 'legal' %} {{ payment.customer.company}} {% else %} {{ payment.customer.first_name }} {{ payment.customer.last_name }} {% endif %}">
+                                                    <b>{{ payment.customer.brand }} - {% if payment.customer.kind == 'legal' %} {{ payment.customer.company}} {% else %} {{ payment.customer.first_name }} {{ payment.customer.last_name }} {% endif %}</b>
                                                 </td>
                                                 <td>{{ payment.invoice.exhibition.title }}</td>
                                                 <td>
@@ -86,6 +87,7 @@
                                                 <td class="text-primary">{{ payment.datepaid }}</td>
                                                 <td><a class="btn btn-sm" href="{% url 'office:payment-add' iid=payment.invoice.pk %}">مشاهده</a></td>
                                             </tr>
+                                            {% endif %}
                                             {% endfor %}
                                         </tbody>
                                     </table>

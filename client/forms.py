@@ -3,6 +3,7 @@ from .models import *
 from django.core.exceptions import ValidationError
 from jalali_date.fields import JalaliDateField
 from jalali_date.widgets import AdminJalaliDateWidget
+from crm.settings import Terminal_id
 
 def is_code(value):
     if len(value) != 10 or not str(value).isnumeric():
@@ -37,6 +38,11 @@ def is_discount(value):
     if str(value).isnumeric():
         if int(value) < 0:
             raise ValidationError('کمترین مقدار می‌تواند عدد صفر باشد!')
+        
+
+class PaymentCreateForm(forms.Form):
+    TerminalID = forms.CharField(widget=forms.TextInput(attrs={'name':'TerminalID'}))
+    token = forms.CharField(widget=forms.TextInput(attrs={'name':'token'}))
         
 
 # class CustomerAddForm(forms.ModelForm):

@@ -6,8 +6,9 @@ from .models import *
 @admin.register(CustomerModel)
 class CustomerAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("brand", "company", "pk", "ncode", "sid")
+    search_fields = ("brand", "company", "pk", "ncode", "sid", "user__username")
     list_display = ("kind", "pk", "sid", "user", "brand")
+    autocomplete_fields = ("user",)
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -20,7 +21,7 @@ class CustomerAdmin(admin.ModelAdmin):
 @admin.register(DocumentsModel)
 class DocumentsAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("customer",)
+    search_fields = ("customer__brand",)
     list_display = ("state", "customer", "file")
     
     def save_model(self, request, obj, form, change):
@@ -97,8 +98,9 @@ class ExhibitionAdmin(admin.ModelAdmin):
 @admin.register(InvoiceModel)
 class InvoiceAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("customer", "valet", "amount", "exhibition", "booth_number")
+    search_fields = ("customer__brand", "amount", "exhibition__title", "booth_number", "wallet__user__username")
     list_display = ("pk", "state", "is_active", "customer", "exhibition", "amount")
+    autocomplete_fields = ("customer", "exhibition", "wallet")
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -109,11 +111,12 @@ class InvoiceAdmin(admin.ModelAdmin):
         return super().save_model(request, obj, form, change)
 
     
-@admin.register(ValetModel)
-class ValetAdmin(admin.ModelAdmin):
+@admin.register(WalletModel)
+class WalletAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("user", )
+    search_fields = ("user__username", )
     list_display = ("pk", "user", "cash")
+    autocomplete_fields = ("user",)
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -142,8 +145,9 @@ class BankAdmin(admin.ModelAdmin):
 @admin.register(PaymentModel)
 class PaymentAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("rrn", "invoice", "tracenumber", "digitalreceipt", "datepaid")
+    search_fields = ("rrn", "invoice__pk", "tracenumber", "digitalreceipt", "datepaid", "wallet__user__username")
     list_display = ("pk", "state", "amount", "tracenumber", "rrn", "respcode", "datepaid")
+    autocomplete_fields = ("wallet", "invoice")
     
     def save_model(self, request, obj, form, change):
         if change:
@@ -158,7 +162,7 @@ class PaymentAdmin(admin.ModelAdmin):
 # class DepositAdmin(admin.ModelAdmin):
 #     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
 #     search_fields = ("invoice_number", "customer")
-#     list_display = ("pk", "state", "valet", "invoice_number")
+#     list_display = ("pk", "state", "wallet", "invoice_number")
     
 #     def save_model(self, request, obj, form, change):
 #         if change:

@@ -142,7 +142,7 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                         new.last_name = last_name
                         new.set_password(mobile)
                         new.save()
-                        v = ValetModel(user=new)
+                        v = WalletModel(user=new)
                         v.save()
                         m = MobileModel(user=new, mobile=mobile)
                         m.save()
@@ -190,10 +190,10 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     obj.user_modified = user
                     obj.user_created = user
                     try:
-                        valet = ValetModel.objects.get(user=cus)
-                    except ValetModel.DoesNotExist:
-                        valet = ValetModel(user=cus)
-                        valet.save()
+                        wallet = WalletModel.objects.get(user=cus)
+                    except WalletModel.DoesNotExist:
+                        wallet = WalletModel(user=cus)
+                        wallet.save()
                     try:
                         m = MobileModel.objects.get(user=cus)
                         m.mobile = mobile
@@ -219,7 +219,7 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     new.last_name = last_name
                     new.set_password(mobile)
                     new.save()
-                    v = ValetModel(user=new)
+                    v = WalletModel(user=new)
                     v.save()
                     m = MobileModel(user=new, mobile=mobile)
                     m.save()
@@ -273,10 +273,10 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
                     return render(request, 'office/customer-add.html', {'form':form})
                 messages.success(request, f"مشتری حقیقی با نام تجاری {obj.brand} با موفقیت ثبت شد.")
                 try:
-                    valet = ValetModel.objects.get(user=cus)
-                except ValetModel.DoesNotExist:
-                    valet = ValetModel(user=cus)
-                    valet.save()
+                    wallet = WalletModel.objects.get(user=cus)
+                except WalletModel.DoesNotExist:
+                    wallet = WalletModel(user=cus)
+                    wallet.save()
                 try:
                     m = MobileModel.objects.get(user=cus)
                     m.mobile = mobile
@@ -365,7 +365,7 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
         user = get_object_or_404(User, pk=request.user.id)
         customer = get_object_or_404(CustomerModel, pk=id)
         invoice = InvoiceModel.objects.filter(Q(customer=customer) & Q(is_active=True)).order_by("-created_date")
-        valet = get_object_or_404(ValetModel, user=customer.user)
+        wallet = get_object_or_404(WalletModel, user=customer.user)
         form = CustomerToExhibitionForm(request.POST)
         context = {
             'customer':customer,
@@ -378,7 +378,7 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
             discount = form.cleaned_data.get("discount")
             booth_number = form.cleaned_data.get("booth_number")
             invoice_n = InvoiceModel(
-                valet=valet,
+                wallet=wallet,
                 exhibition=exhibition,
                 booth_number=booth_number,
                 area=area,
@@ -413,8 +413,8 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
     def get(self , request, id):
         invo = get_object_or_404(InvoiceModel, pk=id)
         if invo.state == InvoiceModel.STATE_PAID:
-            messages.error(request, f"{invo.valet.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
-            return redirect("office:customer-exhibition", id=invo.valet.customer.pk)
+            messages.error(request, f"{invo.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:customer-exhibition", id=invo.customer.pk)
         init_data = {
             "exhibition":invo.exhibition,
             "booth_number":invo.booth_number,
@@ -422,7 +422,7 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
             "discount":invo.discount,
         }
         invo_id = invo.pk
-        invoice = InvoiceModel.objects.filter(Q(valet__customer=invo.valet.customer) & Q(is_active=True)).order_by("-created_date")
+        invoice = InvoiceModel.objects.filter(Q(customer=invo.customer) & Q(is_active=True)).order_by("-created_date")
         form = CustomerToExhibitionForm(initial=init_data)
         context = {
             'invoice':invoice,
@@ -436,9 +436,9 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
         user = get_object_or_404(User, pk=request.user.id)
         invo = get_object_or_404(InvoiceModel, pk=id)
         if invo.state == InvoiceModel.STATE_PAID:
-            messages.error(request, f"{invo.valet.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
-            return redirect("office:customer-exhibition", id=invo.valet.customer.pk)
-        invoice = InvoiceModel.objects.filter(Q(valet__customer=invo.valet.customer) & Q(is_active=True)).order_by("-created_date")
+            messages.error(request, f"{invo.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            return redirect("office:customer-exhibition", id=invo.customer.pk)
+        invoice = InvoiceModel.objects.filter(Q(customer=invo.customer) & Q(is_active=True)).order_by("-created_date")
         form = CustomerToExhibitionForm(request.POST)
         context = {
             'form':form,
@@ -457,7 +457,7 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
             try:
                 invo.save()
             except IntegrityError:
-                messages.error(request, f"مشارکت کننده {invo.valet.customer.brand} قبلاً ثبت نام شده است!")
+                messages.error(request, f"مشارکت کننده {invo.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, "office/customer-exhibition.html", context)
             exh = get_object_or_404(ExhibitionModel, pk=invo.exhibition.pk)
             total = (int(area) * int(exh.price))
@@ -470,10 +470,10 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
             try:
                 invo.save()
             except IntegrityError:
-                messages.error(request, f"مشارکت کننده {invo.valet.customer.brand} قبلاً ثبت نام شده است!")
+                messages.error(request, f"مشارکت کننده {invo.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, "office/customer-exhibition.html", context)
-            messages.success(request, f"مشارکت کننده {invo.valet.customer.brand} در {exh.title} با موفقیت ویرایش شد.")
-            return redirect("office:customer-exhibition", id=invo.valet.customer.pk)
+            messages.success(request, f"مشارکت کننده {invo.customer.brand} در {exh.title} با موفقیت ویرایش شد.")
+            return redirect("office:customer-exhibition", id=invo.customer.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, "office/customer-exhibition.html", context)
 
@@ -588,7 +588,7 @@ class InvoiceEditView(PermissionRequiredMixin, views.View):
             return redirect("office:invoice-list")
         item = {
             "is_active":invoice.is_active,
-            "valet":invoice.valet,
+            "wallet":invoice.wallet,
             "exhibition":invoice.exhibition,
             "booth_number":invoice.booth_number,
             "area":invoice.area,
@@ -604,11 +604,11 @@ class InvoiceEditView(PermissionRequiredMixin, views.View):
     def post(self, request, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         if invoice.state == InvoiceModel.STATE_PAID:
-            messages.error(request, f"{invoice.valet.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
+            messages.error(request, f"{invoice.customer.brand} در {invoice.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:invoice-list")
         item = {
             "is_active":invoice.is_active,
-            "valet":invoice.valet,
+            "wallet":invoice.wallet,
             "exhibition":invoice.exhibition,
             "booth_number":invoice.booth_number,
             "area":invoice.area,
@@ -618,13 +618,13 @@ class InvoiceEditView(PermissionRequiredMixin, views.View):
         user = get_object_or_404(User, pk=request.user.id)
         if form.is_valid():
             is_active = form.cleaned_data.get("is_active")
-            valet = form.cleaned_data.get("valet")
+            wallet = form.cleaned_data.get("wallet")
             exhibition = form.cleaned_data.get("exhibition")
             booth_number = form.cleaned_data.get("booth_number")
             area = form.cleaned_data.get("area")
             discount = form.cleaned_data.get("discount")
             invoice.is_active = is_active
-            invoice.valet = valet
+            invoice.wallet = wallet
             invoice.exhibition = exhibition
             invoice.booth_number = booth_number
             invoice.area = area
@@ -713,7 +713,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                 payment.datepaid = datepaid
                 payment.payload = description
                 payment.user_created = user
-                payment.valet = invoice.valet
+                payment.wallet = invoice.wallet
                 payment.bank = bank
                 payment.invoice = invoice
                 payment.save()
@@ -727,7 +727,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                     payment.datepaid = datepaid
                     payment.payload = description
                     payment.user_created = user
-                    payment.valet = invoice.valet
+                    payment.wallet = invoice.wallet
                     payment.bank = bank
                     payment.invoice = invoice
                     payment.save()
@@ -743,7 +743,7 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                     payment.datepaid = datepaid
                     payment.payload = description
                     payment.user_created = user
-                    payment.valet = invoice.valet
+                    payment.wallet = invoice.wallet
                     payment.bank = bank
                     payment.invoice = invoice
                     payment.save()
@@ -753,10 +753,10 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
                     return render(request, "office/payment-add.html", context)
             else:
                 return render(request, "office/payment-add.html", context)
-            valet_c = get_object_or_404(ValetModel, pk=payment.valet.pk)
-            total = int(payment.amount) + int(valet_c.cash)
-            valet_c.cash = str(int(total))
-            valet_c.save()
+            wallet_c = get_object_or_404(WalletModel, pk=payment.wallet.pk)
+            total = int(payment.amount) + int(wallet_c.cash)
+            wallet_c.cash = str(int(total))
+            wallet_c.save()
             return redirect("office:payment-add", iid=invoice.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, "office/payment-add.html", context)
@@ -870,10 +870,10 @@ class PaymentEditView(PermissionRequiredMixin, views.View):
                     messages.error(request, "برای رسید پرداخت بصورت پوز اینترنتی، شماره پیگیری الزامی است!")
             else:
                 return render(request, "office/payment-add.html", context)
-            valet_c = get_object_or_404(ValetModel, pk=payment.valet.pk)
-            total = int(payment.amount) + int(valet_c.cash) - old_price
-            valet_c.cash = str(int(total))
-            valet_c.save()
+            wallet_c = get_object_or_404(WalletModel, pk=payment.wallet.pk)
+            total = int(payment.amount) + int(wallet_c.cash) - old_price
+            wallet_c.cash = str(int(total))
+            wallet_c.save()
             return redirect("office:payment-add", iid=payment.invoice.pk)
         return render(request, "office/payment-add.html", context)
     
@@ -884,13 +884,13 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
 
     def get(self, request, pid):
         payment = get_object_or_404(PaymentModel, pk=pid)
-        valet = get_object_or_404(ValetModel, pk=payment.valet.pk)
+        wallet = get_object_or_404(WalletModel, pk=payment.wallet.pk)
         ref = request.META.get('HTTP_REFERER')
         if payment.invoice.state == InvoiceModel.STATE_PAID:
             messages.error(request, f"این رسید دریافت برای {payment.invoice.exhibition.title} محاسبه شده و قابلیت حذف ندارد.")
             return HttpResponseRedirect(ref)
-        valet.cash = str(int(valet.cash) - int(payment.amount))
-        valet.save()
+        wallet.cash = str(int(wallet.cash) - int(payment.amount))
+        wallet.save()
         number = payment.pk
         amount = payment.amount
         payment.delete()
@@ -920,7 +920,7 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
 #             "deposits":deposits,
 #         }
 #         if form.is_valid():
-#             valet = form.cleaned_data.get("valet")
+#             wallet = form.cleaned_data.get("wallet")
 #             invoice_number = form.cleaned_data.get("invoice_number")
 #             tracenumber = form.cleaned_data.get("tracenumber")
 #             amount = form.cleaned_data.get("amount")
@@ -931,7 +931,7 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
 #             except DepositModel.DoesNotExist:
 #                 deposit = DepositModel(
 #                     state=DepositModel.STATE_DEPOSIT,
-#                     valet=valet,
+#                     wallet=wallet,
 #                     invoice_number=invoice_number,
 #                     description=description,
 #                     user_created=user,
@@ -945,9 +945,9 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
 #                     user_created=user,
 #                 )
 #                 item.save()
-#                 messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
+#                 messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.wallet.customer.brand}({deposit.wallet.customer.first_name} {deposit.wallet.customer.last_name}) با موفقیت ثبت شد.")
 #                 return redirect("office:deposit-add")
-#             if deposit.valet == valet and deposit.state == DepositModel.STATE_DEPOSIT:
+#             if deposit.wallet == wallet and deposit.state == DepositModel.STATE_DEPOSIT:
 #                 item = DepositPaymentModel(
 #                     deposit=deposit,
 #                     tracenumber=tracenumber,
@@ -956,9 +956,9 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
 #                     user_created=user,
 #                 )
 #                 item.save()
-#                 messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) با موفقیت ثبت شد.")
+#                 messages.success(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.wallet.customer.brand}({deposit.wallet.customer.first_name} {deposit.wallet.customer.last_name}) با موفقیت ثبت شد.")
 #                 return redirect("office:deposit-add")
-#             messages.error(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.valet.customer.brand}({deposit.valet.customer.first_name} {deposit.valet.customer.last_name}) قبلاً ثبت شده است.")
+#             messages.error(request, f"بیعانه با شماره سند {invoice_number} برای مشارکت کننده {deposit.wallet.customer.brand}({deposit.wallet.customer.first_name} {deposit.wallet.customer.last_name}) قبلاً ثبت شده است.")
 #             return render(request, "office/deposit-add.html", context)
 #         context = {
 #             "form":form,
@@ -990,22 +990,22 @@ class PaymentRemoveView(PermissionRequiredMixin, views.View):
 #         if form.is_valid():
 #             deposit_payment = DepositPaymentModel.objects.filter(deposit=deposit)
 #             exhibition = form.cleaned_data.get("exhibition")
-#             valet = get_object_or_404(ValetModel, pk=deposit.valet.pk)
-#             invoice = get_object_or_404(InvoiceModel, Q(exhibition=exhibition) & Q(valet=valet) & Q(is_active=True))
+#             wallet = get_object_or_404(walletModel, pk=deposit.wallet.pk)
+#             invoice = get_object_or_404(InvoiceModel, Q(exhibition=exhibition) & Q(wallet=wallet) & Q(is_active=True))
 #             total = 0
 #             for i in deposit_payment:
 #                 total += int(i.amount)
 #                 payment = PaymentModel(
 #                     state=PaymentModel.STATE_POS,
 #                     invoice=invoice,
-#                     valet=valet,
+#                     wallet=wallet,
 #                     amount=i.amount,
 #                     tracenumber=i.tracenumber,
 #                     datepaid=i.date,
 #                 )
 #                 payment.save()
-#             valet.cash = str(int(valet.cash) + int(total))
-#             valet.save()
+#             wallet.cash = str(int(wallet.cash) + int(total))
+#             wallet.save()
 #             deposit.state = DepositModel.STATE_PAYMENT
 #             deposit.save()
 #             messages.success(request, f"بیعانه با شماره سند {deposit.invoice_number} و مبلغ {total} به {exhibition.title} اضافه شد.")
@@ -1033,12 +1033,12 @@ class CheckoutView(PermissionRequiredMixin, views.View):
         if int(invoice.amount) > credit:
             messages.error(request, "موجودی حساب برای تسویه حساب کافی  نیست.")
             return redirect("office:payment-add", iid=invoice.pk)
-        valet = get_object_or_404(ValetModel, pk=invoice.valet.pk)
+        wallet = get_object_or_404(WalletModel, pk=invoice.wallet.pk)
         invoice.state = InvoiceModel.STATE_PAID
         invoice.user_modified = user
-        valet.cash = str(int(valet.cash) - int(invoice.amount))
+        wallet.cash = str(int(wallet.cash) - int(invoice.amount))
         invoice.save()
-        valet.save()
+        wallet.save()
         messages.success(request, f"حساب مشارکت کننده {invoice.customer.brand} برای {invoice.exhibition.title} با موفقیت تسویه شد.")
         return redirect("office:payment-add", iid=invoice.pk)
     
@@ -1056,7 +1056,7 @@ class InvoicePrintView(PermissionRequiredMixin, views.View):
             messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب نشده است.")
             return redirect("office:payment-add", iid=invoice.pk)
         try:
-            mobile_model = MobileModel.objects.get(user=invoice.valet.user)
+            mobile_model = MobileModel.objects.get(user=invoice.wallet.user)
         except MobileModel.DoesNotExist:
             messages.error(request, f"شماره موبایل برای مشارکت کننده {invoice.customer.brand} ثبت نشده است!")
             return redirect("office:payment-add", iid=invoice.pk)
@@ -1162,14 +1162,14 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
         if form.is_valid():
             customer = form.cleaned_data["customer"]
             customer_id = get_object_or_404(CustomerModel, pk=customer.id)
-            valet = get_object_or_404(ValetModel, user=customer_id.user)
+            wallet = get_object_or_404(WalletModel, user=customer_id.user)
             booth_number = form.cleaned_data.get("booth_number")
             area_c = form.cleaned_data.get("area")
             discount = form.cleaned_data.get("discount")
             pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
             total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice = InvoiceModel(
-                valet=valet,
+                wallet=wallet,
                 customer=customer,
                 exhibition=exhibition,
                 booth_number=booth_number,
@@ -1183,9 +1183,9 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             try:
                 invoice.save()
             except IntegrityError:
-                messages.error(request, f"مشارکت کننده {invoice.valet.customer.brand} قبلاً ثبت نام شده است!")
+                messages.error(request, f"مشارکت کننده {invoice.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, 'office/exhibition-details.html', context)
-            messages.success(request, f'مشارکت کننده {valet} در نمایشگاه {exhibition.title} با موفقیت ثبت نام شد.')
+            messages.success(request, f'مشارکت کننده {wallet} در نمایشگاه {exhibition.title} با موفقیت ثبت نام شد.')
             return redirect("office:exhibition-details", eid=exhibition.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/exhibition-details.html', context)
@@ -1197,6 +1197,7 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
 
     def get(self, request, eid, iid):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
+        exhibition = get_object_or_404(ExhibitionModel, pk=eid)
         if invoice.state == InvoiceModel.STATE_PAID:
             messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:exhibition-details", eid=exhibition.pk)
@@ -1213,7 +1214,6 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
         for i in cus:
             total += int(i.amount)
             area += int(i.area)
-        exhibition = get_object_or_404(ExhibitionModel, pk=eid)
         context = {
             'cus':cus,
             'exh':exhibition,
@@ -1227,6 +1227,7 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
     def post(self, request, eid, iid):
         user = get_object_or_404(User, pk=request.user.id)
         invoice = get_object_or_404(InvoiceModel, pk=iid)
+        exhibition = get_object_or_404(ExhibitionModel, pk=eid)
         if invoice.state == InvoiceModel.STATE_PAID:
             messages.error(request, f"فاکتور شماره {invoice.pk} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:exhibition-details", eid=exhibition.pk)
@@ -1243,7 +1244,6 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
         for i in cus:
             total += float(i.amount)
             area += int(i.area)
-        exhibition = get_object_or_404(ExhibitionModel, pk=eid)
         context = {
             'cus':cus,
             'exh':exhibition,
@@ -1254,13 +1254,13 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             customer = form.cleaned_data.get("customer")
-            valet = get_object_or_404(ValetModel, user=customer.user)
+            wallet = get_object_or_404(WalletModel, user=customer.user)
             booth_number = form.cleaned_data.get("booth_number")
             area_c = form.cleaned_data.get("area")
             discount = form.cleaned_data.get("discount")
             pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
             total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
-            invoice.valet = valet
+            invoice.wallet = wallet
             invoice.customer = customer
             invoice.booth_number = booth_number
             invoice.price = exhibition.price
@@ -1272,9 +1272,9 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
             try:
                 invoice.save()
             except IntegrityError:
-                messages.error(request, f"مشارکت کننده {invoice.valet.customer.brand} قبلاً ثبت نام شده است!")
+                messages.error(request, f"مشارکت کننده {invoice.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, 'office/exhibition-details.html', context)
-            messages.success(request, f'مشارکت کننده {valet} در {exhibition.title} با موفقیت ویرایش شد.')
+            messages.success(request, f'مشارکت کننده {wallet} در {exhibition.title} با موفقیت ویرایش شد.')
             return redirect("office:exhibition-details", eid=exhibition.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/exhibition-details.html', context)

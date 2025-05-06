@@ -73,10 +73,10 @@
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group col-lg-6">
-                                            {{ form.valet.label_tag }}
-                                            {{ form.valet }}
-                                            {% if form.valet.errors %}
-                                                {% for error in form.valet.errors %}
+                                            {{ form.wallet.label_tag }}
+                                            {{ form.wallet }}
+                                            {% if form.wallet.errors %}
+                                                {% for error in form.wallet.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
@@ -173,7 +173,7 @@
 <script>
     // Initialize Select2 on the select element
     $(document).ready(function() {
-      $('#id_valet').select2();
+      $('#id_wallet').select2();
     });
     $(document).ready(function() {
         $('#id_exhibition').select2();

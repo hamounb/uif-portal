@@ -163,3 +163,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = 'media/'
 
 USE_THOUSAND_SEPARATOR = True
+
+Terminal_id = "98721829"

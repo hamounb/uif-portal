@@ -8,4 +8,6 @@ urlpatterns = [
     path("profile/", ProfileView.as_view(), name="profile"),
     path("invoice/", InvoiceView.as_view(), name="invoice"),
     path("invoice/details/<int:iid>/", InvoiceDetailsView.as_view(), name="invoice-details"),
+    path("payment/create/<int:iid>/", PaymentCreateView.as_view(), name="payment-create"),
+    path("payment/done/<int:iid>/", PaymentCreateView.as_view(), name="payment-done"),
     ]

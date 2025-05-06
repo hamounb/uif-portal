@@ -81,8 +81,8 @@
                                                         {% if invoice.is_active %}
                                                         <tr>
                                                             <td>{{ invoice.pk }}</td>
-                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.valet.customer.kind == "real" %}{{ invoice.valet.customer.code }}{% else %}{{ invoice.valet.customer.code }}{% endif %}">
-                                                                <b>{{ invoice.valet.customer.brand }}</b>
+                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.customer.kind == "real" %}{{ invoice.customer.code }}{% else %}{{ invoice.customer.code }}{% endif %}">
+                                                                <b>{{ invoice.customer.brand }}</b>
                                                             </td>
                                                             <td style="color:green"><b>{{ invoice.exhibition.title }}</b></td>
                                                             <td>{{ invoice.area }}</td>
@@ -134,8 +134,8 @@
                                                         {% if not invoice.is_active %}
                                                         <tr>
                                                             <td>{% if not invoice.is_active %} <i class="icon-x"></i>{% else %} {% endif %}</td>
-                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.valet.customer.kind == "real" %}{{ invoice.valet.customer.code }}{% else %}{{ invoice.valet.customer.code }}{% endif %}">
-                                                                <b>{{ invoice.valet.customer.company }}</b>
+                                                            <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if invoice.customer.kind == "real" %}{{ invoice.customer.code }}{% else %}{{ invoice.customer.code }}{% endif %}">
+                                                                <b>{{ invoice.customer.company }}</b>
                                                             </td>
                                                             <td style="color:green" data-toggle="tooltip" data-placement="top" title="{{ invoice.exhibition.date|to_jalali:"%Y" }}">
                                                                 <b>{{ invoice.exhibition.title }}</b>

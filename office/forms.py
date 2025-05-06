@@ -176,7 +176,7 @@ class CustomerToExhibitionForm(forms.Form):
 
 
 class InvoiceAddForm(forms.Form):
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(user__is_active=True), label="مشارکت کننده")
+    wallet = forms.ModelChoiceField(queryset=WalletModel.objects.filter(user__is_active=True), label="مشارکت کننده")
     booth_number = forms.CharField(label="شماره غرفه", max_length=4, required=False, validators=[is_positive], widget=forms.TextInput(attrs={'class':'form-control'}))
     area = forms.CharField(label="متراژ(مترمربع)", max_length=6, required=True, validators=[is_positive], widget=forms.TextInput(attrs={'class':'form-control'}))
 
@@ -190,7 +190,7 @@ class AddToExhibitionForm(forms.Form):
 
 class InvoiceEditForm(forms.Form):
     is_active = forms.BooleanField(label="فعال", widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(user__is_active=True), label="مشارکت کننده", widget=forms.Select(attrs={'class':'form-control'}))
+    wallet = forms.ModelChoiceField(queryset=WalletModel.objects.filter(user__is_active=True), label="مشارکت کننده", widget=forms.Select(attrs={'class':'form-control'}))
     exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه", widget=forms.Select(attrs={'class':'form-control'}))
     booth_number = forms.CharField(max_length=50, required=False, label="شماره غرفه", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
     area = forms.CharField(max_length=15, required=True, label="متراژ(مترمربع)", widget=forms.TextInput(attrs={'class':'form-control'}), validators=[is_positive])
@@ -217,7 +217,7 @@ class PaymentAddForm(forms.Form):
 
 
 class DepositAddForm(forms.Form):
-    valet = forms.ModelChoiceField(queryset=ValetModel.objects.filter(user__is_active=True), required=True, label="مشارکت کننده")
+    wallet = forms.ModelChoiceField(queryset=WalletModel.objects.filter(user__is_active=True), required=True, label="مشارکت کننده")
     invoice_number = forms.CharField(max_length=6, label="شماره سند", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
     tracenumber = forms.CharField(max_length=12, label="شماره پیگیری", required=True, widget=forms.TextInput(attrs={"class":"form-control"}))
     amount = forms.CharField(max_length=12, label="مبلغ(ریال)", required=True, widget=forms.TextInput(attrs={"class":"form-control"}), validators=[is_positive])
