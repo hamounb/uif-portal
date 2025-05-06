@@ -96,7 +96,7 @@ class PaymentCreateView(LoginRequiredMixin, views.View):
                 "TerminalID":Terminal_id,
                 "Amount":f"{invoice.amount}",
                 "InvoiceID":f"{invoice.pk}",
-                "callbackURL":"https://portal.urmiafair.com/client/payment/advice",
+                "callbackURL":"https://portal.urmiafair.com/client/payment/done/",
                 "payload":""
             }
         )
@@ -114,15 +114,58 @@ class PaymentDoneView(LoginRequiredMixin, views.View):
     login_url = "accounts:signin"
 
     def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
         if request.method == "POST":
-             = request.POST.get("")
-             = request.POST.get("")
-             = request.POST.get("")
-             = request.POST.get("")
-             = request.POST.get("")
-             = request.POST.get("")
-             = request.POST.get("")
-             = request.POST.get("")
+            invoiceid = request.POST.get("invoiceid")
+            amount = request.POST.get("amount")
+            tracenumber = request.POST.get("tracenumber")
+            cardnumber = request.POST.get("cardnumber")
+            issuerbank = request.POST.get("issuerbank")
+            respcode = request.POST.get("respcode")
+            respmsg = request.POST.get("respmsg")
+            payload = request.POST.get("payload")
+            rrn = request.POST.get("rrn")
+            datepaid = request.POST.get("datePaid")
+            digitalreceipt = request.POST.get("digitalreceipt")
+            if respcode == 0:
+                response = requests.post(
+                    url="https://sepehr.shaparak.ir/Rest/V1/PeymentApi/Advice",
+                    data={
+                        "digitalreceipt":digitalreceipt,
+                        "Tid":Terminal_id,
+                    }
+                )
+                response.json()
+                if response["Status"] == "ok" and response["ReturnId"] == str(amount):
+                    invoice = get_object_or_404(InvoiceModel, pk=int(invoiceid))
+                    wallet = get_object_or_404(WalletModel, user=user)
+                    pay = PaymentModel(
+                        state=PaymentModel.STATE_IPG,
+                        wallet=wallet,
+                        invoice=invoice,
+                        amount=int(amount),
+                        cardnumber=cardnumber,
+                        issuerbank=issuerbank,
+                        rrn=rrn,
+                        tracenumber=tracenumber,
+                        digitalreceipt=digitalreceipt,
+                        respcode=int(respcode),
+                        respmsg=respmsg,
+                        payload=payload,
+                        datepaid=datepaid,
+                        user_created=user,
+                        user_modified=user,
+                    )
+                    try:
+                        pay.save()
+                    except IntegrityError:
+                        return render(request, "client/error.html", {"error":"رسید دیجیتال تکراری است، این تراکنش قبلا انجام شده است!"})
+                    total = int(wallet.cash) + int(amount)
+                    wallet.cash = str(total)
+                    wallet.save()
+                    return render(request, "client/payment-done.html")
+                return render(request, "client/error.html", {"error":response["Message"]})
+            return render(request, "client/error.html", {"error":"تراکنش ناموفق!!"})
     
 
 class RequestExhibitionView(LoginRequiredMixin, views.View):
