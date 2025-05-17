@@ -45,35 +45,28 @@ class PaymentCreateForm(forms.Form):
     token = forms.CharField(widget=forms.TextInput(attrs={'name':'token'}))
         
 
-# class CustomerAddForm(forms.ModelForm):
-#     ncode = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
-#     phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره ثابت", validators=[is_phone])
-#     fax = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره فکس", validators=[is_phone])
-#     postalcode = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد پستی", validators=[is_postal])
+class ProfileAddForm(forms.Form):
+    KIND_REAL = 'real'
+    KIND_LEGAL = 'legal'
+    KIND_CHOICES = (
+        (KIND_REAL, 'حقیقی'),
+        (KIND_LEGAL, 'حقوقی')
+    )
+    kind = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=KIND_CHOICES), label="نوع مشارکت کننده")
+    first_name = forms.CharField(max_length=250, required=False, disabled=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام")
+    last_name = forms.CharField(max_length=250, required=False, disabled=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام خانوادگی")
+    code = forms.CharField(max_length=10, required=False, disabled=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد ملی", validators=[is_code])
+    brand = forms.CharField(max_length=250, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام تجاری")
+    ceoname = forms.CharField(max_length=250, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام مدیرعامل")
+    company = forms.CharField(max_length=250, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="نام شرکت")
+    ncode = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شناسه ملی", validators=[is_ncode])
+    mobile = forms.CharField(max_length=11, required=False, disabled=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="موبایل", validators=[is_mobile])
+    phone = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره ثابت", validators=[is_phone])
+    fax = forms.CharField(max_length=11, required=False, widget=forms.TextInput(attrs={'class':'form-control'}), label="شماره فکس", validators=[is_phone])
+    email = forms.EmailField(max_length=250, required=False, widget=forms.EmailInput(attrs={'class':'form-control'}), label="ایمیل")
+    postalcode = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد پستی", validators=[is_postal])
+    address = forms.CharField(max_length=250, required=True, widget=forms.Textarea(attrs={'class':'form-control', 'rows':3}), label="آدرس")
 
-#     class Meta:
-#         model = CustomerModel
-#         fields = (
-#                   'kind',
-#                   'first_name',
-#                   'last_name',
-#                   'brand',
-#                   'ceoname',
-#                   'company',
-#                   'ncode',
-#                   'phone',
-#                   'fax',
-#                   'email',
-#                   'postalcode',
-#                   'address',
-#                   )
-#         widgets = {
-#             'kind': forms.Select(attrs={'class':'form-control'}),
-#             'first_name': forms.TextInput(attrs={'class':'form-control'}),
-#             'last_name': forms.TextInput(attrs={'class':'form-control'}),
-#             'brand': forms.TextInput(attrs={'class':'form-control'}),
-#             'ceoname': forms.TextInput(attrs={'class':'form-control'}),
-#             'company': forms.TextInput(attrs={'class':'form-control'}),
-#             'email': forms.EmailInput(attrs={'class':'form-control'}),
-#             'address': forms.Textarea(attrs={'class':'form-control', 'rows':3}),
-#         }
+
+class DocumentAddForm(forms.Form):
+    file = forms.FileField(label="مدارک")

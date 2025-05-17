@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 def documents_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f"{instance.customer.brand}/{filename}"
+    return f"{instance.user.username}/{filename}"
     # "{0}/{1}".format(instance.user.id, filename)
 
 
@@ -86,12 +86,13 @@ class DocumentsModel(BaseModel):
     )
     is_active = models.BooleanField(verbose_name='فعال', default=True)
     state = models.CharField(verbose_name='وضعیت', max_length=50, choices=STATE_CHOICES, default=STATE_WAIT)
-    customer = models.ForeignKey(CustomerModel, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مشارکت کننده')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کاربر')
     file = models.FileField(verbose_name='مدرک', upload_to=documents_directory_path)
+    description = models.TextField(verbose_name="توضیحات", null=True, blank=True)
 
     def __str__(self):
-        if self.customer is not None:
-            return f"{self.customer.company} - {self.file.name}"
+        if self.user is not None:
+            return f"{self.user.username} - {self.file.name}"
         return self.file.name
     
     class Meta:

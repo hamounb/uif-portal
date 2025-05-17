@@ -21,8 +21,8 @@ class CustomerAdmin(admin.ModelAdmin):
 @admin.register(DocumentsModel)
 class DocumentsAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("customer__brand",)
-    list_display = ("state", "customer", "file")
+    search_fields = ("user_username",)
+    list_display = ("state", "user", "file")
     
     def save_model(self, request, obj, form, change):
         if change:

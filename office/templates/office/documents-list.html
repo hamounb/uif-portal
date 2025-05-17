@@ -57,7 +57,7 @@
                                             <tr>
                                                 <th>کد</th>
                                                 <th>وضعیت</th>
-                                                <th>نام تجاری</th>
+                                                <th>کدملی</th>
                                                 <th>نام و نشان</th>
                                                 <th>مدارک</th>
                                                 <th>تاریخ</th>
@@ -78,15 +78,15 @@
                                                     {% endif %}
                                                 </td>
                                                 <td>
-                                                    <a href="{% url 'staff:customer-change' cid=doc.customer.pk %}" style="color:blueviolet">{{ doc.customer.company }}</a>
+                                                    <a href="" style="color:blueviolet">{{ doc.user.username }}</a>
                                                 </td>
-                                                <td class="text-info">{{ doc.customer.firstname }} {{ doc.customer.lastname }}</td>
-                                                <td><a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name|cut:doc.customer.company }}</a></td>
+                                                <td class="text-info">{{ doc.user.first_name }} {{ doc.user.last_name }}</td>
+                                                <td><a href="{{ doc.file.url }}" target="_blank"></a></td>
                                                 <td style="color:#003f5c">{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
-                                                    <a class="mr-2 text-success" href="{% url 'staff:documents-accept' fid=doc.pk %}" data-toggle="tooltip" data-original-title="تایید"><i class="icon-check" style="font-size:large"></i></a>
-                                                    <a class="mr-2 text-danger" href="{% url 'staff:documents-deny' fid=doc.pk %}" data-toggle="tooltip" data-original-title="عدم تایید"><i class="icon-x-square" style="font-size:large"></i></a>
-                                                    <a class="mr-2 text-info" href="{% url 'staff:documents-del' fid=doc.pk %}" data-toggle="tooltip" data-original-title="حذف"><i class="icon-trash-2" style="font-size:large"></i></a>
+                                                    <a class="mr-2 text-success" href="{% url 'office:documents-accept' fid=doc.pk %}" data-toggle="tooltip" data-original-title="تایید"><i class="icon-check" style="font-size:large"></i></a>
+                                                    <a class="mr-2 text-danger" href="{% url 'office:documents-deny' fid=doc.pk %}" data-toggle="tooltip" data-original-title="عدم تایید"><i class="icon-x-square" style="font-size:large"></i></a>
+                                                    <a class="mr-2 text-info" href="{% url 'office:documents-del' fid=doc.pk %}" data-toggle="tooltip" data-original-title="حذف"><i class="icon-trash-2" style="font-size:large"></i></a>
                                                 </td>
                                             </tr>
                                             {% endfor %}

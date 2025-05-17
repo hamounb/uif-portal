@@ -6,8 +6,10 @@ app_name = "client"
 urlpatterns = [
     path("index/", IndexView.as_view(), name="index"),
     path("profile/", ProfileView.as_view(), name="profile"),
+    path("profile/add/", ProfileAddView.as_view(), name="profile-add"),
+    path("document/add/", DocumentAddView.as_view(), name="document-add"),
     path("invoice/", InvoiceView.as_view(), name="invoice"),
     path("invoice/details/<int:iid>/", InvoiceDetailsView.as_view(), name="invoice-details"),
     path("payment/create/<int:iid>/", PaymentCreateView.as_view(), name="payment-create"),
-    path("payment/done/", PaymentCreateView.as_view(), name="payment-done"),
+    path("payment/done/", PaymentDoneView.as_view(), name="payment-done"),
     ]

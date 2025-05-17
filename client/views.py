@@ -36,6 +36,139 @@ class ProfileView(LoginRequiredMixin, views.View):
         return render(request, "client/profile.html", {"profile":profile, "mobile":mobile})
     
 
+class ProfileAddView(LoginRequiredMixin, views.View):
+    login_url = "accounts:signin"
+    
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        mobile = get_object_or_404(MobileModel, user=user)
+        items = {
+            "code":user.username,
+            "first_name":user.first_name,
+            "last_name":user.last_name,
+            "mobile":mobile.mobile,
+        }
+        form = ProfileAddForm(initial=items)
+        context = {
+            "form":form,
+        }
+        return render(request, "client/profile-add.html", context)
+    
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.pk)
+        mobile = get_object_or_404(MobileModel, user=user)
+        items = {
+            "code":user.username,
+            "first_name":user.first_name,
+            "last_name":user.last_name,
+            "mobile":mobile.mobile,
+        }
+        form = ProfileAddForm(request.POST, initial=items)
+        context = {
+            "form":form,
+        }
+        if form.is_valid():
+            kind = form.cleaned_data.get("kind")
+            brand = form.cleaned_data.get("brand")
+            ceoname = form.cleaned_data.get("ceoname")
+            company = form.cleaned_data.get("company")
+            ncode = form.cleaned_data.get("ncode")
+            phone = form.cleaned_data.get("phone")
+            fax = form.cleaned_data.get("fax")
+            email = form.cleaned_data.get("email")
+            postalcode = form.cleaned_data.get("postalcode")
+            address = form.cleaned_data.get("address")
+            if kind == CustomerModel.KIND_REAL:
+                customer = CustomerModel(
+                    is_active=False,
+                    kind=kind,
+                    user=user,
+                    brand=brand,
+                    phone=phone,
+                    fax=fax,
+                    email=email,
+                    postalcode=postalcode,
+                    address=address,
+                    user_created=user,
+                    user_modified=user,
+                )
+            else:
+                if not ncode:
+                    messages.error(request, f"مشتری با نوع حقوقی باید دارای شناسه ملی باشد.")
+                    return render(request, 'client/profile-add.html', {'form':form})
+                elif not ceoname:
+                    messages.error(request, f"مشتری با نوع حقوقی باید دارای نام مدیرعامل باشد.")
+                    return render(request, 'client/profile-add.html', {'form':form})
+                elif not company:
+                    messages.error(request, f"مشتری با نوع حقوقی باید دارای نام شرکت یا سازمان باشد.")
+                    return render(request, 'client/profile-add.html', {'form':form})
+                else:
+                    customer = CustomerModel(
+                        is_active=False,
+                        kind=kind,
+                        user=user,
+                        brand=brand,
+                        ceoname=ceoname,
+                        company=company,
+                        ncode=ncode,
+                        phone=phone,
+                        fax=fax,
+                        email=email,
+                        postalcode=postalcode,
+                        address=address,
+                        user_created=user,
+                        user_modified=user,
+                    )
+            try:
+                customer.save()
+            except IntegrityError:
+                messages.error(request, f"قبلا نام تجاری {brand} با کدملی {user.username} ثبت شده است!")
+                return redirect("client:profile-add")
+            messages.success(request, f"حساب کاربری شما با نام تجاری {brand} با موفقیت ثبت شد.")
+            return redirect("client:profile-add")
+        return render(request, "client/profile-add.html", context)
+    
+
+class DocumentAddView(LoginRequiredMixin, views.View):
+    login_url = "accounts:signin"
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        documents = DocumentsModel.objects.filter(user=user)
+        form = DocumentAddForm()
+        context = {
+            "documents":documents,
+            "form":form,
+        }
+        return render(request, "client/document-add.html", context)
+    
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        documents = DocumentsModel.objects.filter(user=user)
+        form = DocumentAddForm(request.POST, request.FILES)
+        context = {
+            "documents":documents,
+            "form":form,
+        }
+        if form.is_valid():
+            file = form.cleaned_data.get("file")
+            document = DocumentsModel(
+                file=file,
+                state=DocumentsModel.STATE_WAIT,
+                user=user,
+                user_created=user,
+                user_modified=user,
+            )
+            try:
+                document.save()
+            except:
+                messages.error(request, "خطای سیستمی رخ داده است، دوباره سعی کنید!")
+                return render(request, "client/document-add.html", context)
+            messages.success(request, "مدرک شما با موفقیت بارگذاری شد.")
+            return render(request, "client/document-add.html", context)
+        return render(request, "client/document-add.html", context)
+
+
 # class ExhibitionView(LoginRequiredMixin, views.View):
 #     login_url = "accounts:signin"
 
@@ -107,7 +240,7 @@ class PaymentCreateView(LoginRequiredMixin, views.View):
                 form = PaymentCreateForm(initial={"TerminalID":Terminal_id, "token":access_token})
                 return render(request, "client/payment-create.html", {"form":form})
             return HttpResponseRedirect(ref)
-        return HttpResponseRedirect(ref)
+        return render(request, "client/payment-create.html", {"form":form})
     
 
 class PaymentDoneView(LoginRequiredMixin, views.View):
@@ -129,7 +262,7 @@ class PaymentDoneView(LoginRequiredMixin, views.View):
             digitalreceipt = request.POST.get("digitalreceipt")
             if respcode == 0:
                 response = requests.post(
-                    url="https://sepehr.shaparak.ir/Rest/V1/PeymentApi/Advice",
+                    url="https://sepehr.shaparak.ir:8081/V1/PeymentApi/Advice",
                     data={
                         "digitalreceipt":digitalreceipt,
                         "Tid":Terminal_id,
