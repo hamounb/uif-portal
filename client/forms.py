@@ -66,6 +66,7 @@ class ProfileAddForm(forms.Form):
     email = forms.EmailField(max_length=250, required=False, widget=forms.EmailInput(attrs={'class':'form-control'}), label="ایمیل")
     postalcode = forms.CharField(max_length=10, required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label="کد پستی", validators=[is_postal])
     address = forms.CharField(max_length=250, required=True, widget=forms.Textarea(attrs={'class':'form-control', 'rows':3}), label="آدرس")
+    id_file = forms.FileField(label="تصویر کارت ملی")
 
 
 class DocumentAddForm(forms.Form):

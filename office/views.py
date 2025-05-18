@@ -90,6 +90,15 @@ class CustomerListView(PermissionRequiredMixin, views.View):
         return render(request, 'office/customer-list.html', {'customer':customer})
     
 
+class DeactiveCustomerListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.view_customermodel']
+
+    def get(self, request):
+        customer = CustomerModel.objects.filter(is_active=False).order_by('-created_date')
+        return render(request, 'office/deactive-customer-list.html', {'customer':customer})
+    
+
 class CustomerAddView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.add_customermodel']
@@ -299,7 +308,7 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
         query = Q(pk=cid) & Q(is_active=True)
         customer = get_object_or_404(CustomerModel, query)
         form = CustomerChangeForm(instance=customer)
-        docs = DocumentsModel.objects.filter(customer=customer).order_by('-created_date')
+        docs = DocumentsModel.objects.filter(user=customer.user).order_by('-created_date')
         form2 = DocumentForm()
         context = {
             'form':form,
@@ -524,8 +533,10 @@ class DocumentsAcceptView(PermissionRequiredMixin, views.View):
         file = get_object_or_404(DocumentsModel, pk=fid)
         file.state = DocumentsModel.STATE_ACCEPT
         file.save()
+        file.customer.is_active = True
+        file.customer.save()
         ref = request.META.get('HTTP_REFERER')
-        messages.success(request, f"مدرک مشارکت کننده با نام تجاری {file.customer.company} با موفقیت تایید شد.")
+        messages.success(request, f"مشارکت کننده با نام تجاری {file.customer.brand} با موفقیت تایید شد.")
         return redirect(ref)
     
 

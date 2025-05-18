@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-لیست مدارک مشارکت کنندگان
+لیست مشارکت کنندگان غیرفعال | شرکت نمایشگاه بین‌المللی ارومیه
 {% endblock title %}
 
 {% block content %}
@@ -12,10 +12,9 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-body" data-bg-image="{% static 'images/docs.png' %}">
-                        <h2>لیست مدارک</h2>
-                        <p>لطفا مدارک بارگذاری شده را با دقت بررسی کرده و وضعیت آنهارا مشخص کنید.</p>
-                        <p class="text-danger">توجه! درصورت استفاده از گزینه حذف، مدرک بارگذاری شده پاک شده و قابلیت بازگشت ندارد.</p>
+                    <div class="card-body">
+                        <h2>لیست همه</h2>
+                        <p>لطفاً از صحیح و بروز بودن اطلاعات مشارکت کنندگان اطمینان حاصل فرمایید!</p>
                     </div>
                 </div>
             </div>
@@ -45,47 +44,46 @@
                         <div class="row">
                             <div class="form-group col-lg-12">
                                 <div class="row">
-                                    <div class="form-group col-lg-2">
+                                    <div class="form-group col-lg-3">
                                         <input class="form-control" id="myInput" type="text" placeholder="جستجو...">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="table-responsive" style="height:500px;overflow:auto;">
-                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%">
+                                    <table id="datatable" class="table table-bordered table-hover" style="width:100%;text-align:center">
                                         <thead class="thead-light">
                                             <tr>
                                                 <th>کد</th>
-                                                <th>وضعیت</th>
+                                                <th>نام تجاری</th>
+                                                <th>نام و نام‌خانوادگی</th>
                                                 <th>کدملی</th>
-                                                <th>نام و نشان</th>
                                                 <th>مدارک</th>
-                                                <th>تاریخ</th>
-                                                <th>اقدامات</th>
+                                                <th>تاریخ ایجاد</th>
+                                                <th>عملیات</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for doc in doc %}
+                                            {% for customer in customer %}
                                             <tr>
-                                                <td>{{ doc.pk }}</td>
-                                                <td>
-                                                    {% if doc.state == "wait" %}
-                                                    <span class="badge badge-pill badge-warning">در انتظار بررسی</span>
-                                                    {% elif doc.state == "accept"  %}
-                                                    <span class="badge badge-pill badge-success">قبول</span>
-                                                    {% else %}
-                                                    <span class="badge badge-pill badge-danger">رد شده</span>
-                                                    {% endif %}
+                                                <td>{{ customer.pk }}</td>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if customer.kind == 'legal' %}حقوقی{% else %}حقیقی{% endif %}">
+                                                    <b>{{ customer.brand }} ({% if customer.kind == "legal" %}{{ customer.company }}{% else %}{{ customer.user.first_name }} {{ customer.user.last_name }}{% endif %})</b>
                                                 </td>
-                                                <td>
-                                                    <a href="" style="color:blueviolet">{{ doc.user.username }}</a>
+                                                <td class="text-dark">
+                                                    {{ customer.user.username }}
                                                 </td>
-                                                <td class="text-info">{{ doc.user.first_name }} {{ doc.user.last_name }}</td>
-                                                <td><a href="{{ doc.file.url }}" target="_blank">{{ doc.file }}</a></td>
-                                                <td style="color:#003f5c">{{ doc.created_date|to_jalali:'%Y/%m/%d' }}</td>
+                                                <td class="text-dark">
+                                                    {{ customer.user.first_name }} {{ customer.user.last_name }}
+                                                </td>
+                                                <td class="text-dark">
+                                                    {% for file in customer.documentsmodel_set.all %}
+                                                    <a href="{{ file.file.url }}" target="_blank">{{ file.file }}</a>
+                                                    {% endfor %}
+                                                </td>
+                                                <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
                                                     <a class="mr-2 text-success" href="{% url 'office:documents-accept' fid=doc.pk %}" data-toggle="tooltip" data-original-title="تایید"><i class="icon-check" style="font-size:large"></i></a>
-                                                    <a class="mr-2 text-danger" href="{% url 'office:documents-deny' fid=doc.pk %}" data-toggle="tooltip" data-original-title="عدم تایید"><i class="icon-x-square" style="font-size:large"></i></a>
                                                     <a class="mr-2 text-info" href="{% url 'office:documents-del' fid=doc.pk %}" data-toggle="tooltip" data-original-title="حذف"><i class="icon-trash-2" style="font-size:large"></i></a>
                                                 </td>
                                             </tr>
@@ -94,9 +92,6 @@
                                     </table>
                                 </div>
                             </div>
-                            {% comment %} <div class="col-lg-3 text-center">
-                                <img src="{% static 'images/doclist.png' %}">
-                            </div> {% endcomment %}
                         </div>
                     </div>
                 </div>

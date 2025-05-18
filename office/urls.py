@@ -8,6 +8,7 @@ urlpatterns = [
     path('home/', HomeView.as_view(), name='home'),
     path('user/add/', UserAddView.as_view(), name='user-add'),
     path('customer/list/', CustomerListView.as_view(), name='customer-list'),
+    path('deactive/customer/list/', DeactiveCustomerListView.as_view(), name='deactive-customer-list'),
     path('customer/add/', CustomerAddView.as_view(), name='customer-add'),
     path('customer/change/<int:cid>/', CustomerChangeView.as_view(), name='customer-change'),
     path('customer/exhibition/<int:id>/', CustomerExhibitionView.as_view(), name='customer-exhibition'),

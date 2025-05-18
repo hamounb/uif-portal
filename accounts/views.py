@@ -10,6 +10,7 @@ from .models import TokenModel, MobileModel
 from datetime import datetime, timedelta
 from django.http import JsonResponse
 from .payamak import send_sms, send_token
+from client.models import WalletModel
 
 # Create your views here.
 
@@ -34,6 +35,12 @@ class SignUpView(views.View):
             except IntegrityError as e:
                 messages.error(request, 'قبلا با این کد ملی حساب کاربری ایجاد شده است!')
                 return render(request, 'accounts/signup.html', {'form':form})
+            wallet = WalletModel(user=new)
+            try:
+                wallet.save()
+            except IntegrityError:
+                wallet.cash = "0"
+                wallet.save()
             try:
                 tk = TokenModel.objects.get(user=new)
             except TokenModel.DoesNotExist:

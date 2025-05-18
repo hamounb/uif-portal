@@ -63,7 +63,7 @@ class ProfileAddView(LoginRequiredMixin, views.View):
             "last_name":user.last_name,
             "mobile":mobile.mobile,
         }
-        form = ProfileAddForm(request.POST, initial=items)
+        form = ProfileAddForm(request.POST, request.FILES, initial=items)
         context = {
             "form":form,
         }
@@ -78,6 +78,7 @@ class ProfileAddView(LoginRequiredMixin, views.View):
             email = form.cleaned_data.get("email")
             postalcode = form.cleaned_data.get("postalcode")
             address = form.cleaned_data.get("address")
+            id_file = form.cleaned_data.get("id_file")
             if kind == CustomerModel.KIND_REAL:
                 customer = CustomerModel(
                     is_active=False,
@@ -124,49 +125,120 @@ class ProfileAddView(LoginRequiredMixin, views.View):
             except IntegrityError:
                 messages.error(request, f"قبلا نام تجاری {brand} با کدملی {user.username} ثبت شده است!")
                 return redirect("client:profile-add")
+            document = DocumentsModel(customer=customer, file=id_file, user_created=user, user_modified=user)
+            document.save()
             messages.success(request, f"حساب کاربری شما با نام تجاری {brand} با موفقیت ثبت شد.")
-            return redirect("client:profile-add")
+            return redirect("client:profile")
         return render(request, "client/profile-add.html", context)
     
 
-class DocumentAddView(LoginRequiredMixin, views.View):
+class ProfileEditView(LoginRequiredMixin, views.View):
     login_url = "accounts:signin"
 
-    def get(self, request):
+    def get(self, request, pid):
         user = get_object_or_404(User, pk=request.user.id)
-        documents = DocumentsModel.objects.filter(user=user)
-        form = DocumentAddForm()
+        profile = get_object_or_404(CustomerModel, pk=pid)
+        mobile = get_object_or_404(MobileModel, user=user)
+        items = {
+            "kind":profile.kind,
+            "code":user.username,
+            "first_name":user.first_name,
+            "last_name":user.last_name,
+            "mobile":mobile.mobile,
+            "brand":profile.brand,
+            "company":profile.company,
+            "ceoname":profile.ceoname,
+            "ncode":profile.ncode,
+            "phone":profile.phone,
+            "fax":profile.fax,
+            "email":profile.email,
+            "postalcode":profile.postalcode,
+            "address":profile.address,
+        }
+        form = ProfileAddForm(initial=items)
         context = {
-            "documents":documents,
             "form":form,
         }
-        return render(request, "client/document-add.html", context)
+        return render(request, "client/profile-add.html", context)
     
-    def post(self, request):
-        user = get_object_or_404(User, pk=request.user.id)
-        documents = DocumentsModel.objects.filter(user=user)
-        form = DocumentAddForm(request.POST, request.FILES)
+    def post(self, request, pid):
+        user = get_object_or_404(User, pk=request.user.pk)
+        profile = get_object_or_404(CustomerModel, pk=pid)
+        mobile = get_object_or_404(MobileModel, user=user)
+        items = {
+            "kind":profile.kind,
+            "code":user.username,
+            "first_name":user.first_name,
+            "last_name":user.last_name,
+            "mobile":mobile.mobile,
+            "brand":profile.brand,
+            "company":profile.company,
+            "ceoname":profile.ceoname,
+            "ncode":profile.ncode,
+            "phone":profile.phone,
+            "fax":profile.fax,
+            "email":profile.email,
+            "postalcode":profile.postalcode,
+            "address":profile.address,
+        }
+        form = ProfileAddForm(request.POST, request.FILES, initial=items)
         context = {
-            "documents":documents,
             "form":form,
         }
         if form.is_valid():
-            file = form.cleaned_data.get("file")
-            document = DocumentsModel(
-                file=file,
-                state=DocumentsModel.STATE_WAIT,
-                user=user,
-                user_created=user,
-                user_modified=user,
-            )
-            try:
-                document.save()
-            except:
-                messages.error(request, "خطای سیستمی رخ داده است، دوباره سعی کنید!")
-                return render(request, "client/document-add.html", context)
-            messages.success(request, "مدرک شما با موفقیت بارگذاری شد.")
-            return render(request, "client/document-add.html", context)
-        return render(request, "client/document-add.html", context)
+            kind = form.cleaned_data.get("kind")
+            brand = form.cleaned_data.get("brand")
+            ceoname = form.cleaned_data.get("ceoname")
+            company = form.cleaned_data.get("company")
+            ncode = form.cleaned_data.get("ncode")
+            phone = form.cleaned_data.get("phone")
+            fax = form.cleaned_data.get("fax")
+            email = form.cleaned_data.get("email")
+            postalcode = form.cleaned_data.get("postalcode")
+            address = form.cleaned_data.get("address")
+            id_file = form.cleaned_data.get("id_file")
+            if kind == CustomerModel.KIND_REAL:
+                profile.is_active = False
+                profile.kind = CustomerModel.KIND_REAL
+                profile.user = user
+                profile.brand = brand
+                profile.phone = phone
+                profile.fax = fax
+                profile.email = email
+                profile.postalcode = postalcode
+                profile.address = address
+                profile.user_modified = user
+                profile.save()
+            else:
+                if not ncode:
+                    messages.error(request, f"مشتری با نوع حقوقی باید دارای شناسه ملی باشد.")
+                    return render(request, 'client/profile-add.html', {'form':form})
+                elif not ceoname:
+                    messages.error(request, f"مشتری با نوع حقوقی باید دارای نام مدیرعامل باشد.")
+                    return render(request, 'client/profile-add.html', {'form':form})
+                elif not company:
+                    messages.error(request, f"مشتری با نوع حقوقی باید دارای نام شرکت یا سازمان باشد.")
+                    return render(request, 'client/profile-add.html', {'form':form})
+                else:
+                    profile.is_active = False
+                    profile.kind = CustomerModel.KIND_LEGAL
+                    profile.user = user
+                    profile.brand = brand
+                    profile.ceoname = ceoname
+                    profile.company = company
+                    profile.ncode = ncode
+                    profile.phone = phone
+                    profile.fax = fax
+                    profile.email = email
+                    profile.postalcode = postalcode
+                    profile.address = address
+                    profile.user_modified = user
+                    profile.save()
+            document = DocumentsModel(customer=profile, file=id_file, user_created=user, user_modified=user)
+            document.save()
+            messages.success(request, f"حساب کاربری شما با نام تجاری {brand} با موفقیت ویرایش شد.")
+            return redirect("client:profile")
+        return render(request, "client/profile-add.html", context)
 
 
 # class ExhibitionView(LoginRequiredMixin, views.View):

@@ -29,7 +29,9 @@
                             ۱.نوع حساب حقیقی یا حقوقی مشخص شود<br>
                             ۲.حساب حقوقی حتما باید اطلاعات نام مدیرعامل،شناسه ملی و اسم کامل شرکت درج شود<br>
                             ۳.کد پستی و آدرس الزامی است<br>
-                            ۴.در صورتیکه اطلاعات ناقص باشد حساب کاربری شما تایید نخواهد شد و قادر به شرکت در نمایشگاه نخواهید بود
+                            ۴.برای اشخاص حقوقی و حقیقی بارگذاری تصویر کارت ملی اجباری است<br>
+                            ۵.اشخاص حقوقی تصویر کارت ملی نماینده تام الاختیار اجباری است<br>
+                            ۶.در صورتیکه اطلاعات ناقص باشد حساب کاربری شما تایید نخواهد شد و قادر به شرکت در نمایشگاه نخواهید بود
                         </p>
                     </div>
                 </div>
@@ -60,7 +62,7 @@
                     <h4>مشخصات</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                     <div class="form-group row">
                         <div class="form-group col-md-12">
@@ -286,8 +288,22 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
+                        <div class="form-group col-md-12">
+                            {{ form.id_file.label_tag }}
+                            {{ form.id_file }}
+                            {% if form.id_file.errors %}
+                                {% for error in form.id_file.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            {% if form.label_tag.errors %}
+                                {% for error in form.label_tag.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
                     </div>
-                    <input type="submit" value="ایجاد حساب" class="btn btn-success">
+                    <input type="submit" value="ذخیره حساب" class="btn btn-success">
                 </form>
                 </div>
             </div>
