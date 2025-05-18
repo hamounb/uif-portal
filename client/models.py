@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 def documents_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f"{instance.customer.brand}/{filename}"
+    return f"{instance.customer.pk}/{filename}"
     # "{0}/{1}".format(instance.user.id, filename)
 
 
@@ -217,6 +217,44 @@ class PaymentModel(BaseModel):
     ]
         verbose_name = 'پرداخت'
         verbose_name_plural = 'پرداخت‌ها'
+
+
+class RequestModel(BaseModel):
+    STATE_ACCEPT = 'accept'
+    STATE_DENY = 'deny'
+    STATE_WAIT = 'wait'
+    STATE_CHOICES = (
+        (STATE_ACCEPT, 'قبول شده'),
+        (STATE_DENY, 'رد شده'),
+        (STATE_WAIT, 'انتظار'),
+    )
+    state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_WAIT)
+    exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.CASCADE, verbose_name="عنوان نمایشگاه")
+    customer = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, verbose_name="مشارکت کننده")
+    description = models.TextField(verbose_name="توضیحات و محصولات")
+    message = models.TextField(verbose_name="پیام")
+
+    def __str__(self):
+        return f"{self.customer.brand}-{self.exhibition.title}"
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["exhibition", "customer"], name='exhcus')
+    ]
+        verbose_name = 'درخواست'
+        verbose_name_plural = 'درخواست‌ها'
+
+
+class RequestDocumentsModel(BaseModel):
+    request = models.ForeignKey(RequestModel, on_delete=models.CASCADE, verbose_name="درخواست")
+    file = models.FileField(verbose_name="مدارک", upload_to=documents_directory_path)
+
+    def __str__(self):
+        return f"{self.request.customer.brand}-{self.request.exhibition.title}"
+    
+    class Meta:
+        verbose_name = 'مدرک درخواست'
+        verbose_name_plural = 'مدارک درخواست‌ها'
 
 
 # class DepositModel(BaseModel):

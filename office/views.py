@@ -9,6 +9,7 @@ from django.contrib import messages
 from client.models import *
 from accounts.models import MobileModel
 from django.db.utils import IntegrityError
+from accounts.payamak import send_sms
 
 # Create your views here.
 
@@ -353,6 +354,21 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
                 return render(request, 'office/customer-change.html', context)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/customer-change.html', context)
+
+
+class ProfileAcceptView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.add_customermodel']
+
+    def get(self, request, pid):
+        profile = get_object_or_404(CustomerModel, pk=pid)
+        mobile = get_object_or_404(MobileModel, user=profile.user)
+        profile.is_active = True
+        profile.save()
+        ref = request.META.get('HTTP_REFERER')
+        messages.success(request, f"مشارکت کننده با نام تجاری {profile.brand} با موفقیت تایید شد.")
+        send_sms(id=330570, mobile=f"{mobile.mobile}", args=[profile.brand])
+        return redirect(ref)
     
 
 class CustomerExhibitionView(PermissionRequiredMixin, views.View):

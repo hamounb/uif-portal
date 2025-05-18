@@ -83,8 +83,8 @@
                                                 </td>
                                                 <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
-                                                    <a class="mr-2 text-success" href="{% url 'office:documents-accept' fid=doc.pk %}" data-toggle="tooltip" data-original-title="تایید"><i class="icon-check" style="font-size:large"></i></a>
-                                                    <a class="mr-2 text-info" href="{% url 'office:documents-del' fid=doc.pk %}" data-toggle="tooltip" data-original-title="حذف"><i class="icon-trash-2" style="font-size:large"></i></a>
+                                                    <a class="mr-2 text-success" href="{% url 'office:profile-accept' pid=customer.pk %}" data-toggle="tooltip" data-original-title="تایید"><i class="icon-check" style="font-size:large"></i></a>
+                                                    <a class="mr-2 text-info" href="{% url 'office:profile-del' pid=customer.pk %}" data-toggle="tooltip" data-original-title="حذف"><i class="icon-trash-2" style="font-size:large"></i></a>
                                                 </td>
                                             </tr>
                                             {% endfor %}

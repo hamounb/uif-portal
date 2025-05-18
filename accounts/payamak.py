@@ -5,7 +5,8 @@ from random import randint
 def send_sms(id, mobile, args):
     data = {'bodyId': id, 'to': mobile, 'args': args}
     response = requests.post('https://console.melipayamak.com/api/send/shared/8265f04cef6145c3be077c6f34e656c1', json=data)
-    print(response.json())
+    x = response.json()
+    return {"status":x["status"], "recid":x["recId"]}
 
 # def send_token(mobile:str):
 #     data = {'to': mobile}
