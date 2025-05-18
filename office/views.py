@@ -371,6 +371,20 @@ class ProfileAcceptView(PermissionRequiredMixin, views.View):
         return redirect(ref)
     
 
+class ProfileDenyView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.add_customermodel']
+
+    def get(self, request, pid):
+        profile = get_object_or_404(CustomerModel, pk=pid)
+        mobile = get_object_or_404(MobileModel, user=profile.user)
+        profile.is_active = False
+        profile.save()
+        ref = request.META.get('HTTP_REFERER')
+        messages.erro(request, f"مشارکت کننده با نام تجاری {profile.brand} تایید نشد!")
+        return redirect(ref)
+    
+
 class CustomerExhibitionView(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
     permission_required = ['client.add_invoicemodel']

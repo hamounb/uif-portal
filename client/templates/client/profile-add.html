@@ -62,7 +62,7 @@
                     <h4>مشخصات</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post">
                         {% csrf_token %}
                     <div class="form-group row">
                         <div class="form-group col-md-12">
@@ -279,20 +279,6 @@
                             {{ form.address }}
                             {% if form.address.errors %}
                                 {% for error in form.address.errors %}
-                                    <p class="text-danger">{{ error }}</p>
-                                {% endfor %}
-                            {% endif %}
-                            {% if form.label_tag.errors %}
-                                {% for error in form.label_tag.errors %}
-                                    <p class="text-danger">{{ error }}</p>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="form-group col-md-12">
-                            {{ form.id_file.label_tag }}
-                            {{ form.id_file }}
-                            {% if form.id_file.errors %}
-                                {% for error in form.id_file.errors %}
                                     <p class="text-danger">{{ error }}</p>
                                 {% endfor %}
                             {% endif %}

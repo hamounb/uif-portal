@@ -63,7 +63,7 @@ class ProfileAddView(LoginRequiredMixin, views.View):
             "last_name":user.last_name,
             "mobile":mobile.mobile,
         }
-        form = ProfileAddForm(request.POST, request.FILES, initial=items)
+        form = ProfileAddForm(request.POST, initial=items)
         context = {
             "form":form,
         }
@@ -78,7 +78,6 @@ class ProfileAddView(LoginRequiredMixin, views.View):
             email = form.cleaned_data.get("email")
             postalcode = form.cleaned_data.get("postalcode")
             address = form.cleaned_data.get("address")
-            id_file = form.cleaned_data.get("id_file")
             if kind == CustomerModel.KIND_REAL:
                 customer = CustomerModel(
                     is_active=False,
@@ -125,8 +124,6 @@ class ProfileAddView(LoginRequiredMixin, views.View):
             except IntegrityError:
                 messages.error(request, f"قبلا نام تجاری {brand} با کدملی {user.username} ثبت شده است!")
                 return redirect("client:profile-add")
-            document = DocumentsModel(customer=customer, file=id_file, user_created=user, user_modified=user)
-            document.save()
             messages.success(request, f"حساب کاربری شما با نام تجاری {brand} با موفقیت ثبت شد.")
             return redirect("client:profile")
         return render(request, "client/profile-add.html", context)
@@ -181,7 +178,7 @@ class ProfileEditView(LoginRequiredMixin, views.View):
             "postalcode":profile.postalcode,
             "address":profile.address,
         }
-        form = ProfileAddForm(request.POST, request.FILES, initial=items)
+        form = ProfileAddForm(request.POST, initial=items)
         context = {
             "form":form,
         }
@@ -196,7 +193,6 @@ class ProfileEditView(LoginRequiredMixin, views.View):
             email = form.cleaned_data.get("email")
             postalcode = form.cleaned_data.get("postalcode")
             address = form.cleaned_data.get("address")
-            id_file = form.cleaned_data.get("id_file")
             if kind == CustomerModel.KIND_REAL:
                 profile.is_active = False
                 profile.kind = CustomerModel.KIND_REAL
@@ -234,18 +230,90 @@ class ProfileEditView(LoginRequiredMixin, views.View):
                     profile.address = address
                     profile.user_modified = user
                     profile.save()
-            document = DocumentsModel(customer=profile, file=id_file, user_created=user, user_modified=user)
-            document.save()
             messages.success(request, f"حساب کاربری شما با نام تجاری {brand} با موفقیت ویرایش شد.")
             return redirect("client:profile")
         return render(request, "client/profile-add.html", context)
 
 
-# class ExhibitionView(LoginRequiredMixin, views.View):
-#     login_url = "accounts:signin"
+class DocumentAddView(LoginRequiredMixin, views.View):
+    login_url = "signin"
 
-#     def get(self, request):
-#         user = get_object_or_404(User, pk=request.user.id)
+    def post(self, request, cid):
+        user = get_object_or_404(User, pk=request.user.id)
+        customer = get_object_or_404(CustomerModel, pk=cid)
+        form = DocumentAddForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data.get("file")
+            doc = DocumentsModel(
+                customer=customer,
+                file=file,
+                user_created=user,
+                user_modified=user,
+            )
+            doc.save()
+            messages.success(request, "مدرک جدید با موفقیت بارگذاری شد.")
+            return redirect("client:profile")
+        messages.error(request, "خطای سیستمی رخ داده است، دوباره سعی کنید!")
+        return redirect("client:profile")
+
+
+class ExhibitionView(LoginRequiredMixin, views.View):
+    login_url = "signin"
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        profile = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        if profile:
+            req = RequestModel.objects.filter(customer__user=user)
+        
+
+
+class RequestAddView(LoginRequiredMixin, views.View):
+    login_url = "accounts:signin"
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        exhibition = ExhibitionModel.objects.filter(is_active=True)
+        customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        if not customer:
+            return render(request, "client/permission.html")
+        form = RequestAddForm()
+        context = {
+            "form":form,
+            "exhibition":exhibition,
+            "customer":customer,
+        }
+        return render(request, "client/request-add.html", context)
+
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        exhibition = ExhibitionModel.objects.filter(is_active=True)
+        customer = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
+        form = RequestAddForm(request.POST)
+        context = {
+            "form":form,
+            "exhibition":exhibition,
+            "customer":customer,
+        }
+        print(form)
+        if form.is_valid():
+            exhib = form.cleaned_data.get("exhibition")
+            cus = form.cleaned_data.get("customer")
+            rules = form.cleaned_data.get("rules")
+            description = form.cleaned_data.get("description")
+            req = RequestModel(
+                exhibition=ExhibitionModel.objects.get(pk=exhib),
+                customer=CustomerModel.objects.get(pk=cus),
+                rules=rules,
+                description=description,
+            )
+            try:
+                req.save()
+            except IntegrityError:
+                messages.error(request, f"درخواست شما برای {ExhibitionModel.objects.get(pk=exhib).title} با نام تجاری {CustomerModel.objects.get(pk=cus).brand} قبلا ثبت شده است!")
+                return render(request, "client/request-add.html", context)
+            messages.success(request, f"درخواست شما برای نمایشگاه {req.exhibition.title} با نام تجاری {req.customer.brand} با موفقیت ارسال شد.")
+        return render(request, "client/request-add.html", context)
 
 
 class InvoiceView(LoginRequiredMixin, views.View):

@@ -156,6 +156,37 @@ class PaymentAdmin(admin.ModelAdmin):
             obj.user_created = request.user
             obj.user_modified = request.user
         return super().save_model(request, obj, form, change)
+    
+
+@admin.register(RequestModel)
+class RequestAdmin(admin.ModelAdmin):
+    readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
+    search_fields = ("customer__brand", )
+    list_display = ("pk", "state", "customer", "exhibition", "rules")
+    autocomplete_fields = ("customer", "exhibition")
+    
+    def save_model(self, request, obj, form, change):
+        if change:
+            obj.user_modified = request.user
+        else:
+            obj.user_created = request.user
+            obj.user_modified = request.user
+        return super().save_model(request, obj, form, change)
+    
+
+@admin.register(RequestDocumentsModel)
+class RequestDocumentsAdmin(admin.ModelAdmin):
+    readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
+    search_fields = ("request__pk", )
+    list_display = ("pk", "request", "file")
+    
+    def save_model(self, request, obj, form, change):
+        if change:
+            obj.user_modified = request.user
+        else:
+            obj.user_created = request.user
+            obj.user_modified = request.user
+        return super().save_model(request, obj, form, change)
 
     
 # @admin.register(DepositModel)

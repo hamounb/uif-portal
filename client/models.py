@@ -8,6 +8,11 @@ def documents_directory_path(instance, filename):
     return f"{instance.customer.pk}/{filename}"
     # "{0}/{1}".format(instance.user.id, filename)
 
+def request_documents_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return f"{instance.request.customer.pk}/{filename}"
+    # "{0}/{1}".format(instance.user.id, filename)
+
 
 class BaseModel(models.Model):
     user_modified = models.ForeignKey(
@@ -231,8 +236,9 @@ class RequestModel(BaseModel):
     state = models.CharField(verbose_name="وضعیت", max_length=50, choices=STATE_CHOICES, default=STATE_WAIT)
     exhibition = models.ForeignKey(ExhibitionModel, on_delete=models.CASCADE, verbose_name="عنوان نمایشگاه")
     customer = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, verbose_name="مشارکت کننده")
+    rules = models.BooleanField(verbose_name='قوانین')
     description = models.TextField(verbose_name="توضیحات و محصولات")
-    message = models.TextField(verbose_name="پیام")
+    message = models.TextField(verbose_name="پیام", null=True, blank=True)
 
     def __str__(self):
         return f"{self.customer.brand}-{self.exhibition.title}"
@@ -247,7 +253,7 @@ class RequestModel(BaseModel):
 
 class RequestDocumentsModel(BaseModel):
     request = models.ForeignKey(RequestModel, on_delete=models.CASCADE, verbose_name="درخواست")
-    file = models.FileField(verbose_name="مدارک", upload_to=documents_directory_path)
+    file = models.FileField(verbose_name="مدارک", upload_to=request_documents_directory_path)
 
     def __str__(self):
         return f"{self.request.customer.brand}-{self.request.exhibition.title}"
