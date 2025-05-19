@@ -319,7 +319,6 @@ class RequestAddView(LoginRequiredMixin, views.View):
             "exhibition":exhibition,
             "customer":customer,
         }
-        print(form)
         if form.is_valid():
             exhib = form.cleaned_data.get("exhibition")
             cus = form.cleaned_data.get("customer")

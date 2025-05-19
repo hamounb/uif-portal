@@ -1,16 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
+import os
+from random import randint
 
 # Create your models here.
 
 def documents_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f"{instance.customer.pk}/{filename}"
+    ext = filename.split(".")[-1]
+    filename = f"{randint(100000, 999999)}.{ext}"
+    return os.path.join(f"{instance.customer.pk}/", filename)
     # "{0}/{1}".format(instance.user.id, filename)
 
 def request_documents_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f"{instance.request.customer.pk}/{filename}"
+    ext = filename.split(".")[-1]
+    filename = f"{randint(100000, 999999)}.{ext}"
+    return os.path.join(f"{instance.request.customer.pk}/", filename)
     # "{0}/{1}".format(instance.user.id, filename)
 
 

@@ -382,6 +382,7 @@ class ProfileDenyView(PermissionRequiredMixin, views.View):
         profile.save()
         ref = request.META.get('HTTP_REFERER')
         messages.erro(request, f"مشارکت کننده با نام تجاری {profile.brand} تایید نشد!")
+        send_sms(id=330867, mobile=f"{mobile.mobile}", args=[profile.brand])
         return redirect(ref)
     
 
