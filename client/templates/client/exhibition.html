@@ -1,0 +1,101 @@
+{% extends "base-c.html" %}
+
+{% block title %}
+نمایشگاه‌ها | شرکت نمایشگاه بین‌المللی ارومیه
+{% endblock title %}
+
+{% block content %}
+<section id="page-title">
+    <div class="container">
+        <div class="breadcrumb">
+        </div>
+        <div class="page-title">
+            <h1>لیست درخواست‌ها</h1>
+        </div>
+    </div>
+</section>
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-3 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mt-4">
+                        <ul class="list-icon list-icon-plus list-icon-colored">
+                            <li><a href="{% url 'client:request-add' %}">درخواست جدید</a></li>
+                        </ul>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {% for req in req %}
+            <div class="modal fade" id="modal-{{ req.pk }}" tabindex="-1" role="modal" aria-labelledby="modal-label" aria-hidden="true"
+                style="display: none;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="modal-label">مدرک جدید</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        </div>
+                        <form method="post" action="{% url 'client:request-document-add' rid=req.pk %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <input id="id_file" name="file" type="file" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" class="btn btn-b" value="بارگذاری">
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4>درخواست</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-12">
+                            {% if req.state == "accept" %}
+                            <input class="form-control" type="text" value="درخواست تایید شده">
+                            {% elif req.state == "deny" %}
+                            <input class="form-control" type="text" value="درخواست تایید نشده">
+                            {% else %}
+                            <input class="form-control" type="text" value="در انتظار بررسی">
+                            {% endif %}
+                        </div>
+                        <div class="form-group col-6">
+                            <input class="form-control" type="text" value="{{ req.exhibition.title }}">
+                        </div>
+                        <div class="form-group col-6">
+                            <input class="form-control" type="text" value="{{ req.customer.brand }}">
+                        </div>
+                        <div class="form-group col-12">
+                            <textarea class="form-control" rows="2">{{ req.description }}</textarea>
+                        </div>
+                        <div class="form-group col-12">
+                            <label>پیام مدیر</label>
+                            <textarea class="form-control" rows="2">{% if req.message %}{{ req.message }}{% endif %}</textarea>
+                        </div>
+                        {% for doc in req.requestdocumentsmodel_set.all %}
+                        <div class="form-group col-4">
+                            <a class="" href="{{ doc.file.url }}">{{ doc.file }}<a>
+                        </div>
+                        {% endfor %}
+                        <div class="form-group col-12">
+                            <a class="btn btn-xs btn-success" data-target="#modal-{{ req.pk }}" data-toggle="modal" href="#">مدرک جدید</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

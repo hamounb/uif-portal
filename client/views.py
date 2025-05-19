@@ -263,10 +263,34 @@ class ExhibitionView(LoginRequiredMixin, views.View):
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
         profile = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
-        if profile:
-            req = RequestModel.objects.filter(customer__user=user)
-        
+        if not profile:
+            return render(request, "client/permission.html")
+        req = RequestModel.objects.filter(customer__user=user)
+        context = {
+            "req":req,
+        }
+        return render(request, "client/exhibition.html", context)
+    
 
+class RequestDocumentAddView(LoginRequiredMixin, views.View):
+    login_url = "signin"
+
+    def post(self, request, rid):
+        user = get_object_or_404(User, pk=request.user.id)
+        req = get_object_or_404(RequestModel, pk=rid)
+        form = DocumentAddForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data.get("file")
+            doc = RequestDocumentsModel(
+                request=req,
+                file=file,
+                user_created=user,
+                user_modified=user,
+            )
+            doc.save()
+            return redirect("client:exhibition")
+        return redirect("client:exhibition")
+        
 
 class RequestAddView(LoginRequiredMixin, views.View):
     login_url = "accounts:signin"

@@ -1342,13 +1342,13 @@ class ExhibitionStatusView(PermissionRequiredMixin, views.View):
         return render(request, "office/exhibition-status.html", context)
     
 
-# class RequestListView(PermissionRequiredMixin, views.View):
-#     login_url = 'accounts:signin'
-#     permission_required = ['client.view_requestmodel']
+class RequestListView(PermissionRequiredMixin, views.View):
+    login_url = 'accounts:signin'
+    permission_required = ['client.view_requestmodel']
 
-#     def get(self, request):
-#         req = RequestModel.objects.all().order_by('-created_date')
-#         return render(request, 'office/request-list.html', {'req':req})
+    def get(self, request):
+        req = RequestModel.objects.all().order_by('-created_date')
+        return render(request, 'office/request-list.html', {'req':req})
     
 
 # class RequestDetailsView(PermissionRequiredMixin, views.View):
