@@ -1,13 +1,19 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import TokenModel
+    
+def persian_digits_to_english(s:str):
+    persian_digits = "۰۱۲۳۴۵۶۷۸۹"
+    english_digits = "0123456789"
+    translate_table = str.maketrans(persian_digits, english_digits)
+    return s.translate(translate_table)
 
 def is_code(value):
-    if len(value) != 10 or not str(value).isnumeric():
+    if len(value) != 10 or not str(persian_digits_to_english(value)).isnumeric():
         raise ValidationError('کد ملی صحیح نمی‌باشد!')
     
 def is_mobile(value):
-    if not str(value).isnumeric() or len(value) !=11 or str(value)[0] != '0':
+    if not str(persian_digits_to_english(value)).isnumeric() or len(value) !=11 or str(persian_digits_to_english(value))[0] != '0':
         raise ValidationError('شماره موبایل صحیح نمی‌باشد!')
 
 class SignUpForm(forms.Form):

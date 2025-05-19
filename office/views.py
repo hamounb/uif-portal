@@ -12,6 +12,13 @@ from django.db.utils import IntegrityError
 from accounts.payamak import send_sms
 
 # Create your views here.
+    
+def persian_digits_to_english(s:str):
+    persian_digits = "۰۱۲۳۴۵۶۷۸۹"
+    english_digits = "0123456789"
+    translate_table = str.maketrans(persian_digits, english_digits)
+    return s.translate(translate_table)
+
 
 class Test(PermissionRequiredMixin, views.View):
     login_url = 'accounts:signin'
@@ -60,8 +67,8 @@ class UserAddView(PermissionRequiredMixin, views.View):
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
-            code = form.cleaned_data.get('code')
-            mobile = form.cleaned_data.get('mobile')
+            code = persian_digits_to_english(form.cleaned_data.get('code'))
+            mobile = persian_digits_to_english(form.cleaned_data.get('mobile'))
             is_active = form.cleaned_data.get('is_active')
             is_staff = form.cleaned_data.get('is_staff')
             user = User(
@@ -122,16 +129,16 @@ class CustomerAddView(PermissionRequiredMixin, views.View):
             is_active = form.cleaned_data.get("is_active")
             first_name = form.cleaned_data.get("first_name")
             last_name = form.cleaned_data.get("last_name")
-            code = form.cleaned_data.get("code")
+            code = persian_digits_to_english(form.cleaned_data.get("code"))
             brand = form.cleaned_data.get("brand")
             ceoname = form.cleaned_data.get("ceoname")
             company = form.cleaned_data.get("company")
-            ncode = form.cleaned_data.get("ncode")
-            mobile = form.cleaned_data.get("mobile")
-            phone = form.cleaned_data.get("phone")
-            fax = form.cleaned_data.get("fax")
+            ncode = persian_digits_to_english(form.cleaned_data.get("ncode"))
+            mobile = persian_digits_to_english(form.cleaned_data.get("mobile"))
+            phone = persian_digits_to_english(form.cleaned_data.get("phone"))
+            fax = persian_digits_to_english(form.cleaned_data.get("fax"))
             email = form.cleaned_data.get("email")
-            postalcode = form.cleaned_data.get("postalcode")
+            postalcode = persian_digits_to_english(form.cleaned_data.get("postalcode"))
             address = form.cleaned_data.get("address")
             if kind == "legal":
                 if not ncode:
@@ -414,9 +421,9 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             exhibition = form.cleaned_data.get("exhibition")
-            area = form.cleaned_data.get("area")
-            discount = form.cleaned_data.get("discount")
-            booth_number = form.cleaned_data.get("booth_number")
+            area = persian_digits_to_english(form.cleaned_data.get("area"))
+            discount = persian_digits_to_english(form.cleaned_data.get("discount"))
+            booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
             invoice_n = InvoiceModel(
                 wallet=wallet,
                 exhibition=exhibition,
@@ -487,9 +494,9 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             exhibition = form.cleaned_data.get("exhibition")
-            area = form.cleaned_data.get("area")
-            discount = form.cleaned_data.get("discount")
-            booth_number = form.cleaned_data.get("booth_number")
+            area = persian_digits_to_english(form.cleaned_data.get("area"))
+            discount = persian_digits_to_english(form.cleaned_data.get("discount"))
+            booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
             invo.exhibition = exhibition
             invo.booth_number = booth_number
             invo.area = area
@@ -662,9 +669,9 @@ class InvoiceEditView(PermissionRequiredMixin, views.View):
             is_active = form.cleaned_data.get("is_active")
             wallet = form.cleaned_data.get("wallet")
             exhibition = form.cleaned_data.get("exhibition")
-            booth_number = form.cleaned_data.get("booth_number")
-            area = form.cleaned_data.get("area")
-            discount = form.cleaned_data.get("discount")
+            booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
+            area = persian_digits_to_english(form.cleaned_data.get("area"))
+            discount = persian_digits_to_english(form.cleaned_data.get("discount"))
             invoice.is_active = is_active
             invoice.wallet = wallet
             invoice.exhibition = exhibition
@@ -742,10 +749,10 @@ class PaymentAddView(PermissionRequiredMixin, views.View):
         if form.is_valid():
             state = form.cleaned_data.get("state")
             bank = form.cleaned_data.get("bank")
-            amount = form.cleaned_data.get("amount")
+            amount = persian_digits_to_english(form.cleaned_data.get("amount"))
             check = form.cleaned_data.get("check")
             name = form.cleaned_data.get("name")
-            tracenumber = form.cleaned_data.get("tracenumber")
+            tracenumber = persian_digits_to_english(form.cleaned_data.get("tracenumber"))
             datepaid = form.cleaned_data.get("datepaid")
             description = form.cleaned_data.get("description")
             payment = PaymentModel()
@@ -862,11 +869,11 @@ class PaymentEditView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             state = form.cleaned_data.get("state")
-            amount = form.cleaned_data.get("amount")
+            amount = persian_digits_to_english(form.cleaned_data.get("amount"))
             check = form.cleaned_data.get("check")
             issuerbank = form.cleaned_data.get("issuerbank")
             name = form.cleaned_data.get("name")
-            tracenumber = form.cleaned_data.get("tracenumber")
+            tracenumber = persian_digits_to_english(form.cleaned_data.get("tracenumber"))
             datepaid = form.cleaned_data.get("datepaid")
             description = form.cleaned_data.get("description")
             if state == PaymentModel.STATE_CASH:
@@ -1205,9 +1212,9 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             customer = form.cleaned_data["customer"]
             customer_id = get_object_or_404(CustomerModel, pk=customer.id)
             wallet = get_object_or_404(WalletModel, user=customer_id.user)
-            booth_number = form.cleaned_data.get("booth_number")
-            area_c = form.cleaned_data.get("area")
-            discount = form.cleaned_data.get("discount")
+            booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
+            area_c = persian_digits_to_english(form.cleaned_data.get("area"))
+            discount = persian_digits_to_english(form.cleaned_data.get("discount"))
             pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
             total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice = InvoiceModel(
@@ -1297,9 +1304,9 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
         if form.is_valid():
             customer = form.cleaned_data.get("customer")
             wallet = get_object_or_404(WalletModel, user=customer.user)
-            booth_number = form.cleaned_data.get("booth_number")
-            area_c = form.cleaned_data.get("area")
-            discount = form.cleaned_data.get("discount")
+            booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
+            area_c = persian_digits_to_english(form.cleaned_data.get("area"))
+            discount = persian_digits_to_english(form.cleaned_data.get("discount"))
             pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
             total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice.wallet = wallet
@@ -1349,7 +1356,30 @@ class RequestListView(PermissionRequiredMixin, views.View):
 
     def get(self, request):
         req = RequestModel.objects.all().order_by('-created_date')
-        return render(request, 'office/request-list.html', {'req':req})
+        form = RequestStateForm()
+        return render(request, 'office/request-list.html', {'req':req, 'form':form})
+    
+
+class RequestStateView(PermissionRequiredMixin, views.View):
+    login_url = "accounts:signin"
+    permission_required = ['client.view_requestmodel', 'client.change_requestmodel']
+
+    def post(self, request, rid):
+        req = get_object_or_404(RequestModel, pk=rid)
+        mobile = get_object_or_404(MobileModel, user=req.customer.user)
+        form = RequestStateForm(request.POST)
+        if form.is_valid():
+            state = form.cleaned_data.get("state")
+            message = form.cleaned_data.get("message")
+            req.state = state
+            req.message = message
+            req.save()
+            messages.success(request, "پیام شما با موفقیت ارسال شد.")
+            send_sms(id=330572, mobile=mobile.mobile, args=[f"{req.customer.brand}"])
+            return redirect("office:request-list")
+        messages.error(request, "خطای سیستمی رخ داده است و پیام شما ارسال نشد!")
+        return redirect("office:request-list")
+
     
 
 # class RequestDetailsView(PermissionRequiredMixin, views.View):

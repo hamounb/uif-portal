@@ -4,38 +4,44 @@ from django.core.exceptions import ValidationError
 from jalali_date.fields import JalaliDateField
 from jalali_date.widgets import AdminJalaliDateWidget
 from crm.settings import Terminal_id
+    
+def persian_digits_to_english(s:str):
+    persian_digits = "۰۱۲۳۴۵۶۷۸۹"
+    english_digits = "0123456789"
+    translate_table = str.maketrans(persian_digits, english_digits)
+    return s.translate(translate_table)
 
 def is_code(value):
-    if len(value) != 10 or not str(value).isnumeric():
+    if len(value) != 10 or not str(persian_digits_to_english(value)).isnumeric():
         raise ValidationError('کد ملی صحیح نمی‌باشد!')
     
 def is_mobile(value):
-    if not str(value).isnumeric() or len(value) !=11 or str(value)[0] != '0':
+    if not str(persian_digits_to_english(value)).isnumeric() or len(value) !=11 or str(persian_digits_to_english(value))[0] != '0':
         raise ValidationError('شماره موبایل صحیح نمی‌باشد!')
     
 def is_phone(value):
-    if not str(value).isnumeric() or len(value) !=11 or str(value)[0] != '0':
+    if not str(persian_digits_to_english(value)).isnumeric() or len(value) !=11 or str(persian_digits_to_english(value))[0] != '0':
         raise ValidationError('شماره تلفن صحیح نمی‌باشد!')
     
 def is_ncode(value):
-    if len(value) != 11 or not str(value).isnumeric():
+    if len(value) != 11 or not str(persian_digits_to_english(value)).isnumeric():
         raise ValidationError("شناسه ملی صحیح نمی‌باشد.")
     
 def is_postal(value):
-    if len(value) != 10 or not str(value).isnumeric():
+    if len(value) != 10 or not str(persian_digits_to_english(value)).isnumeric():
         raise ValidationError('کد پستی صحیح نمی‌باشد!')
     
 def is_positive(value):
-    if not str(value).isnumeric():
+    if not str(persian_digits_to_english(value)).isnumeric():
         raise ValidationError('لطفاً فقط عدد وارد کنید!')
-    if str(value).isnumeric():
+    if str(persian_digits_to_english(value)).isnumeric():
         if int(value) < 1:
             raise ValidationError('عدد باید بزرگتر از صفر باشد!')
         
 def is_discount(value):
-    if not str(value).isnumeric():
+    if not str(persian_digits_to_english(value)).isnumeric():
         raise ValidationError('لطفاً فقط عدد وارد کنید!')
-    if str(value).isnumeric():
+    if str(persian_digits_to_english(value)).isnumeric():
         if int(value) < 0:
             raise ValidationError('کمترین مقدار می‌تواند عدد صفر باشد!')
         

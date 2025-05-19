@@ -13,6 +13,13 @@ import requests
 from crm.settings import Terminal_id
 
 # Create your views here.
+    
+def persian_digits_to_english(s:str):
+    persian_digits = "۰۱۲۳۴۵۶۷۸۹"
+    english_digits = "0123456789"
+    translate_table = str.maketrans(persian_digits, english_digits)
+    return s.translate(translate_table)
+
 
 class IndexView(LoginRequiredMixin, views.View):
     login_url = "accounts:signin"
@@ -72,11 +79,11 @@ class ProfileAddView(LoginRequiredMixin, views.View):
             brand = form.cleaned_data.get("brand")
             ceoname = form.cleaned_data.get("ceoname")
             company = form.cleaned_data.get("company")
-            ncode = form.cleaned_data.get("ncode")
-            phone = form.cleaned_data.get("phone")
-            fax = form.cleaned_data.get("fax")
+            ncode = persian_digits_to_english(form.cleaned_data.get("ncode"))
+            phone = persian_digits_to_english(form.cleaned_data.get("phone"))
+            fax = persian_digits_to_english(form.cleaned_data.get("fax"))
             email = form.cleaned_data.get("email")
-            postalcode = form.cleaned_data.get("postalcode")
+            postalcode = persian_digits_to_english(form.cleaned_data.get("postalcode"))
             address = form.cleaned_data.get("address")
             if kind == CustomerModel.KIND_REAL:
                 customer = CustomerModel(
@@ -187,11 +194,11 @@ class ProfileEditView(LoginRequiredMixin, views.View):
             brand = form.cleaned_data.get("brand")
             ceoname = form.cleaned_data.get("ceoname")
             company = form.cleaned_data.get("company")
-            ncode = form.cleaned_data.get("ncode")
-            phone = form.cleaned_data.get("phone")
-            fax = form.cleaned_data.get("fax")
+            ncode = persian_digits_to_english(form.cleaned_data.get("ncode"))
+            phone = persian_digits_to_english(form.cleaned_data.get("phone"))
+            fax = persian_digits_to_english(form.cleaned_data.get("fax"))
             email = form.cleaned_data.get("email")
-            postalcode = form.cleaned_data.get("postalcode")
+            postalcode = persian_digits_to_english(form.cleaned_data.get("postalcode"))
             address = form.cleaned_data.get("address")
             if kind == CustomerModel.KIND_REAL:
                 profile.is_active = False
@@ -265,7 +272,7 @@ class ExhibitionView(LoginRequiredMixin, views.View):
         profile = CustomerModel.objects.filter(Q(user=user) & Q(is_active=True))
         if not profile:
             return render(request, "client/permission.html")
-        req = RequestModel.objects.filter(customer__user=user)
+        req = RequestModel.objects.filter(customer__user=user).order_by("-modified_date")
         context = {
             "req":req,
         }
@@ -336,6 +343,7 @@ class RequestAddView(LoginRequiredMixin, views.View):
                 messages.error(request, f"درخواست شما برای {ExhibitionModel.objects.get(pk=exhib).title} با نام تجاری {CustomerModel.objects.get(pk=cus).brand} قبلا ثبت شده است!")
                 return render(request, "client/request-add.html", context)
             messages.success(request, f"درخواست شما برای نمایشگاه {req.exhibition.title} با نام تجاری {req.customer.brand} با موفقیت ارسال شد.")
+            return redirect("client:exhibition")
         return render(request, "client/request-add.html", context)
 
 

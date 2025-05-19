@@ -227,3 +227,16 @@ class DepositAddForm(forms.Form):
 
 class DepositExhibitionForm(forms.Form):
     exhibition = forms.ModelChoiceField(queryset=ExhibitionModel.objects.filter(is_active=True), label="نمایشگاه")
+
+
+class RequestStateForm(forms.Form):
+    STATE_ACCEPT = 'accept'
+    STATE_DENY = 'deny'
+    STATE_WAIT = 'wait'
+    STATE_CHOICES = (
+        (STATE_WAIT, 'در انتظار بررسی'),
+        (STATE_ACCEPT, 'قبول شده'),
+        (STATE_DENY, 'رد شده'),
+    )
+    state = forms.CharField(widget=forms.Select(attrs={"class":"form-control"}, choices=STATE_CHOICES), label="وضعیت درخواست", required=True)
+    message = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control", "rows":4}), label="پیام مدیر", required=False)

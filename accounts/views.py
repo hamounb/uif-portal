@@ -14,6 +14,14 @@ from client.models import WalletModel
 
 # Create your views here.
 
+def persian_digits_to_english(s:str):
+    persian_digits = "۰۱۲۳۴۵۶۷۸۹"
+    english_digits = "0123456789"
+    translate_table = str.maketrans(persian_digits, english_digits)
+    return s.translate(translate_table)
+
+
+
 class SignUpView(views.View):
     
     def get(self, request):
@@ -25,32 +33,49 @@ class SignUpView(views.View):
         if form.is_valid():
             firstname = form.cleaned_data.get('first_name')
             lastname = form.cleaned_data.get('last_name')
-            code = form.cleaned_data.get('code')
-            mobile = form.cleaned_data.get('mobile')
-            new = User(username=code, first_name=firstname, last_name=lastname)
-            new.set_password(mobile)
-            new.is_active = False
+            code = persian_digits_to_english(form.cleaned_data.get('code'))
+            mobile = persian_digits_to_english(form.cleaned_data.get('mobile'))
             try:
-                new.save()
-            except IntegrityError as e:
+                new_user = User.objects.get(username=code)
+            except User.DoesNotExist:
+                new_user = User(
+                    username=code,
+                    first_name=firstname,
+                    last_name=lastname,
+                )
+                new_user.set_password(mobile)
+                new_user.is_active = False
+                new_user.save()
+            if new_user.is_active:
                 messages.error(request, 'قبلا با این کد ملی حساب کاربری ایجاد شده است!')
                 return render(request, 'accounts/signup.html', {'form':form})
-            wallet = WalletModel(user=new)
             try:
-                wallet.save()
-            except IntegrityError:
+                wallet = WalletModel.objects.get(user=new_user)
                 wallet.cash = "0"
                 wallet.save()
+            except WalletModel.DoesNotExist:
+                wallet = WalletModel(
+                    user=new_user,
+                    cash="0",
+                    user_created=new_user,
+                )
+                wallet.save()
             try:
-                tk = TokenModel.objects.get(user=new)
+                mobile_model = MobileModel.objects.get(user=new_user)
+                mobile_model.mobile = mobile
+                mobile_model.save
+            except MobileModel.DoesNotExist:
+                mobile_model = MobileModel(
+                    user=new_user,
+                    mobile=mobile,
+                )
+                mobile_model.save()
+            try:
+                tk = TokenModel.objects.get(user=new_user)
             except TokenModel.DoesNotExist:
                 otp = send_token(mobile)
-                tk = TokenModel(user=new, otp=otp['code'], status=otp['status'])
+                tk = TokenModel(user=new_user, otp=otp['code'], status=otp['status'])
                 tk.save()
-                number = MobileModel()
-                number.user = new
-                number.mobile = mobile
-                number.save()
                 return redirect('accounts:verify', code=code)
             otp = send_token(mobile)
             tk.otp = otp['code']
@@ -90,7 +115,7 @@ class MobileVerifyView(views.View):
                 messages.error(request, "خطای سیستمی رخ داده است، لطفا دوباره سعی کنید!")
                 return redirect('accounts:signin')
             if form.is_valid():
-                otp = form.cleaned_data['otp']
+                otp = persian_digits_to_english(form.cleaned_data['otp'])
                 if tk.otp == otp:
                     if datetime.now() - datetime(
                         year=tk.modified_date.year, month=tk.modified_date.month, day=tk.modified_date.day, hour=tk.modified_date.hour, minute=tk.modified_date.minute, second=tk.modified_date.second, microsecond=tk.modified_date.microsecond) > timedelta(2):
@@ -128,7 +153,7 @@ class ChangeMobileView(views.View):
         if not user.is_active and not user.is_staff:
             form = ChangeMobileForm(request.POST)
             if form.is_valid():
-                mobile = form.cleaned_data.get('mobile')
+                mobile = persian_digits_to_english(form.cleaned_data.get('mobile'))
                 user.set_password(mobile)
                 user.save()
                 otp = send_token(mobile)
@@ -198,8 +223,8 @@ class SignInView(views.View):
             return redirect('client:index')
         form = LoginForm(request.POST)
         if form.is_valid():
-            code = form.cleaned_data.get('code')
-            mobile = form.cleaned_data.get('mobile')
+            code = persian_digits_to_english(form.cleaned_data.get('code'))
+            mobile = persian_digits_to_english(form.cleaned_data.get('mobile'))
             try:
                 user = User.objects.get(username=code)
             except User.DoesNotExist:
