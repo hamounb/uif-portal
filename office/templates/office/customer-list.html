@@ -81,7 +81,7 @@
                                                 <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
                                                     <a class="btn btn-sm" href="{% url 'office:customer-change' cid=customer.pk %}">مشاهده و ویرایش</a>
-                                                    {% comment %} <a class="btn btn-sm" href="{% url 'office:customer-change' cid=customer.pk %}">مدارک</a> {% endcomment %}
+                                                    <a class="btn btn-sm" href="{% url 'office:customer-documents' cid=customer.pk %}">مدارک</a>
                                                     <a class="btn btn-success btn-sm" href="{% url 'office:customer-exhibition' id=customer.pk %}"> نمایشگاه ها</a>
                                                 </td>
                                             </tr>

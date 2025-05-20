@@ -316,13 +316,11 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
         query = Q(pk=cid) & Q(is_active=True)
         customer = get_object_or_404(CustomerModel, query)
         form = CustomerChangeForm(instance=customer)
-        docs = DocumentsModel.objects.filter(user=customer.user).order_by('-created_date')
         form2 = DocumentForm()
         context = {
             'form':form,
             'form2':form2,
             'customer':customer,
-            'docs':docs,
         }
         return render(request, 'office/customer-change.html', context)
     
@@ -361,6 +359,20 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
                 return render(request, 'office/customer-change.html', context)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/customer-change.html', context)
+    
+
+class CustomerDocumentsView(PermissionRequiredMixin, views.View):
+    login_url = "accounts:signin"
+    permission_required = ['client.view_customermodel']
+
+    def get(self, request, cid):
+        docs = DocumentsModel.objects.filter(customer__pk=cid)
+        req_docs = RequestDocumentsModel.objects.filter(request__customer__pk=cid)
+        context = {
+            "docs":docs,
+            "req_docs":req_docs,
+        }
+        return render(request, "office/customer-documents.html", context)
 
 
 class ProfileAcceptView(PermissionRequiredMixin, views.View):

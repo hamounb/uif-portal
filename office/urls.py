@@ -8,6 +8,7 @@ urlpatterns = [
     path('home/', HomeView.as_view(), name='home'),
     path('user/add/', UserAddView.as_view(), name='user-add'),
     path('customer/list/', CustomerListView.as_view(), name='customer-list'),
+    path('customer/documents/<int:cid>/', CustomerDocumentsView.as_view(), name='customer-documents'),
     path('deactive/customer/list/', DeactiveCustomerListView.as_view(), name='deactive-customer-list'),
     path('profile/accept/<int:pid>/', ProfileAcceptView.as_view(), name='profile-accept'),
     path('profile/deny/<int:pid>/', ProfileDenyView.as_view(), name='profile-deny'),
