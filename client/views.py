@@ -371,16 +371,23 @@ class InvoiceDetailsView(LoginRequiredMixin, views.View):
         user = get_object_or_404(User, pk=request.user.id)
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         wallet = get_object_or_404(WalletModel, user=user)
+        payments = PaymentModel.objects.filter(invoice=invoice)
         try:
             mobile = MobileModel.objects.get(user=user)
         except MobileModel.DoesNotExist:
             mobile = "-"
         pre_amount = int(int(invoice.amount) / 2)
+        cash = 0
+        for i in payments:
+            cash += i.amount
+        amount = str(int(invoice.amount) - cash)
         context = {
             "invoice":invoice,
             "wallet":wallet,
             "mobile":mobile,
             "pre_amount":pre_amount,
+            "payments":payments,
+            "amount":amount,
         }
         return render(request, "client/invoice-details.html", context)
     
@@ -402,10 +409,7 @@ class PaymentCreateView(LoginRequiredMixin, views.View):
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         callback_url = f"https://www.portal.urmiafair.com/client/payment/{invoice.pk}/done"
         zb = zibal.zibal(merchant_id, callback_url)
-        if pay == "pre":
-            amount = int(int(invoice.amount) / 2)
-        else:
-            amount = invoice.amount
+        amount = pay
         request_to_zibal = zb.request(amount, invoice.pk)
         track_id = request_to_zibal['trackId']
         if request_to_zibal['result'] == 100:
@@ -413,16 +417,18 @@ class PaymentCreateView(LoginRequiredMixin, views.View):
         return render(request, "client/error.html")
     
 
-class PaymentDoneView(LoginRequiredMixin, views.View):
+class PaymentDoneView(views.View):
     login_url = "accounts:signin"
 
     def get(self, request, iid):
         user = get_object_or_404(User, pk=request.user.id)
         invoice = get_object_or_404(InvoiceModel, pk=iid)
         wallet = get_object_or_404(WalletModel, user=user)
-        track_id = request.GET.get("trackID")
-        zb = zibal.zibal(merchant_id)
+        track_id = request.GET.get("trackId")
+        callback_url = f"https://www.portal.urmiafair.com/client/payment/{invoice.pk}/done"
+        zb = zibal.zibal(merchant_id, callback_url)
         verify_zibal = zb.verify(track_id)
+        result = verify_zibal["refNumber"]
         if verify_zibal["result"] == 100 and verify_zibal["status"] == 1:
             payment = PaymentModel(
                 state=PaymentModel.STATE_IPG,
@@ -436,9 +442,19 @@ class PaymentDoneView(LoginRequiredMixin, views.View):
                 datepaid=verify_zibal["paidAt"]
             )
             payment.save()
-            invoice.state = InvoiceModel.STATE_PAID
-            invoice.save()
-            messages.success(request, f"تراکنش شما با موفقیت انجام شد، شماره پیگیری: {verify_zibal["refNumber"]}.")
+            payments = PaymentModel.objects.filter(invoice=invoice)
+            total = 0
+            for p in payments:
+                total += p.amount
+            if invoice.amount == str(total):
+                invoice.state = InvoiceModel.STATE_PAID
+                invoice.save()
+            else:
+                cash = int(wallet.cash)
+                cash += int(payment.amount)
+                wallet.cash = str(cash)
+                wallet.save()
+            messages.success(request, f"تراکنش شما با موفقیت انجام شد، شماره پیگیری: {str(result)}.")
             return render(request, "client/payment-done.html", {"code":"100"})
         elif verify_zibal["result"] == 100 and verify_zibal["status"] == 2:
             verify_zibal = zb.verify(track_id)
@@ -455,10 +471,20 @@ class PaymentDoneView(LoginRequiredMixin, views.View):
                     datepaid=verify_zibal["paidAt"]
                 )
                 payment.save()
-                invoice.state = InvoiceModel.STATE_PAID
-                invoice.save()
-                messages.success(request, f"تراکنش شما با موفقیت انجام شد، شماره پیگیری: {verify_zibal["refNumber"]}.")
-                return render(request, "client/payment-done.html", {"code":"100"})
+                payments = PaymentModel.objects.filter(invoice=invoice)
+                total = 0
+                for p in payments:
+                    total += p.amount
+                if invoice.amount == str(total):
+                    invoice.state = InvoiceModel.STATE_PAID
+                    invoice.save()
+                else:
+                    cash = int(wallet.cash)
+                    cash += int(payment.amount)
+                    wallet.cash = str(cash)
+                    wallet.save()
+                    messages.success(request, f"تراکنش شما با موفقیت انجام شد، شماره پیگیری: {str(result)}.")
+                    return render(request, "client/payment-done.html", {"code":"100"})
             messages.error(request, "تراکنش شما ناموفق بوده است، هیچ پاسخی از بانک دریافت نشد!.")
             return render(request, "client/payment-done.html", {"code":"202"})
         else:
@@ -471,3 +497,4 @@ class RequestExhibitionView(LoginRequiredMixin, views.View):
 
     def get(self, request):
         user = get_object_or_404(User, pk=request.user.id)
+        pass
