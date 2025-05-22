@@ -9,7 +9,6 @@ from django.contrib import messages
 from .models import *
 from accounts.models import MobileModel
 from django.db.utils import IntegrityError
-import requests
 from crm.settings import Terminal_id, merchant_id
 import zibal.zibal as zibal
 
@@ -392,6 +391,32 @@ class InvoiceDetailsView(LoginRequiredMixin, views.View):
         return render(request, "client/invoice-details.html", context)
     
 
+class InvoiceDoneView(LoginRequiredMixin, views.View):
+    login_url = "accounts:signin"
+
+    def get(self, request, iid):
+        user = get_object_or_404(User, pk=request.user.id)
+        invoice = get_object_or_404(InvoiceModel, pk=iid)
+        wallet = get_object_or_404(WalletModel, user=user)
+        payments = PaymentModel.objects.filter(invoice=invoice)
+        cash = 0
+        for i in payments:
+            cash += i.amount
+        amount = str(int(invoice.amount) - cash)
+        if invoice.amount == str(cash) and invoice.state == InvoiceModel.STATE_UNPAID:
+            invoice.user_modified = user
+            invoice.state = InvoiceModel.STATE_PAID
+            invoice.save()
+            amount_wallet = int(wallet.cash) - int(invoice.amount)
+            wallet.cash = str(amount_wallet)
+            wallet.save()
+            messages.success(request, "فاکتور شما با موفقیت تسویه حساب شد.")
+            return redirect("client:invoice-details", iid=invoice.pk)
+        else:
+            messages.error(request, f"موجودی کیف پول شما برای تسویه حساب کافی نیست، مبلغ بدهی: {amount} ریال")
+            return redirect("client:invoice-details", iid=invoice.pk)
+    
+
 class PaymentListView(LoginRequiredMixin, views.View):
     login_url = "accounts:signin"
 
@@ -439,21 +464,14 @@ class PaymentDoneView(views.View):
                 cardnumber=verify_zibal["cardNumber"],
                 respcode=int(verify_zibal["status"]),
                 respmsg=verify_zibal["message"],
-                datepaid=verify_zibal["paidAt"]
+                datepaid=verify_zibal["paidAt"],
+                user_created=user,
             )
             payment.save()
-            payments = PaymentModel.objects.filter(invoice=invoice)
-            total = 0
-            for p in payments:
-                total += p.amount
-            if invoice.amount == str(total):
-                invoice.state = InvoiceModel.STATE_PAID
-                invoice.save()
-            else:
-                cash = int(wallet.cash)
-                cash += int(payment.amount)
-                wallet.cash = str(cash)
-                wallet.save()
+            cash = int(wallet.cash)
+            cash += int(payment.amount)
+            wallet.cash = str(cash)
+            wallet.save()
             messages.success(request, f"تراکنش شما با موفقیت انجام شد، شماره پیگیری: {str(result)}.")
             return render(request, "client/payment-done.html", {"code":"100"})
         elif verify_zibal["result"] == 100 and verify_zibal["status"] == 2:
@@ -468,23 +486,16 @@ class PaymentDoneView(views.View):
                     cardnumber=verify_zibal["cardNumber"],
                     respcode=int(verify_zibal["status"]),
                     respmsg=verify_zibal["message"],
-                    datepaid=verify_zibal["paidAt"]
+                    datepaid=verify_zibal["paidAt"],
+                    user_created=user,
                 )
                 payment.save()
-                payments = PaymentModel.objects.filter(invoice=invoice)
-                total = 0
-                for p in payments:
-                    total += p.amount
-                if invoice.amount == str(total):
-                    invoice.state = InvoiceModel.STATE_PAID
-                    invoice.save()
-                else:
-                    cash = int(wallet.cash)
-                    cash += int(payment.amount)
-                    wallet.cash = str(cash)
-                    wallet.save()
-                    messages.success(request, f"تراکنش شما با موفقیت انجام شد، شماره پیگیری: {str(result)}.")
-                    return render(request, "client/payment-done.html", {"code":"100"})
+                cash = int(wallet.cash)
+                cash += int(payment.amount)
+                wallet.cash = str(cash)
+                wallet.save()
+                messages.success(request, f"تراکنش شما با موفقیت انجام شد، شماره پیگیری: {str(result)}.")
+                return render(request, "client/payment-done.html", {"code":"100"})
             messages.error(request, "تراکنش شما ناموفق بوده است، هیچ پاسخی از بانک دریافت نشد!.")
             return render(request, "client/payment-done.html", {"code":"202"})
         else:

@@ -20,6 +20,24 @@
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-12">
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div role="alert" class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                    {{ message}}
+                </div>
+            {% endif %}
+            {% if message.tags == 'success' %}
+                <div role="alert" class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                    {{ message}}
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="col-md-12">
             <div class="card">
                 <div id="invoiceDiv" class="card-body">
                     <div class="row align-items-center">
@@ -172,7 +190,9 @@
                     <h4 class="card-title">اعتبار کیف پول: {{ wallet.cash|intcomma:False }} ریال</h4>
                     {% if invoice.state == "unpaid" %}
                     {% if payments and amount != "0" %}
-                    <a href="{% url 'client:payment-create' iid=invoice.pk pay=amount %}" class="btn btn-success">تسویه حساب {{ amount|intcomma:False }} ریال</a>
+                    <a href="{% url 'client:payment-create' iid=invoice.pk pay=amount %}" class="btn btn-success">پرداخت مانده {{ amount|intcomma:False }} ریال</a>
+                    {% elif payments and amount == "0" %}
+                    <a href="{% url 'client:invoice-done' iid=invoice.pk %}" class="btn btn-primary">تسویه حساب</a>
                     {% else %}
                     <a href="{% url 'client:payment-create' iid=invoice.pk pay='pre_amount' %}" class="btn btn-primary">پیش پرداخت {{ pre_amount|intcomma:False }} ریال</a>
                     <a href="{% url 'client:payment-create' iid=invoice.pk pay=invoice.amount %}" class="btn btn-success">تسویه حساب {{ invoice.amount|intcomma:False }} ریال</a>

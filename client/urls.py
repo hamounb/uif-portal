@@ -14,6 +14,7 @@ urlpatterns = [
     path("request/document/add/<int:rid>/", RequestDocumentAddView.as_view(), name="request-document-add"),
     path("invoice/", InvoiceView.as_view(), name="invoice"),
     path("invoice/details/<int:iid>/", InvoiceDetailsView.as_view(), name="invoice-details"),
+    path("invoice/done/<int:iid>/", InvoiceDoneView.as_view(), name="invoice-done"),
     path("payment/create/<int:iid>/<str:pay>/", PaymentCreateView.as_view(), name="payment-create"),
     path("payment/<int:iid>/done/", PaymentDoneView.as_view(), name="payment-done"),
     ]
