@@ -95,7 +95,8 @@ class CustomerListView(PermissionRequiredMixin, views.View):
 
     def get(self, request):
         customer = CustomerModel.objects.filter(is_active=True).order_by('-created_date')
-        return render(request, 'office/customer-list.html', {'customer':customer})
+        mobile = MobileModel.objects.all()
+        return render(request, 'office/customer-list.html', {'customer':customer, "mobile":mobile})
     
 
 class DeactiveCustomerListView(PermissionRequiredMixin, views.View):
@@ -104,7 +105,12 @@ class DeactiveCustomerListView(PermissionRequiredMixin, views.View):
 
     def get(self, request):
         customer = CustomerModel.objects.filter(is_active=False).order_by('-created_date')
-        return render(request, 'office/deactive-customer-list.html', {'customer':customer})
+        mobiles = MobileModel.objects.all()
+        context = {
+            'customer':customer,
+            'mobiles':mobiles,
+            }
+        return render(request, 'office/deactive-customer-list.html', context)
     
 
 class CustomerAddView(PermissionRequiredMixin, views.View):
@@ -423,6 +429,7 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
         customer = get_object_or_404(CustomerModel, pk=id)
+        mobile = get_object_or_404(MobileModel, user=customer.user)
         invoice = InvoiceModel.objects.filter(Q(customer=customer) & Q(is_active=True)).order_by("-created_date")
         wallet = get_object_or_404(WalletModel, user=customer.user)
         form = CustomerToExhibitionForm(request.POST)
@@ -460,6 +467,7 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
             invoice_n.amount = int(amount)
             invoice_n.save()
             messages.success(request, f"مشارکت کننده {customer.brand} در {exh.title} با موفقیت ثبت‌نام شد.")
+            send_sms(id=234357, mobile=f"{mobile.mobile}", args=[invoice_n.exhibition.title])
             return redirect("office:customer-exhibition", id=customer.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, "office/customer-exhibition.html", context)
@@ -494,6 +502,7 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
         invo = get_object_or_404(InvoiceModel, pk=id)
+        mobile = get_object_or_404(MobileModel, user=invo.customer.user)
         if invo.state == InvoiceModel.STATE_PAID:
             messages.error(request, f"{invo.customer.brand} در {invo.exhibition.title} تسویه حساب شده است و قابلیت ویرایش ندارد.")
             return redirect("office:customer-exhibition", id=invo.customer.pk)
@@ -532,6 +541,7 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
                 messages.error(request, f"مشارکت کننده {invo.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, "office/customer-exhibition.html", context)
             messages.success(request, f"مشارکت کننده {invo.customer.brand} در {exh.title} با موفقیت ویرایش شد.")
+            send_sms(id=234357, mobile=f"{mobile.mobile}", args=[invo.exhibition.title])
             return redirect("office:customer-exhibition", id=invo.customer.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, "office/customer-exhibition.html", context)
@@ -1224,6 +1234,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
             customer = form.cleaned_data["customer"]
             customer_id = get_object_or_404(CustomerModel, pk=customer.id)
             wallet = get_object_or_404(WalletModel, user=customer_id.user)
+            mobile = get_object_or_404(MobileModel, user=wallet.user)
             booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
             area_c = persian_digits_to_english(form.cleaned_data.get("area"))
             discount = persian_digits_to_english(form.cleaned_data.get("discount"))
@@ -1247,6 +1258,7 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
                 messages.error(request, f"مشارکت کننده {invoice.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, 'office/exhibition-details.html', context)
             messages.success(request, f'مشارکت کننده {wallet} در نمایشگاه {exhibition.title} با موفقیت ثبت نام شد.')
+            send_sms(id=234357, mobile=f"{mobile.mobile}", args=[invoice.exhibition.title])
             return redirect("office:exhibition-details", eid=exhibition.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/exhibition-details.html', context)
@@ -1316,6 +1328,7 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
         if form.is_valid():
             customer = form.cleaned_data.get("customer")
             wallet = get_object_or_404(WalletModel, user=customer.user)
+            mobile = get_object_or_404(MobileModel, user=wallet.user)
             booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
             area_c = persian_digits_to_english(form.cleaned_data.get("area"))
             discount = persian_digits_to_english(form.cleaned_data.get("discount"))
@@ -1335,7 +1348,8 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
             except IntegrityError:
                 messages.error(request, f"مشارکت کننده {invoice.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, 'office/exhibition-details.html', context)
-            messages.success(request, f'مشارکت کننده {wallet} در {exhibition.title} با موفقیت ویرایش شد.')
+            messages.success(request, f'مشارکت کننده {invoice.customer.brand} در {exhibition.title} با موفقیت ویرایش شد.')
+            send_sms(id=234357, mobile=f"{mobile.mobile}", args=[invoice.exhibition.title])
             return redirect("office:exhibition-details", eid=exhibition.pk)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/exhibition-details.html', context)

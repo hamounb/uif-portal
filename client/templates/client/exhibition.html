@@ -87,11 +87,9 @@
                             <a class="" href="{{ doc.file.url }}">{{ doc.file }}<a>
                         </div>
                         {% endfor %}
-                        {% if req.state == "wait" %}
                         <div class="form-group col-12">
                             <a class="btn btn-xs btn-success" data-target="#modal-{{ req.pk }}" data-toggle="modal" href="#">مدرک جدید</a>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>

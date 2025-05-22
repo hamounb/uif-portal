@@ -1,0 +1,39 @@
+{% extends "base-c.html" %}
+
+{% block title %}
+نتیجه تراکنش | شرکت نمایشگاه بین‌المللی ارومیه
+{% endblock title %}
+
+{% block content %}
+        <section class="m-t-80 p-b-150">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="page-error-404 text-center">{{ code }}</div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="text-left">
+                            {% for message in messages %}
+                                {% if message.tags == 'error' %}
+                                    <div role="alert" class="alert alert-danger alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                                        <strong><i class="fa fa-exclamation-circle"></i> هشدار!</strong> 
+                                        {{ message}}
+                                    </div>
+                                {% endif %}
+                                {% if message.tags == 'success' %}
+                                    <div role="alert" class="alert alert-success alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                                        <strong><i class="fa fa-exclamation-circle"></i> تبریک!</strong> 
+                                        {{ message}}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <div class="seperator m-t-20 m-b-20"></div><a href="{% url 'client:index' }"
+                                class="btn" type="button">بازگشت به صفحه اصلی</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+{% endblock content %}

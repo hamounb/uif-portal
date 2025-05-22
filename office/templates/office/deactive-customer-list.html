@@ -57,7 +57,7 @@
                                                 <th>کد</th>
                                                 <th>نام تجاری</th>
                                                 <th>نام و نام‌خانوادگی</th>
-                                                <th>کدملی</th>
+                                                <th>موبایل</th>
                                                 <th>مدارک</th>
                                                 <th>تاریخ ایجاد</th>
                                                 <th>عملیات</th>
@@ -74,7 +74,11 @@
                                                     {{ customer.user.first_name }} {{ customer.user.last_name }}
                                                 </td>
                                                 <td class="text-dark">
-                                                    {{ customer.user.username }}
+                                                    {% for mobile in mobiles %}
+                                                    {% if mobile.user.pk == customer.user.pk %}
+                                                    {{ mobile.mobile }}
+                                                    {% endif %}
+                                                    {% endfor %}
                                                 </td>
                                                 <td class="text-dark">
                                                     {% for file in customer.documentsmodel_set.all %}

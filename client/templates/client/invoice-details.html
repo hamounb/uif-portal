@@ -154,9 +154,6 @@
 
                         <div class="col-6">
                             امضاء فروشنده:
-                            {% if invoice.state == "paid" %}
-                            <img src="{% static 'images/uif-f.png' %}" style="width:45%">
-                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -173,8 +170,10 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">اعتبار کیف پول: {{ valet.cash|intcomma:False }} ریال</h4>
-                    <a href="#" class="btn btn-primary">تسویه حساب</a>
-                    <a href="#" class="btn btn-success">افزایش اعتبار</a>
+                    {% if invoice.state == "unpaid" %}
+                    <a href="{% url 'client:payment-create' iid=invoice.pk pay='pre' %}" class="btn btn-primary">پیش پرداخت {{ pre_amount|intcomma:False }} ریال</a>
+                    <a href="{% url 'client:payment-create' iid=invoice.pk pay='full' %}" class="btn btn-success">تسویه حساب {{ invoice.amount|intcomma:False }} ریال</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

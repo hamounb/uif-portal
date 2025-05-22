@@ -165,3 +165,5 @@ MEDIA_URL = 'media/'
 USE_THOUSAND_SEPARATOR = True
 
 Terminal_id = "98721829"
+
+merchant_id = "68289d56a45c720014acfdb6"
