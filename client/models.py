@@ -157,7 +157,9 @@ class InvoiceModel(BaseModel):
     amount = models.CharField(verbose_name="مبلغ نهایی", max_length=20, default="0")
 
     def __str__(self):
-        return f"ش: {self.pk}-{self.customer.brand} ({self.exhibition.title})"
+        if self.customer:
+            return f"ش: {self.pk}-{self.customer.brand} ({self.exhibition.title})"
+        return f"ش: {self.pk}-({self.exhibition.title})"
     
     class Meta:
         constraints = [

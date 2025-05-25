@@ -73,8 +73,8 @@
                                             <tr>
                                                 <td>{{ forloop.counter }}</td>
                                                 <td class="text-info" data-toggle="tooltip" data-placement="top" title="{{ payment.get_state_display }}">{{ payment.pk }}</td>
-                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.customer.kind == 'legal' %} {{ payment.customer.company}} {% else %} {{ payment.customer.first_name }} {{ payment.customer.last_name }} {% endif %}">
-                                                    <b>{{ payment.customer.brand }} - {% if payment.customer.kind == 'legal' %} {{ payment.customer.company}} {% else %} {{ payment.customer.first_name }} {{ payment.customer.last_name }} {% endif %}</b>
+                                                <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if payment.invoice.customer.kind == 'legal' %} {{ payment.invoice.customer.company }} {% else %} {{ payment.invoice.customer.user.first_name }} {{ payment.invoice.customer.user.last_name }} {% endif %}">
+                                                    <b>{{ payment.invoice.customer.brand }} - {% if payment.invoice.customer.kind == 'legal' %} {{ payment.invoice.customer.company}} {% else %} {{ payment.invoice.customer.user.first_name }} {{ payment.invoice.customer.user.last_name }} {% endif %}</b>
                                                 </td>
                                                 <td>{{ payment.invoice.exhibition.title }}</td>
                                                 <td>

@@ -86,7 +86,7 @@
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-3">
+                                        <div class="form-group col-lg-2">
                                             {{ form.booth_number.label_tag }}
                                             {{ form.booth_number }}
                                             {% if form.booth_number.errors %}
@@ -100,11 +100,25 @@
                                                 {% endfor %}
                                             {% endif %}
                                         </div>
-                                        <div class="form-group col-lg-3">
+                                        <div class="form-group col-lg-2">
                                             {{ form.area.label_tag }}
                                             {{ form.area }}
                                             {% if form.area.errors %}
                                                 {% for error in form.area.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if form.label_tag.errors %}
+                                                {% for error in form.label_tag.errors %}
+                                                    <p class="text-danger">{{ error }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group col-lg-2">
+                                            {{ form.kind.label_tag }}
+                                            {{ form.kind }}
+                                            {% if form.kind.errors %}
+                                                {% for error in form.kind.errors %}
                                                     <p class="text-danger">{{ error }}</p>
                                                 {% endfor %}
                                             {% endif %}
@@ -152,7 +166,7 @@
                                                 <th>متراژ(مترمربع)</th>
                                                 <th>قیمت واحد(ریال)</th>
                                                 <th>ارزش افزوده(درصد)</th>
-                                                <th>تخفیف(درصد)</th>
+                                                <th>تخفیف</th>
                                                 <th>مبلغ نهایی (ریال)</th>
                                                 <th>تاریخ ثبت‌نام</th>
                                                 <th>عملیات</th>

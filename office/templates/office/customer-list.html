@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load jalali_tags %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}
@@ -58,6 +59,7 @@
                                                 <th>کد معین</th>
                                                 <th>نام تجاری</th>
                                                 <th>موبایل</th>
+                                                <th>کیف پول (ریال)</th>
                                                 <th>تاریخ ایجاد</th>
                                                 <th>عملیات</th>
                                             </tr>
@@ -79,6 +81,13 @@
                                                     {% for i in mobile %}
                                                     {% if i.user.pk == customer.user.pk %}
                                                     {{ i.mobile }}
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                                <td>
+                                                    {% for w in wallet %}
+                                                    {% if w.user.pk == customer.user.pk %}
+                                                    {{ w.cash|intcomma:False }}
                                                     {% endif %}
                                                     {% endfor %}
                                                 </td>

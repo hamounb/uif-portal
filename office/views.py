@@ -96,7 +96,13 @@ class CustomerListView(PermissionRequiredMixin, views.View):
     def get(self, request):
         customer = CustomerModel.objects.filter(is_active=True).order_by('-created_date')
         mobile = MobileModel.objects.all()
-        return render(request, 'office/customer-list.html', {'customer':customer, "mobile":mobile})
+        wallet = WalletModel.objects.all()
+        context = {
+            'customer':customer,
+            "mobile":mobile,
+            "wallet":wallet,
+            }
+        return render(request, 'office/customer-list.html', context)
     
 
 class DeactiveCustomerListView(PermissionRequiredMixin, views.View):
@@ -440,10 +446,12 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             exhibition = form.cleaned_data.get("exhibition")
+            kind = form.cleaned_data.get("kind")
             area = persian_digits_to_english(form.cleaned_data.get("area"))
             discount = persian_digits_to_english(form.cleaned_data.get("discount"))
             booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
             invoice_n = InvoiceModel(
+                customer=customer,
                 wallet=wallet,
                 exhibition=exhibition,
                 booth_number=booth_number,
@@ -460,8 +468,15 @@ class CustomerExhibitionView(PermissionRequiredMixin, views.View):
                 messages.error(request, f"مشارکت کننده {customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, "office/customer-exhibition.html", context)
             exh = get_object_or_404(ExhibitionModel, pk=invoice_n.exhibition.pk)
-            total = (int(area) * int(exh.price)) + float(int(exh.value_added) * (int(area) * int(exh.price))) / 100
-            amount = int(total) - float(int(total) * int(discount)) /100
+            if kind == CustomerToExhibitionForm.KIND_PERCENT:
+                if int(discount) > 100:
+                    messages.error(request, "مقدار تخفیف با نوع درصد نباید از 100 بیشتر باشد!")
+                    return render(request, "office/customer-exhibition.html", context)
+                total = (int(area) * int(exh.price)) + float(int(exh.value_added) * (int(area) * int(exh.price))) / 100
+                amount = int(total) - float(int(total) * int(discount)) /100
+            else:
+                total = (int(area) * int(exh.price)) + float(int(exh.value_added) * (int(area) * int(exh.price))) / 100
+                amount = int(total) - float(int(total) * int(discount)) /100
             invoice_n.price = exh.price
             invoice_n.value_added = exh.value_added
             invoice_n.amount = int(amount)
@@ -518,6 +533,7 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
             area = persian_digits_to_english(form.cleaned_data.get("area"))
             discount = persian_digits_to_english(form.cleaned_data.get("discount"))
             booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
+            kind = form.cleaned_data.get("kind")
             invo.exhibition = exhibition
             invo.booth_number = booth_number
             invo.area = area
@@ -528,8 +544,12 @@ class CustomerExhibitionEditView(PermissionRequiredMixin, views.View):
                 messages.error(request, f"مشارکت کننده {invo.customer.brand} قبلاً ثبت نام شده است!")
                 return render(request, "office/customer-exhibition.html", context)
             exh = get_object_or_404(ExhibitionModel, pk=invo.exhibition.pk)
-            total = (int(area) * int(exh.price))
-            total_v = int(total) - float(int(total) * int(discount)) /100 
+            if kind == CustomerToExhibitionForm.KIND_PERCENT:
+                total = (int(area) * int(exh.price))
+                total_v = int(total) - float(int(total) * int(discount)) /100
+            else:
+                total = (int(area) * int(exh.price))
+                total_v = int(total) - int(discount)
             amount = int(total_v) + float(int(exh.value_added) * int(total_v)) / 100
             invo.price = exh.price
             invo.value_added = exh.value_added
@@ -1232,14 +1252,19 @@ class ExhibitionDetailsView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             customer = form.cleaned_data["customer"]
+            kind = form.cleaned_data["kind"]
             customer_id = get_object_or_404(CustomerModel, pk=customer.id)
             wallet = get_object_or_404(WalletModel, user=customer_id.user)
             mobile = get_object_or_404(MobileModel, user=wallet.user)
             booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
             area_c = persian_digits_to_english(form.cleaned_data.get("area"))
             discount = persian_digits_to_english(form.cleaned_data.get("discount"))
-            pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
-            total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
+            if kind == AddToExhibitionForm.KIND_PERCENT:
+                pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
+                total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
+            else:
+                pre_price = int(area_c) * int(exhibition.price) - int(discount)
+                total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice = InvoiceModel(
                 wallet=wallet,
                 customer=customer,
@@ -1327,13 +1352,18 @@ class ExhibitionDetailsEditView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             customer = form.cleaned_data.get("customer")
+            kind = form.cleaned_data.get("kind")
             wallet = get_object_or_404(WalletModel, user=customer.user)
             mobile = get_object_or_404(MobileModel, user=wallet.user)
             booth_number = persian_digits_to_english(form.cleaned_data.get("booth_number"))
             area_c = persian_digits_to_english(form.cleaned_data.get("area"))
             discount = persian_digits_to_english(form.cleaned_data.get("discount"))
-            pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
-            total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
+            if kind == AddToExhibitionForm.KIND_PERCENT:
+                pre_price = int(area_c) * int(exhibition.price) - float(int(area_c) * int(exhibition.price) * int(discount)) / 100
+                total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
+            else:
+                pre_price = int(area_c) * int(exhibition.price) - int(discount)
+                total = (int(pre_price)) + float(int(exhibition.value_added) * (int(pre_price))) / 100
             invoice.wallet = wallet
             invoice.customer = customer
             invoice.booth_number = booth_number

@@ -75,7 +75,7 @@
                                     <div class="col-sm-12">
                                         <div class="row mb-1" style="border:2px solid black; line-height:4em">
                                             <div class="col-sm-6">
-                                                <b>طرف حساب: </b>{{ invoice.customer.firstname }} {{ invoice.customer.lastname }} ({{ invoice.customer.company }})
+                                                <b>طرف حساب: </b>{{ invoice.customer.user.firstname }} {{ invoice.customer.user.lastname }} ({{ invoice.customer.brand }})
                                             </div>
                                             <div class="col-sm-6 text-right">
                                                 <b>کدملی/شناسه‌ملی: </b>
@@ -130,7 +130,7 @@
                                                             <td class="text-center" style="border-bottom:2px solid black;border-left:2px solid black;line-height: 2.5em;">جمع کل:</td>
                                                             <td style="border-bottom:2px solid black; border-left:2px solid black;line-height: 2.5em;">{{ invoice.amount }} ریال</td>
                                                         </tr>
-                                                    </tfood>
+                                                    </tfoot>
                                                 </table>
                                             </div>
                                         </div>
