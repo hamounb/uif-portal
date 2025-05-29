@@ -911,7 +911,7 @@ class PaymentEditView(PermissionRequiredMixin, views.View):
         }
         if form.is_valid():
             state = form.cleaned_data.get("state")
-            amount = persian_digits_to_english(form.cleaned_data.get("amount"))
+            amount = persian_digits_to_english(str(form.cleaned_data.get("amount")))
             check = form.cleaned_data.get("check")
             issuerbank = form.cleaned_data.get("issuerbank")
             name = form.cleaned_data.get("name")

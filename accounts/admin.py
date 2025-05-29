@@ -22,3 +22,4 @@ class MobileAdmin(admin.ModelAdmin):
     readonly_fields = ("created_date", )
     search_fields = ("user__username", "mobile")
     list_display = ("user", "mobile")
+    autocomplete_fields = ("user",)

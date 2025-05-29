@@ -145,8 +145,8 @@ class BankAdmin(admin.ModelAdmin):
 @admin.register(PaymentModel)
 class PaymentAdmin(admin.ModelAdmin):
     readonly_fields = ("user_created", "user_modified", "created_date", "modified_date")
-    search_fields = ("rrn", "invoice__pk", "tracenumber", "digitalreceipt", "datepaid", "wallet__user__username")
-    list_display = ("pk", "state", "amount", "tracenumber", "rrn", "respcode", "datepaid")
+    search_fields = ("invoice__customer__brand", "invoice__pk", "tracenumber", "digitalreceipt", "datepaid", "wallet__user__username")
+    list_display = ("invoice", "state", "amount", "tracenumber", "respcode", "datepaid")
     autocomplete_fields = ("wallet", "invoice")
     
     def save_model(self, request, obj, form, change):

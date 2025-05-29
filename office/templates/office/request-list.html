@@ -46,7 +46,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-body" data-bg-image="{% static 'images/req.png' %}">
+                    <div class="card-body">
                         <h2>لیست درخواست‌ها</h2>
                         <p>جدول زیر درخواست‌های مشارکت کنندگان را در وضعیت‌های (در انتظار بررسی، تایید شده و منقضی شده) نشان می‌دهد.</p>
                         <p class="text-danger">توجه داشته باشید که فقط درخواست‌های در انتظار بررسی، قابلیت تغییر وضعیت را دارند!</p>
@@ -107,13 +107,14 @@
                                                     <thead class="thead-light">
                                                         <tr>
                                                             <th>وضعیت</th>
-                                                            <th>نام و نشان</th>
                                                             <th>نام تجاری</th>
                                                             <th>نمایشگاه</th>
                                                             <th>مدارک</th>
+                                                            <th>توضیحات</th>
+                                                            <th>پیام</th>
                                                             <th>تاریخ</th>
                                                             <th>قبول قوانین</th>
-                                                            <th>اقدامات</th>
+                                                            <th>عملیات</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -129,13 +130,18 @@
                                                                 <span class="badge badge-pill badge-danger">رد شده</span>
                                                                 {% endif %}
                                                             </td>
-                                                            <td>{{ req.customer.user.first_name }} {{ req.customer.user.last_name }}</td>
-                                                            <td style="color:blueviolet">{{ req.customer.brand }}</td>
+                                                            <td style="color:blueviolet">{{ req.customer.brand }} ( {{ req.customer.user.first_name }} {{ req.customer.user.last_name }} )</td>
                                                             <td class="text-primary">{{ req.exhibition.title }}</td>
                                                             <td>
                                                                 {% for doc in req.requestdocumentsmodel_set.all %}
                                                                 <a href="{{ doc.file.url }}">{{ doc.file }}</a><br>
                                                                 {% endfor %}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.description }}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.message }}
                                                             </td>
                                                             <td>{{ req.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>{% if req.rules %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
@@ -155,10 +161,11 @@
                                                     <thead class="thead-light">
                                                         <tr>
                                                             <th>وضعیت</th>
-                                                            <th>نام و نشان</th>
                                                             <th>نام تجاری</th>
                                                             <th>نمایشگاه</th>
                                                             <th>مدارک</th>
+                                                            <th>توضیحات</th>
+                                                            <th>پیام</th>
                                                             <th>تاریخ</th>
                                                             <th>قبول قوانین</th>
                                                         </tr>
@@ -176,13 +183,18 @@
                                                                 <span class="badge badge-pill badge-danger">رد شده</span>
                                                                 {% endif %}
                                                             </td>
-                                                            <td>{{ req.customeruser.first_name }} {{ req.customer.user.last_name }}</td>
-                                                            <td style="color:blueviolet">{{ req.customer.brand }}</td>
+                                                            <td style="color:blueviolet">{{ req.customer.brand }} ( {{ req.customer.user.first_name }} {{ req.customer.user.last_name }} )</td>
                                                             <td class="text-primary">{{ req.exhibition.title }}</td>
                                                             <td>
                                                                 {% for doc in req.requestdocumentsmodel_set.all %}
                                                                 <a href="{{ doc.file.url }}">{{ doc.file }}</a><br>
                                                                 {% endfor %}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.description }}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.message }}
                                                             </td>
                                                             <td>{{ req.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>{% if req.rules %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
@@ -200,10 +212,11 @@
                                                     <thead class="thead-light">
                                                         <tr>
                                                             <th>وضعیت</th>
-                                                            <th>نام و نشان</th>
                                                             <th>نام تجاری</th>
                                                             <th>نمایشگاه</th>
                                                             <th>مدارک</th>
+                                                            <th>توضیحات</th>
+                                                            <th>پیام</th>
                                                             <th>تاریخ</th>
                                                             <th>قبول قوانین</th>
                                                         </tr>
@@ -221,13 +234,18 @@
                                                                 <span class="badge badge-pill badge-danger">رد شده</span>
                                                                 {% endif %}
                                                             </td>
-                                                            <td>{{ req.customer.user.firstname }} {{ req.customer.user.lastname }}</td>
-                                                            <td style="color:blueviolet">{{ req.customer.brand }}</td>
+                                                            <td style="color:blueviolet">{{ req.customer.brand }} ( {{ req.customer.user.first_name }} {{ req.customer.user.last_name }} )</td>
                                                             <td class="text-primary">{{ req.exhibition.title }}</td>
                                                             <td>
                                                                 {% for doc in req.requestdocumentsmodel_set.all %}
                                                                 <a href="{{ doc.file.url }}">{{ doc.file }}</a><br>
                                                                 {% endfor %}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.description }}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.message }}
                                                             </td>
                                                             <td>{{ req.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>{% if req.rules %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
@@ -245,10 +263,11 @@
                                                     <thead class="thead-light">
                                                         <tr>
                                                             <th>وضعیت</th>
-                                                            <th>نام و نشان</th>
                                                             <th>نام تجاری</th>
                                                             <th>نمایشگاه</th>
                                                             <th>مدارک</th>
+                                                            <th>توضیحات</th>
+                                                            <th>پیام</th>
                                                             <th>تاریخ</th>
                                                             <th>قبول قوانین</th>
                                                         </tr>
@@ -265,13 +284,18 @@
                                                                 <span class="badge badge-pill badge-danger">رد شده</span>
                                                                 {% endif %}
                                                             </td>
-                                                            <td>{{ req.customer.user.first_name }} {{ req.customer.user.last_name }}</td>
-                                                            <td style="color:blueviolet">{{ req.customer.brand }}</td>
+                                                            <td style="color:blueviolet">{{ req.customer.brand }} ( {{ req.customer.user.first_name }} {{ req.customer.user.last_name }} )</td>
                                                             <td class="text-primary">{{ req.exhibition.title }}</td>
                                                             <td>
                                                                 {% for doc in req.requestdocumentsmodel_set.all %}
                                                                 <a href="{{ doc.file.url }}">{{ doc.file }}</a><br>
                                                                 {% endfor %}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.description }}
+                                                            </td>
+                                                            <td>
+                                                                {{ req.message }}
                                                             </td>
                                                             <td>{{ req.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                             <td>{% if req.rules %} <i class="fa fa-check-square"></i>{% else %} {% endif %}</td>
