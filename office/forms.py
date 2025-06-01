@@ -39,6 +39,13 @@ def is_discount(value):
         if int(value) < 0:
             raise ValidationError('کمترین مقدار می‌تواند عدد صفر باشد!')
         
+def validate_file_size(value):
+    filesize = value.size
+    if filesize > 4194304:  # 10MB limit
+        raise ValidationError("حجم فایل مورد نظر بیشتر از 4 مگابایت می‌باشد")
+    return value
+
+        
 
 class UserAddForm(forms.Form):
     is_active = forms.BooleanField(label="فعال",required=False, widget=forms.CheckboxInput(attrs={'class':'form-control', 'style': 'float:right'}))
@@ -111,7 +118,7 @@ class CustomerChangeForm(forms.ModelForm):
 
 
 class DocumentForm(forms.Form):
-    file = forms.FileField(label='مدرک')
+    file = forms.FileField(label='مدرک', validators=[validate_file_size])
 
 
 class MessageForm(forms.Form):

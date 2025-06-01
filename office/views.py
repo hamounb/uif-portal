@@ -327,23 +327,27 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
     def get(self, request, cid):
         query = Q(pk=cid) & Q(is_active=True)
         customer = get_object_or_404(CustomerModel, query)
+        mobile = get_object_or_404(MobileModel, user=customer.user)
         form = CustomerChangeForm(instance=customer)
         form2 = DocumentForm()
         context = {
             'form':form,
             'form2':form2,
             'customer':customer,
+            'mobile':mobile,
         }
         return render(request, 'office/customer-change.html', context)
     
     def post(self, request, cid):
         query = Q(pk=cid) & Q(is_active=True)
         customer = get_object_or_404(CustomerModel, query)
+        mobile = get_object_or_404(MobileModel, user=customer.user)
         user = get_object_or_404(User, pk=request.user.id)
         form = CustomerChangeForm(request.POST, instance=customer)
         context = {
             'form':form,
             'customer':customer,
+            'mobile':mobile,
         }
         if form.is_valid():
             obj = form.save(commit=False)
@@ -371,20 +375,6 @@ class CustomerChangeView(PermissionRequiredMixin, views.View):
                 return render(request, 'office/customer-change.html', context)
         messages.error(request, "خطای سیستمی رخ داده است!")
         return render(request, 'office/customer-change.html', context)
-    
-
-class CustomerDocumentsView(PermissionRequiredMixin, views.View):
-    login_url = "accounts:signin"
-    permission_required = ['client.view_customermodel']
-
-    def get(self, request, cid):
-        docs = DocumentsModel.objects.filter(customer__pk=cid)
-        req_docs = RequestDocumentsModel.objects.filter(request__customer__pk=cid)
-        context = {
-            "docs":docs,
-            "req_docs":req_docs,
-        }
-        return render(request, "office/customer-documents.html", context)
 
 
 class ProfileAcceptView(PermissionRequiredMixin, views.View):
@@ -574,22 +564,21 @@ class DocumentsAddView(PermissionRequiredMixin, views.View):
     def post(self, request, id):
         user = get_object_or_404(User, pk=request.user.id)
         customer = get_object_or_404(CustomerModel, pk=id)
-        form2 = DocumentForm(request.POST, request.FILES)
-        if form2.is_valid():
-            file = form2.cleaned_data['file']
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data['file']
             obj = DocumentsModel(
                 is_active = True,
                 state = DocumentsModel.STATE_ACCEPT,
                 file = file,
-                user = customer.user,
                 user_created = user,
-                user_modified = user,
                 customer = customer,
+                description = "",
             )
             obj.save()
             messages.success(request, f"مدرک شما با موفقیت بارگذاری شد!")
-            return redirect('office:customer-change', cid=customer.pk)
-        return redirect('office:customer-change', cid=customer.pk)
+            return redirect('office:customer-documents', cid=customer.pk)
+        return redirect('office:customer-documents', cid=customer.pk)
     
 
 class DocumentsDelView(PermissionRequiredMixin, views.View):
@@ -634,13 +623,49 @@ class DocumentsDenyView(PermissionRequiredMixin, views.View):
 
 
 
-class DocumentsListView(PermissionRequiredMixin, views.View):
-    login_url = 'accounts:signin'
+class DocumentListView(PermissionRequiredMixin, views.View):
+    login_url = "accounts:signin"
     permission_required = ['client.view_documentsmodel']
 
-    def get(self, request):
-        doc = DocumentsModel.objects.filter(Q(state=DocumentsModel.STATE_WAIT) | Q(state=DocumentsModel.STATE_DENY)).order_by('-created_date')
-        return render(request, 'office/documents-list.html', {'doc':doc})
+    def get(self, request, cid):
+        customer = get_object_or_404(CustomerModel, pk=cid)
+        docs = DocumentsModel.objects.filter(customer__pk=cid).order_by("-created_date")
+        req_docs = RequestDocumentsModel.objects.filter(request__customer__pk=cid)
+        form = DocumentForm()
+        context = {
+            "docs":docs,
+            "req_docs":req_docs,
+            "form":form,
+            "customer":customer,
+        }
+        return render(request, "office/document-list.html", context)
+    
+    def post(self, request, cid):
+        user = get_object_or_404(User, pk=request.user.id)
+        customer = get_object_or_404(CustomerModel, pk=cid)
+        docs = DocumentsModel.objects.filter(customer__pk=cid).order_by("-created_date")
+        req_docs = RequestDocumentsModel.objects.filter(request__customer__pk=cid)
+        form = DocumentForm(request.POST, request.FILES)
+        context = {
+            "docs":docs,
+            "req_docs":req_docs,
+            "form":form,
+            "customer":customer,
+        }
+        if form.is_valid():
+            file = form.cleaned_data['file']
+            obj = DocumentsModel(
+                is_active = True,
+                state = DocumentsModel.STATE_ACCEPT,
+                file = file,
+                user_created = user,
+                customer = customer,
+                description = "",
+            )
+            obj.save()
+            messages.success(request, f"مدرک شما با موفقیت بارگذاری شد!")
+            return render(request, "office/document-list.html", context)
+        return render(request, "office/document-list.html", context)
     
 
 class InvoiceListView(PermissionRequiredMixin, views.View):

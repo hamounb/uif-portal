@@ -75,7 +75,7 @@
                                                     {% endif %}
                                                 </td>
                                                 <td style="color:blueviolet" data-toggle="tooltip" data-placement="top" title="{% if customer.kind == 'legal' %}حقوقی{% else %}حقیقی{% endif %}">
-                                                    <b>{{ customer.brand }} ({% if customer.kind == "legal" %}{{ customer.company }}{% else %}{{ customer.user.first_name }} {{ customer.user.last_name }}{% endif %})</b>
+                                                    <b>{{ customer.brand }} ( {% if customer.kind == "legal" %}{{ customer.company }}{% else %}{{ customer.user.first_name }} {{ customer.user.last_name }}{% endif %} )</b>
                                                 </td>
                                                 <td class="text-dark">
                                                     {% for i in mobile %}
@@ -94,7 +94,7 @@
                                                 <td style="color:#003f5c">{{ customer.created_date|to_jalali:'%Y/%m/%d' }}</td>
                                                 <td>
                                                     <a class="btn btn-sm" href="{% url 'office:customer-change' cid=customer.pk %}">مشاهده و ویرایش</a>
-                                                    <a class="btn btn-sm" href="{% url 'office:customer-documents' cid=customer.pk %}">مدارک</a>
+                                                    <a class="btn btn-sm" href="{% url 'office:document-list' cid=customer.pk %}">مدارک</a>
                                                     <a class="btn btn-success btn-sm" href="{% url 'office:customer-exhibition' id=customer.pk %}"> نمایشگاه ها</a>
                                                 </td>
                                             </tr>
